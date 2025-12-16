@@ -1,0 +1,104 @@
+global:
+  resolve_timeout: 5m
+  # SMTP configuration for email alerts (optional)
+  # smtp_smarthost: 'smtp.gmail.com:587'
+  # smtp_from: 'alerts@essp.example.com'
+  # smtp_auth_username: 'alerts@essp.example.com'
+  # smtp_auth_password: 'your-password'
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# The root route with all parameters
+route:
+  receiver: 'default-receiver'
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 4h
+
+    # Warning alerts - less frequent notifications
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+
+    # Business alerts
+    - match:
+        component: business
+      receiver: 'business-receiver'
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 24h
+
+# Inhibition rules to prevent alert storms
+inhibit_rules:
+  # Inhibit warning if critical is firing for same alert
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+
+  # If service is down, don't alert on high latency
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match:
+      alertname: 'HighLatency'
+    equal: ['service']
+
+  # If service is down, don't alert on high error rate
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match:
+      alertname: 'HighErrorRate'
+    equal: ['service']
+
+receivers:
+  - name: 'default-receiver'
+    # Add your notification channels here
+    # webhook_configs:
+    #   - url: 'http://localhost:5001/webhook'
+
+  - name: 'critical-receiver'
+    # Slack example
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#essp-critical-alerts'
+    #     title: 'Critical Alert: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+    # Email example
+    # email_configs:
+    #   - to: 'oncall@essp.example.com'
+    #     headers:
+    #       Subject: 'Critical Alert: {{ .GroupLabels.alertname }}'
+
+    # PagerDuty example
+    # pagerduty_configs:
+    #   - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+
+  - name: 'warning-receiver'
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#essp-alerts'
+    #     title: 'Warning: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'business-receiver'
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#essp-business-metrics'
+    #     title: 'Business Alert: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'

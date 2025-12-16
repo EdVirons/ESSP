@@ -1,0 +1,16 @@
+{{- if and .Values.imsApi.enabled .Values.imsApi.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "essp.fullname" . }}-ims-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ims-api
+spec:
+  minAvailable: {{ .Values.imsApi.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "essp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ims-api
+{{- end }}

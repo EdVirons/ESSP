@@ -1,0 +1,40 @@
+name: CD
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install essp ./charts/essp \
+            -f ./charts/essp/values-staging.yaml \
+            --set global.imageTag=${{ github.sha }}
+
+  deploy-production:
+    needs: deploy-staging
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to production
+        run: |
+          helm upgrade --install essp ./charts/essp \
+            -f ./charts/essp/values-prod.yaml \
+            --set global.imageTag=${{ github.sha }}

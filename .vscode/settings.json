@@ -1,0 +1,89 @@
+{
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "go.lintOnSave": "workspace",
+  "go.formatTool": "goimports",
+  "go.testFlags": ["-v", "-race"],
+  "go.coverOnSave": false,
+  "go.coverOnTestPackage": true,
+  "go.testTimeout": "5m",
+  "go.buildOnSave": "off",
+  "go.vetOnSave": "off",
+
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+
+  "[go]": {
+    "editor.defaultFormatter": "golang.go",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": false
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/tmp": true,
+    "**/bin": true,
+    "**/*.exe": true
+  },
+
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/node_modules/**": true,
+    "**/tmp/**": true,
+    "**/bin/**": true,
+    "**/vendor/**": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/tmp": true,
+    "**/bin": true,
+    "**/*.code-search": true
+  },
+
+  "gopls": {
+    "ui.semanticTokens": true,
+    "ui.completion.usePlaceholders": true,
+    "ui.diagnostic.staticcheck": true,
+    "build.directoryFilters": [
+      "-node_modules",
+      "-vendor",
+      "-tmp",
+      "-bin"
+    ],
+    "formatting.gofumpt": false
+  },
+
+  "go.toolsManagement.autoUpdate": true,
+
+  "terminal.integrated.env.linux": {
+    "GO111MODULE": "on"
+  },
+
+  "terminal.integrated.env.osx": {
+    "GO111MODULE": "on"
+  },
+
+  "terminal.integrated.env.windows": {
+    "GO111MODULE": "on"
+  }
+}

@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ssot-devices-pdb
+  namespace: essp
+  labels:
+    app: ssot-devices
+    app.kubernetes.io/name: ssot-devices
+    app.kubernetes.io/component: ssot
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ssot-devices

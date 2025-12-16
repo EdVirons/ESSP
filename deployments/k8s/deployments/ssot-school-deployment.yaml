@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssot-school
+  namespace: essp
+  labels:
+    app: ssot-school
+    app.kubernetes.io/name: ssot-school
+    app.kubernetes.io/component: ssot
+    app.kubernetes.io/part-of: essp-platform
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ssot-school
+  template:
+    metadata:
+      labels:
+        app: ssot-school
+        app.kubernetes.io/name: ssot-school
+        app.kubernetes.io/component: ssot
+        app.kubernetes.io/part-of: essp-platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ssot-school
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: ssot-school
+        image: essp/ssot-school:latest
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: http
+          containerPort: 8081
+          protocol: TCP
+
+        env:
+        # HTTP configuration
+        - name: HTTP_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: ssot-school-config
+              key: HTTP_ADDR
+
+        # Database configuration from Secret
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: DB_URL_SCHOOL
+
+        # NATS configuration
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ssot-config
+              key: NATS_URL
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL

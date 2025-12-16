@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssot-parts
+  namespace: essp
+  labels:
+    app: ssot-parts
+    app.kubernetes.io/name: ssot-parts
+    app.kubernetes.io/component: ssot
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8083
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: ssot-parts
+  sessionAffinity: None

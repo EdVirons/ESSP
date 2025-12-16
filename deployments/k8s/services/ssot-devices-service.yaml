@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssot-devices
+  namespace: essp
+  labels:
+    app: ssot-devices
+    app.kubernetes.io/name: ssot-devices
+    app.kubernetes.io/component: ssot
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: ssot-devices
+  sessionAffinity: None

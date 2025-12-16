@@ -1,0 +1,104 @@
+Thank you for installing {{ .Chart.Name }} version {{ .Chart.Version }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }} -n {{ .Values.global.namespace }}
+  $ helm get all {{ .Release.Name }} -n {{ .Values.global.namespace }}
+
+==========================================================================
+
+ESSP Services Deployed:
+{{- if .Values.imsApi.enabled }}
+  - IMS API ({{ .Values.imsApi.replicaCount }} replicas)
+{{- end }}
+{{- if .Values.ssotSchool.enabled }}
+  - SSOT School ({{ .Values.ssotSchool.replicaCount }} replicas)
+{{- end }}
+{{- if .Values.ssotDevices.enabled }}
+  - SSOT Devices ({{ .Values.ssotDevices.replicaCount }} replicas)
+{{- end }}
+{{- if .Values.ssotParts.enabled }}
+  - SSOT Parts ({{ .Values.ssotParts.replicaCount }} replicas)
+{{- end }}
+{{- if .Values.syncWorker.enabled }}
+  - Sync Worker ({{ .Values.syncWorker.replicaCount }} replicas)
+{{- end }}
+
+==========================================================================
+
+{{- if .Values.ingress.enabled }}
+
+The ESSP API is accessible via Ingress at:
+{{- range .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ .path }}
+  {{- end }}
+{{- end }}
+
+{{- if not .Values.ingress.tls }}
+WARNING: Ingress is configured without TLS. Consider enabling TLS for production.
+{{- end }}
+
+{{- else }}
+
+To access the IMS API service from outside the cluster:
+
+1. Port forwarding:
+   $ kubectl port-forward -n {{ .Values.global.namespace }} svc/{{ include "essp.fullname" . }}-ims-api {{ .Values.imsApi.service.port }}:{{ .Values.imsApi.service.port }}
+
+   Then access the API at: http://localhost:{{ .Values.imsApi.service.port }}
+
+2. Or get the service IP:
+   $ kubectl get svc -n {{ .Values.global.namespace }} {{ include "essp.fullname" . }}-ims-api
+
+{{- end }}
+
+==========================================================================
+
+To check the status of your deployment:
+
+  $ kubectl get pods -n {{ .Values.global.namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+  $ kubectl get svc -n {{ .Values.global.namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+To view logs:
+
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app.kubernetes.io/component=ims-api
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} --all-containers
+
+==========================================================================
+
+{{- if .Values.imsApi.autoscaling.enabled }}
+
+Horizontal Pod Autoscaler is ENABLED for IMS API:
+  Min Replicas: {{ .Values.imsApi.autoscaling.minReplicas }}
+  Max Replicas: {{ .Values.imsApi.autoscaling.maxReplicas }}
+  Target CPU: {{ .Values.imsApi.autoscaling.targetCPUUtilization }}%
+  Target Memory: {{ .Values.imsApi.autoscaling.targetMemoryUtilization }}%
+
+Check HPA status:
+  $ kubectl get hpa -n {{ .Values.global.namespace }}
+
+{{- end }}
+
+{{- if and .Values.secrets.database.username (not .Values.secrets.database.password) }}
+
+WARNING: Database password is not set! Using default password.
+Please set secrets.database.password in your values file or via --set flag.
+
+{{- end }}
+
+{{- if and .Values.secrets.minio.accessKey (not .Values.secrets.minio.secretKey) }}
+
+WARNING: MinIO secret key is not set! Using default credentials.
+Please set secrets.minio.secretKey in your values file or via --set flag.
+
+{{- end }}
+
+==========================================================================
+
+For more information and documentation, visit:
+  https://github.com/edvirons/essp
+
+Need help? Contact: dev@edvirons.com

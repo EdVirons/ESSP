@@ -1,0 +1,130 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-services
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: essp
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-ims-api
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/name: ims-api
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ims-api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-ssot-devices
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/name: ssot-devices
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ssot-devices
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-ssot-parts
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/name: ssot-parts
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ssot-parts
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-ssot-school
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/name: ssot-school
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ssot-school
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: essp-sync-worker
+  namespace: essp
+  labels:
+    release: prometheus
+    app.kubernetes.io/name: sync-worker
+    app.kubernetes.io/part-of: essp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sync-worker
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - essp

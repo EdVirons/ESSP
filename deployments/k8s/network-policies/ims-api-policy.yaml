@@ -1,0 +1,108 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ims-api-policy
+  namespace: essp
+  labels:
+    app: ims-api
+    app.kubernetes.io/name: ims-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  podSelector:
+    matchLabels:
+      app: ims-api
+  policyTypes:
+  - Ingress
+  - Egress
+
+  ingress:
+  # Allow ingress from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  egress:
+  # Allow egress to PostgreSQL (external or in-cluster)
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow egress to external PostgreSQL (if managed service)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow egress to Redis/Valkey
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+
+  # Allow egress to NATS
+  - to:
+    - podSelector:
+        matchLabels:
+          app: nats
+    ports:
+    - protocol: TCP
+      port: 4222
+
+  # Allow egress to MinIO
+  - to:
+    - podSelector:
+        matchLabels:
+          app: minio
+    ports:
+    - protocol: TCP
+      port: 9000
+
+  # Allow egress to SSOT services
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-school
+    ports:
+    - protocol: TCP
+      port: 8081
+
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-devices
+    ports:
+    - protocol: TCP
+      port: 8082
+
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-parts
+    ports:
+    - protocol: TCP
+      port: 8083
+
+  # Allow egress to external authentication service (JWKS endpoint)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+
+  # Allow egress for health checks and metrics
+  - ports:
+    - protocol: TCP
+      port: 8080

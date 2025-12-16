@@ -1,0 +1,206 @@
+# Docker Compose configuration for ESSP local development
+# This file provides all infrastructure services needed for local development.
+# Services (ims-api, ssot-*, sync-worker) should be run directly with `go run` for faster iteration.
+
+services:
+  # PostgreSQL 16 - Main database for all services
+  postgres:
+    image: postgres:16-alpine
+    container_name: essp-postgres-dev
+    environment:
+      POSTGRES_USER: ssp
+      POSTGRES_PASSWORD: ssp
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Optional: Mount init scripts
+      # - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/01-init.sql
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ssp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - essp-dev
+
+  # Valkey 7 (Redis-compatible) - Caching and rate limiting
+  valkey:
+    image: valkey/valkey:7-alpine
+    container_name: essp-valkey-dev
+    ports:
+      - "6381:6379"
+    volumes:
+      - valkey-data:/data
+    command:
+      - "valkey-server"
+      - "--appendonly"
+      - "yes"
+      - "--appendfsync"
+      - "everysec"
+      - "--maxmemory"
+      - "256mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - essp-dev
+
+  # MinIO - S3-compatible object storage for attachments
+  minio:
+    image: minio/minio:latest
+    container_name: essp-minio-dev
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio12345
+      MINIO_REGION: us-east-1
+    ports:
+      - "9002:9000"  # API port (9002 to avoid conflict)
+      - "9003:9001"  # Console port (9003 to avoid conflict)
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - essp-dev
+
+  # MinIO client - automatically create buckets
+  minio-init:
+    image: minio/mc:latest
+    container_name: essp-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set minio http://minio:9000 minio minio12345;
+      /usr/bin/mc mb minio/edvirons-ims --ignore-existing;
+      /usr/bin/mc mb minio/edvirons-ssot --ignore-existing;
+      /usr/bin/mc anonymous set download minio/edvirons-ims;
+      /usr/bin/mc anonymous set download minio/edvirons-ssot;
+      echo 'MinIO buckets created successfully';
+      exit 0;
+      "
+    networks:
+      - essp-dev
+
+  # NATS - Event messaging and pub/sub
+  nats:
+    image: nats:2.10-alpine
+    container_name: essp-nats-dev
+    ports:
+      - "4222:4222"  # Client connections
+      - "8222:8222"  # HTTP monitoring
+      - "6222:6222"  # Cluster connections
+    command:
+      - "-js"                    # Enable JetStream
+      - "-m"
+      - "8222"                   # Monitoring port
+      - "-sd"
+      - "/data"                  # JetStream storage
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - essp-dev
+
+  # Adminer - Database management UI (optional, comment out if not needed)
+  adminer:
+    image: adminer:latest
+    container_name: essp-adminer-dev
+    ports:
+      - "8090:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha
+    depends_on:
+      - postgres
+    networks:
+      - essp-dev
+    profiles:
+      - tools
+
+  # Redis Commander - Redis UI (optional, comment out if not needed)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: essp-redis-commander-dev
+    ports:
+      - "8091:8081"
+    environment:
+      REDIS_HOSTS: local:valkey:6379
+    depends_on:
+      - valkey
+    networks:
+      - essp-dev
+    profiles:
+      - tools
+
+volumes:
+  postgres-data:
+    driver: local
+  valkey-data:
+    driver: local
+  minio-data:
+    driver: local
+  nats-data:
+    driver: local
+
+networks:
+  essp-dev:
+    driver: bridge
+    name: essp-dev-network
+
+# Usage:
+#
+# Start all infrastructure services:
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# Start with optional tools (Adminer, Redis Commander):
+#   docker compose -f docker-compose.dev.yml --profile tools up -d
+#
+# View logs:
+#   docker compose -f docker-compose.dev.yml logs -f
+#
+# Stop all services:
+#   docker compose -f docker-compose.dev.yml down
+#
+# Stop and remove all data:
+#   docker compose -f docker-compose.dev.yml down -v
+#
+# After starting infrastructure, create databases:
+#   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_ims;"
+#   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_school;"
+#   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_devices;"
+#   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_parts;"
+#
+# Then run migrations and start services with go run:
+#   cd services/ims-api && make migrate-up && go run ./cmd/api
+#   cd services/ssot-school && make migrate-up && go run ./cmd/ssot_school
+#   cd services/ssot-devices && make migrate-up && go run ./cmd/ssot_devices
+#   cd services/ssot-parts && make migrate-up && go run ./cmd/ssot_parts
+#   cd services/sync-worker && go run ./cmd/worker

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: essp
+  labels:
+    name: essp
+    app.kubernetes.io/name: essp
+    app.kubernetes.io/part-of: essp-platform

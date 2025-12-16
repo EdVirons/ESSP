@@ -1,0 +1,30 @@
+{{- if and .Values.imsApi.enabled .Values.imsApi.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "essp.fullname" . }}-ims-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ims-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "essp.fullname" . }}-ims-api
+  minReplicas: {{ .Values.imsApi.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.imsApi.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.imsApi.autoscaling.targetCPUUtilization }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.imsApi.autoscaling.targetMemoryUtilization }}
+{{- end }}

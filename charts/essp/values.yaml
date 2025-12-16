@@ -1,0 +1,267 @@
+# Default values for ESSP
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  namespace: essp
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# IMS API Service
+imsApi:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: essp/ims-api
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilization: 70
+    targetMemoryUtilization: 80
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  config:
+    httpAddr: ":8080"
+    logLevel: "info"
+    authEnabled: true
+    corsEnabled: true
+  env: []
+  # - name: CUSTOM_ENV
+  #   value: "custom_value"
+
+# SSOT School Service
+ssotSchool:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: essp/ssot-school
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8081
+    targetPort: 8081
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    httpAddr: ":8081"
+    logLevel: "info"
+  env: []
+
+# SSOT Devices Service
+ssotDevices:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: essp/ssot-devices
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8082
+    targetPort: 8082
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    httpAddr: ":8082"
+    logLevel: "info"
+  env: []
+
+# SSOT Parts Service
+ssotParts:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: essp/ssot-parts
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8083
+    targetPort: 8083
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    httpAddr: ":8083"
+    logLevel: "info"
+  env: []
+
+# Sync Worker Service
+syncWorker:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: essp/sync-worker
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    logLevel: "info"
+    syncInterval: "5m"
+  env: []
+
+# Database Configuration
+database:
+  host: postgresql
+  port: 5432
+  name: ssp_ims
+  sslMode: disable
+  # Credentials should be provided via secrets
+  # username and password are set in secrets.yaml
+
+# Redis Configuration
+redis:
+  host: redis
+  port: 6379
+  db: 0
+  # password is set in secrets.yaml if needed
+
+# NATS Configuration
+nats:
+  url: nats://nats:4222
+  cluster: essp-cluster
+  # credentials are set in secrets.yaml if needed
+
+# MinIO Configuration
+minio:
+  endpoint: minio:9000
+  bucket: essp-attachments
+  useSSL: false
+  # accessKey and secretKey are set in secrets.yaml
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.essp.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ims-api
+          port: 8080
+  tls: []
+  # - secretName: essp-tls
+  #   hosts:
+  #     - api.essp.local
+
+# Network Policies
+networkPolicy:
+  enabled: false
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    - to:
+      - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 5432  # PostgreSQL
+        - protocol: TCP
+          port: 6379  # Redis
+        - protocol: TCP
+          port: 4222  # NATS
+        - protocol: TCP
+          port: 9000  # MinIO
+
+# ConfigMap data
+configMap:
+  data: {}
+  # Add any additional configuration data here
+
+# Secrets (values should be base64 encoded or use external secrets)
+secrets:
+  # Database credentials
+  database:
+    username: ""
+    password: ""
+  # Redis password
+  redis:
+    password: ""
+  # NATS credentials
+  nats:
+    username: ""
+    password: ""
+  # MinIO credentials
+  minio:
+    accessKey: ""
+    secretKey: ""
+  # JWT secret for authentication
+  jwt:
+    secret: ""
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

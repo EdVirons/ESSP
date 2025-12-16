@@ -1,0 +1,108 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'essp-platform'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+  - "recording-rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # IMS API service
+  - job_name: 'ims-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ims-api:8080']
+        labels:
+          service: 'ims-api'
+          component: 'api'
+    # Kubernetes service discovery (uncomment for k8s deployment)
+    # kubernetes_sd_configs:
+    #   - role: pod
+    #     namespaces:
+    #       names:
+    #         - essp
+    # relabel_configs:
+    #   - source_labels: [__meta_kubernetes_pod_label_app]
+    #     action: keep
+    #     regex: ims-api
+    #   - source_labels: [__meta_kubernetes_pod_name]
+    #     target_label: pod
+    #   - source_labels: [__meta_kubernetes_namespace]
+    #     target_label: namespace
+
+  # SSOT Devices service
+  - job_name: 'ssot-devices'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ssot-devices:8081']
+        labels:
+          service: 'ssot-devices'
+          component: 'ssot'
+
+  # SSOT Parts service
+  - job_name: 'ssot-parts'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ssot-parts:8082']
+        labels:
+          service: 'ssot-parts'
+          component: 'ssot'
+
+  # SSOT School service
+  - job_name: 'ssot-school'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ssot-school:8083']
+        labels:
+          service: 'ssot-school'
+          component: 'ssot'
+
+  # Sync Worker service
+  - job_name: 'sync-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['sync-worker:8084']
+        labels:
+          service: 'sync-worker'
+          component: 'worker'
+
+  # PostgreSQL Exporter
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgresql'
+          component: 'database'
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # NATS Exporter
+  - job_name: 'nats'
+    static_configs:
+      - targets: ['nats:7777']
+        labels:
+          service: 'nats'
+          component: 'messaging'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

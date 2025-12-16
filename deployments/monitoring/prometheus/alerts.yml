@@ -1,0 +1,204 @@
+groups:
+  - name: essp_api_alerts
+    interval: 30s
+    rules:
+      # High error rate alert - triggers when 5xx errors exceed 5% over 5 minutes
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+            /
+            sum(rate(http_requests_total[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate detected in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has error rate of {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # High latency alert - triggers when p95 latency exceeds 500ms
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High latency detected in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has p95 latency of {{ $value }}s (threshold: 500ms)"
+
+      # Very high latency alert - triggers when p95 latency exceeds 1s
+      - alert: VeryHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 1.0
+        for: 3m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Very high latency detected in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has p95 latency of {{ $value }}s (threshold: 1s)"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up{job=~"ims-api|ssot-.*|sync-worker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+
+      # High request rate alert
+      - alert: HighRequestRate
+        expr: |
+          sum(rate(http_requests_total[5m])) by (service) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High request rate in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} is receiving {{ $value }} requests/second"
+
+  - name: essp_database_alerts
+    interval: 30s
+    rules:
+      # Database connection pool exhaustion
+      - alert: DBConnectionPoolExhaustion
+        expr: db_connections_active / 100 > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "Database connection pool is {{ $value | humanizePercentage }} full (threshold: 80%)"
+
+      # Critical database connection pool exhaustion
+      - alert: DBConnectionPoolCritical
+        expr: db_connections_active / 100 > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection pool critically exhausted"
+          description: "Database connection pool is {{ $value | humanizePercentage }} full (threshold: 95%)"
+
+      # PostgreSQL down
+      - alert: PostgreSQLDown
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been down for more than 1 minute"
+
+  - name: essp_resource_alerts
+    interval: 30s
+    rules:
+      # High memory usage (if available from container metrics)
+      - alert: HighMemoryUsage
+        expr: |
+          (container_memory_usage_bytes{pod=~"ims-api.*|ssot-.*|sync-worker.*"}
+          / container_spec_memory_limit_bytes{pod=~"ims-api.*|ssot-.*|sync-worker.*"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage in {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of memory limit"
+
+      # Critical memory usage
+      - alert: CriticalMemoryUsage
+        expr: |
+          (container_memory_usage_bytes{pod=~"ims-api.*|ssot-.*|sync-worker.*"}
+          / container_spec_memory_limit_bytes{pod=~"ims-api.*|ssot-.*|sync-worker.*"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Critical memory usage in {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of memory limit"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          rate(container_cpu_usage_seconds_total{pod=~"ims-api.*|ssot-.*|sync-worker.*"}[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage in {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} CPU usage is {{ $value | humanizePercentage }}"
+
+  - name: essp_business_alerts
+    interval: 30s
+    rules:
+      # Incident creation rate anomaly
+      - alert: IncidentCreationAnomaly
+        expr: |
+          rate(incidents_created_total[1h]) >
+          (avg_over_time(rate(incidents_created_total[1h])[7d:1h]) * 2)
+        for: 15m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Unusual incident creation rate"
+          description: "Incident creation rate is {{ $value }}x higher than 7-day average"
+
+      # Work order creation rate anomaly
+      - alert: WorkOrderCreationAnomaly
+        expr: |
+          rate(work_orders_created_total[1h]) >
+          (avg_over_time(rate(work_orders_created_total[1h])[7d:1h]) * 2)
+        for: 15m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Unusual work order creation rate"
+          description: "Work order creation rate is {{ $value }}x higher than 7-day average"
+
+  - name: essp_cache_alerts
+    interval: 30s
+    rules:
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute"
+
+  - name: essp_messaging_alerts
+    interval: 30s
+    rules:
+      # NATS down
+      - alert: NATSDown
+        expr: up{job="nats"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: messaging
+        annotations:
+          summary: "NATS is down"
+          description: "NATS has been down for more than 1 minute"

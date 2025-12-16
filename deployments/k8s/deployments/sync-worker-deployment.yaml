@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sync-worker
+  namespace: essp
+  labels:
+    app: sync-worker
+    app.kubernetes.io/name: sync-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: essp-platform
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: sync-worker
+  template:
+    metadata:
+      labels:
+        app: sync-worker
+        app.kubernetes.io/name: sync-worker
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/part-of: essp-platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8084"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - sync-worker
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: sync-worker
+        image: essp/sync-worker:latest
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: health
+          containerPort: 8084
+          protocol: TCP
+
+        envFrom:
+        - configMapRef:
+            name: sync-worker-config
+
+        env:
+        # Database configuration from Secret
+        - name: PG_DSN
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: PG_DSN_WORKER
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: health
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL

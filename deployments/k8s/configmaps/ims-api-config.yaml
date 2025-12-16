@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ims-api-config
+  namespace: essp
+  labels:
+    app: ims-api
+    app.kubernetes.io/name: ims-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: essp-platform
+data:
+  APP_ENV: "production"
+  HTTP_ADDR: ":8080"
+  LOG_LEVEL: "info"
+
+  # SSOT Service URLs
+  SCHOOL_SSOT_BASE_URL: "http://ssot-school:8081"
+  DEVICE_SSOT_BASE_URL: "http://ssot-devices:8082"
+  PARTS_SSOT_BASE_URL: "http://ssot-parts:8083"
+  SSOT_SYNC_PAGE_SIZE: "500"
+
+  # Redis Configuration
+  REDIS_ADDR: "redis:6379"
+  REDIS_DB: "0"
+
+  # NATS Configuration
+  NATS_URL: "nats://nats:4222"
+
+  # MinIO Configuration
+  MINIO_ENDPOINT: "minio:9000"
+  MINIO_USE_SSL: "false"
+  MINIO_REGION: "us-east-1"
+  MINIO_PRESIGN_EXPIRY_SECONDS: "900"
+  ATTACHMENTS_BUCKET: "essp-evidence"
+  ATTACHMENTS_PUBLIC_BASE_URL: "https://minio.example.com"
+
+  # Authentication
+  AUTH_ENABLED: "true"
+  AUTH_AUDIENCE: "ims-service"
+  AUTH_ISSUER: "https://auth.example.com"
+  AUTH_JWKS_URL: "https://auth.example.com/.well-known/jwks.json"
+
+  # Tenancy
+  TENANT_HEADER: "X-Tenant-Id"
+  SCHOOL_HEADER: "X-School-Id"
+
+  # CORS
+  CORS_ALLOWED_ORIGINS: "https://app.example.com"
+
+  # Work Order Settings
+  AUTO_ROUTE_WORK_ORDERS: "true"
+  DEFAULT_REPAIR_LOCATION: "service_shop"
+
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_READ_RPM: "300"
+  RATE_LIMIT_WRITE_RPM: "100"
+  RATE_LIMIT_BURST: "50"

@@ -1,0 +1,2597 @@
+openapi: 3.1.0
+info:
+  title: ESSP IMS API
+  version: 1.0.0
+  description: |
+    Incident Management System (IMS) API for the Education Support Services Platform.
+
+    This API manages incidents, work orders, service shops, staff, programs, site surveys,
+    and related operations for the educational device maintenance and support workflow.
+
+    ## Authentication
+    All API endpoints require JWT Bearer token authentication via the `Authorization` header.
+
+    ## Multi-tenancy
+    - `X-Tenant-ID` header is required for all endpoints
+    - `X-School-ID` header is required for school-scoped endpoints
+
+    ## Pagination
+    List endpoints use cursor-based pagination with `cursor` and `limit` query parameters.
+
+  contact:
+    name: ESSP Platform Team
+    email: platform@edvirons.com
+
+servers:
+  - url: https://api.essp.dev/ims/v1
+    description: Development
+  - url: https://api.essp.staging/ims/v1
+    description: Staging
+  - url: https://api.essp.prod/ims/v1
+    description: Production
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Health
+    description: Health and readiness checks
+  - name: Incidents
+    description: Incident tracking and management
+  - name: Work Orders
+    description: Work order lifecycle management
+  - name: Work Order Operations
+    description: Scheduling, deliverables, and approvals for work orders
+  - name: BOM
+    description: Bill of Materials for work orders
+  - name: Service Shops
+    description: Service shop management
+  - name: Service Staff
+    description: Service staff management
+  - name: Programs
+    description: School service programs
+  - name: Phases
+    description: Program phase management
+  - name: Site Surveys
+    description: Site survey management
+  - name: Attachments
+    description: File attachment management
+  - name: Audit Logs
+    description: Audit trail for entity changes
+
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      description: Returns OK if the service is running
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ok
+
+  /readyz:
+    get:
+      summary: Readiness check
+      description: Returns ready if service dependencies (database, cache) are available
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ready
+        '503':
+          description: Service is not ready
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: postgres not ready
+
+  /incidents:
+    post:
+      summary: Create a new incident
+      description: Creates a new incident report for a device
+      tags:
+        - Incidents
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIncidentRequest'
+      responses:
+        '200':
+          description: Incident created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: List incidents
+      description: Returns a paginated list of incidents with optional filters
+      tags:
+        - Incidents
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/IncidentStatus'
+          description: Filter by incident status
+        - name: deviceId
+          in: query
+          schema:
+            type: string
+          description: Filter by device ID
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query (title, description)
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of incidents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Incident'
+                  nextCursor:
+                    type: string
+                    nullable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /incidents/{id}:
+    get:
+      summary: Get incident by ID
+      description: Returns a single incident by its ID
+      tags:
+        - Incidents
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Incident ID
+      responses:
+        '200':
+          description: Incident details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /incidents/{id}/status:
+    patch:
+      summary: Update incident status
+      description: Updates the status of an incident
+      tags:
+        - Incidents
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Incident ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/IncidentStatus'
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /work-orders:
+    post:
+      summary: Create a new work order
+      description: Creates a new work order for device repair or maintenance
+      tags:
+        - Work Orders
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkOrderRequest'
+      responses:
+        '201':
+          description: Work order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: List work orders
+      description: Returns a paginated list of work orders with optional filters
+      tags:
+        - Work Orders
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkOrderStatus'
+          description: Filter by work order status
+        - name: deviceId
+          in: query
+          schema:
+            type: string
+          description: Filter by device ID
+        - name: incidentId
+          in: query
+          schema:
+            type: string
+          description: Filter by incident ID
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of work orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkOrder'
+                  nextCursor:
+                    type: string
+                    nullable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /work-orders/{id}:
+    get:
+      summary: Get work order by ID
+      description: Returns a single work order by its ID
+      tags:
+        - Work Orders
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+      responses:
+        '200':
+          description: Work order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrder'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /work-orders/{id}/status:
+    patch:
+      summary: Update work order status
+      description: Updates the status of a work order
+      tags:
+        - Work Orders
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/WorkOrderStatus'
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /work-orders/{id}/schedule:
+    post:
+      summary: Schedule a work order
+      description: Creates a schedule entry for a work order
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduleRequest'
+      responses:
+        '201':
+          description: Schedule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderSchedule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /work-orders/{id}/schedules:
+    get:
+      summary: List work order schedules
+      description: Returns all schedules for a work order
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of schedules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkOrderSchedule'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /work-orders/{id}/deliverables:
+    post:
+      summary: Add a deliverable to a work order
+      description: Creates a new deliverable for a work order
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliverableRequest'
+      responses:
+        '201':
+          description: Deliverable created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderDeliverable'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List work order deliverables
+      description: Returns all deliverables for a work order
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeliverableStatus'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of deliverables
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkOrderDeliverable'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /work-orders/{id}/deliverables/{deliverableId}/submit:
+    patch:
+      summary: Submit a deliverable
+      description: Marks a deliverable as submitted with evidence
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deliverableId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - evidenceAttachmentId
+              properties:
+                evidenceAttachmentId:
+                  type: string
+                submittedByUserId:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Deliverable submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderDeliverable'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /work-orders/{id}/deliverables/{deliverableId}/review:
+    patch:
+      summary: Review a deliverable
+      description: Approve or reject a submitted deliverable
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deliverableId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                reviewerUserId:
+                  type: string
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Deliverable reviewed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderDeliverable'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /work-orders/{id}/approvals:
+    post:
+      summary: Request work order approval
+      description: Requests approval for a work order
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approvalType:
+                  type: string
+                  default: school_signoff
+                requestedByUserId:
+                  type: string
+      responses:
+        '201':
+          description: Approval request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderApproval'
+
+  /work-orders/{id}/approvals/{approvalId}/decide:
+    patch:
+      summary: Decide on approval request
+      description: Approve or reject a work order approval request
+      tags:
+        - Work Order Operations
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: approvalId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                decidedByUserId:
+                  type: string
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Approval decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderApproval'
+
+  /work-orders/{id}/bom:
+    get:
+      summary: List BOM items for work order
+      description: Returns the bill of materials for a work order
+      tags:
+        - BOM
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of BOM items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkOrderPart'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /work-orders/{id}/bom/items:
+    post:
+      summary: Add BOM item to work order
+      description: Adds a part to the work order BOM and reserves inventory
+      tags:
+        - BOM
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+        - name: allowIncompatible
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Allow incompatible parts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - partId
+                - qtyPlanned
+              properties:
+                partId:
+                  type: string
+                qtyPlanned:
+                  type: integer
+                  format: int64
+                  minimum: 1
+      responses:
+        '201':
+          description: BOM item added and inventory reserved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderPart'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Conflict - part incompatible or insufficient inventory
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /work-orders/{id}/bom/suggest:
+    get:
+      summary: Suggest compatible parts
+      description: Returns parts compatible with the work order's device model
+      tags:
+        - BOM
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Work order ID
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query filter
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 200
+      responses:
+        '200':
+          description: List of suggested parts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceModelId:
+                    type: string
+                  count:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        category:
+                          type: string
+                        puk:
+                          type: string
+
+  /work-orders/{id}/bom/items/{itemId}/consume:
+    patch:
+      summary: Consume BOM item
+      description: Marks quantity as used and decrements inventory
+      tags:
+        - BOM
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qtyUsed
+              properties:
+                qtyUsed:
+                  type: integer
+                  format: int64
+                  minimum: 1
+      responses:
+        '200':
+          description: BOM item consumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderPart'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /work-orders/{id}/bom/items/{itemId}/release:
+    patch:
+      summary: Release reserved BOM item
+      description: Returns reserved parts back to inventory
+      tags:
+        - BOM
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qty
+              properties:
+                qty:
+                  type: integer
+                  format: int64
+                  minimum: 1
+      responses:
+        '200':
+          description: BOM item released
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderPart'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /service-shops:
+    post:
+      summary: Create a service shop
+      description: Creates a new service shop
+      tags:
+        - Service Shops
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceShopRequest'
+      responses:
+        '201':
+          description: Service shop created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceShop'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List service shops
+      description: Returns a paginated list of service shops
+      tags:
+        - Service Shops
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: countyCode
+          in: query
+          schema:
+            type: string
+          description: Filter by county code
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          description: Filter active shops only
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of service shops
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceShop'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /service-shops/{id}:
+    get:
+      summary: Get service shop by ID
+      description: Returns a single service shop by its ID
+      tags:
+        - Service Shops
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service shop details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceShop'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /service-staff:
+    post:
+      summary: Create service staff
+      description: Creates a new service staff member
+      tags:
+        - Service Staff
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceStaffRequest'
+      responses:
+        '201':
+          description: Service staff created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStaff'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List service staff
+      description: Returns a paginated list of service staff
+      tags:
+        - Service Staff
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: serviceShopId
+          in: query
+          schema:
+            type: string
+          description: Filter by service shop
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/StaffRole'
+          description: Filter by role
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          description: Filter active staff only
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of service staff
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceStaff'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /service-staff/{id}:
+    get:
+      summary: Get service staff by ID
+      description: Returns a single service staff member by ID
+      tags:
+        - Service Staff
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service staff details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStaff'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /programs:
+    post:
+      summary: Create a service program
+      description: Creates a new school service program
+      tags:
+        - Programs
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProgramRequest'
+      responses:
+        '201':
+          description: Program created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolServiceProgram'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List programs
+      description: Returns a paginated list of service programs
+      tags:
+        - Programs
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: schoolId
+          in: query
+          schema:
+            type: string
+          description: Filter by school ID
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProgramStatus'
+          description: Filter by status
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of programs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SchoolServiceProgram'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /programs/{id}:
+    get:
+      summary: Get program by ID
+      description: Returns a single program by its ID
+      tags:
+        - Programs
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Program details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolServiceProgram'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /programs/{id}/phases:
+    post:
+      summary: Create a program phase
+      description: Creates a new phase for a program
+      tags:
+        - Phases
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Program ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePhaseRequest'
+      responses:
+        '201':
+          description: Phase created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicePhase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List program phases
+      description: Returns all phases for a program
+      tags:
+        - Phases
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Program ID
+        - name: phaseType
+          in: query
+          schema:
+            $ref: '#/components/schemas/PhaseType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/PhaseStatus'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of phases
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServicePhase'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /phases/{phaseId}/status:
+    patch:
+      summary: Update phase status
+      description: Updates the status of a phase (validates completion criteria)
+      tags:
+        - Phases
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: phaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/PhaseStatus'
+      responses:
+        '200':
+          description: Phase status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        '409':
+          description: Phase blocked (deliverables or approvals pending)
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /programs/{id}/surveys:
+    post:
+      summary: Create a site survey
+      description: Creates a new site survey for a program
+      tags:
+        - Site Surveys
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Program ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSurveyRequest'
+      responses:
+        '201':
+          description: Survey created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSurvey'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List program surveys
+      description: Returns all surveys for a program
+      tags:
+        - Site Surveys
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Program ID
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SurveyStatus'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of surveys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SiteSurvey'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /surveys/{surveyId}:
+    get:
+      summary: Get survey by ID
+      description: Returns a survey with its rooms and photos
+      tags:
+        - Site Surveys
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Survey details with rooms and photos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  survey:
+                    $ref: '#/components/schemas/SiteSurvey'
+                  rooms:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SurveyRoom'
+                  photos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SurveyPhoto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /surveys/{surveyId}/rooms:
+    post:
+      summary: Add room to survey
+      description: Adds a room to a site survey
+      tags:
+        - Site Surveys
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSurveyRoomRequest'
+      responses:
+        '201':
+          description: Room added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyRoom'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /surveys/{surveyId}/photos:
+    post:
+      summary: Add photo to survey
+      description: Adds a photo to a site survey
+      tags:
+        - Site Surveys
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSurveyPhotoRequest'
+      responses:
+        '201':
+          description: Photo added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyPhoto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /attachments:
+    post:
+      summary: Create an attachment
+      description: Creates an attachment metadata record (upload URL obtained separately)
+      tags:
+        - Attachments
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttachmentRequest'
+      responses:
+        '201':
+          description: Attachment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List attachments
+      description: Returns a paginated list of attachments
+      tags:
+        - Attachments
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: entityType
+          in: query
+          schema:
+            $ref: '#/components/schemas/AttachmentEntityType'
+        - name: entityId
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of attachments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attachment'
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /attachments/{id}:
+    get:
+      summary: Get attachment by ID
+      description: Returns an attachment metadata
+      tags:
+        - Attachments
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Attachment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attachments/{id}/upload-url:
+    post:
+      summary: Get upload URL for attachment
+      description: Returns a presigned PUT URL to upload file content to object storage
+      tags:
+        - Attachments
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Upload URL generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  method:
+                    type: string
+                    example: PUT
+                  url:
+                    type: string
+                    format: uri
+                  bucket:
+                    type: string
+                  objectKey:
+                    type: string
+                  expiresInS:
+                    type: integer
+                  contentType:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attachments/{id}/download-url:
+    get:
+      summary: Get download URL for attachment
+      description: Returns a presigned GET URL to download file content from object storage
+      tags:
+        - Attachments
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - $ref: '#/components/parameters/SchoolHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Download URL generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                  bucket:
+                    type: string
+                  objectKey:
+                    type: string
+                  expiresInS:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /audit-logs:
+    get:
+      summary: List audit logs
+      description: Returns a paginated list of audit logs (admin only)
+      tags:
+        - Audit Logs
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: entityType
+          in: query
+          schema:
+            type: string
+          description: Filter by entity type
+        - name: entityId
+          in: query
+          schema:
+            type: string
+          description: Filter by entity ID
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [create, update, delete]
+          description: Filter by action
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by start date (RFC3339 or YYYY-MM-DD)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by end date (RFC3339 or YYYY-MM-DD)
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: List of audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  nextCursor:
+                    type: string
+                    nullable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /audit-logs/{id}:
+    get:
+      summary: Get audit log by ID
+      description: Returns a single audit log entry (admin only)
+      tags:
+        - Audit Logs
+      parameters:
+        - $ref: '#/components/parameters/TenantHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audit log details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication service
+
+  parameters:
+    TenantHeader:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Tenant identifier
+
+    SchoolHeader:
+      name: X-School-ID
+      in: header
+      required: true
+      schema:
+        type: string
+      description: School identifier
+
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 200
+      description: Maximum number of items to return
+
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Cursor for pagination
+
+  schemas:
+    # Incident Schemas
+    CreateIncidentRequest:
+      type: object
+      required:
+        - deviceId
+        - title
+      properties:
+        deviceId:
+          type: string
+          description: Device identifier
+        category:
+          type: string
+          description: Incident category
+        severity:
+          $ref: '#/components/schemas/Severity'
+        title:
+          type: string
+          description: Incident title
+        description:
+          type: string
+          description: Detailed description
+        reportedBy:
+          type: string
+          description: Reporter name or identifier
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        deviceId:
+          type: string
+        schoolName:
+          type: string
+        countyId:
+          type: string
+        countyName:
+          type: string
+        subCountyId:
+          type: string
+        subCountyName:
+          type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+        deviceSerial:
+          type: string
+        deviceAssetTag:
+          type: string
+        deviceModelId:
+          type: string
+        deviceMake:
+          type: string
+        deviceModel:
+          type: string
+        deviceCategory:
+          type: string
+        category:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+        status:
+          $ref: '#/components/schemas/IncidentStatus'
+        title:
+          type: string
+        description:
+          type: string
+        reportedBy:
+          type: string
+        slaDueAt:
+          type: string
+          format: date-time
+        slaBreached:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    IncidentStatus:
+      type: string
+      enum:
+        - new
+        - acknowledged
+        - in_progress
+        - escalated
+        - resolved
+        - closed
+
+    Severity:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+
+    # Work Order Schemas
+    CreateWorkOrderRequest:
+      type: object
+      required:
+        - deviceId
+        - taskType
+      properties:
+        incidentId:
+          type: string
+        deviceId:
+          type: string
+        taskType:
+          type: string
+        serviceShopId:
+          type: string
+        assignedStaffId:
+          type: string
+        repairLocation:
+          $ref: '#/components/schemas/RepairLocation'
+        assignedTo:
+          type: string
+        costEstimateCents:
+          type: integer
+          format: int64
+        notes:
+          type: string
+
+    WorkOrder:
+      type: object
+      properties:
+        id:
+          type: string
+        incidentId:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        deviceId:
+          type: string
+        schoolName:
+          type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+        deviceSerial:
+          type: string
+        deviceAssetTag:
+          type: string
+        deviceModelId:
+          type: string
+        deviceMake:
+          type: string
+        deviceModel:
+          type: string
+        deviceCategory:
+          type: string
+        status:
+          $ref: '#/components/schemas/WorkOrderStatus'
+        serviceShopId:
+          type: string
+        assignedStaffId:
+          type: string
+        repairLocation:
+          $ref: '#/components/schemas/RepairLocation'
+        assignedTo:
+          type: string
+        taskType:
+          type: string
+        programId:
+          type: string
+        phaseId:
+          type: string
+        onsiteContactId:
+          type: string
+        approvalStatus:
+          type: string
+        costEstimateCents:
+          type: integer
+          format: int64
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    WorkOrderStatus:
+      type: string
+      enum:
+        - draft
+        - assigned
+        - in_repair
+        - qa
+        - completed
+        - approved
+
+    RepairLocation:
+      type: string
+      enum:
+        - service_shop
+        - on_site
+
+    # Work Order Operations Schemas
+    CreateScheduleRequest:
+      type: object
+      properties:
+        scheduledStart:
+          type: string
+          format: date-time
+          description: RFC3339 format
+        scheduledEnd:
+          type: string
+          format: date-time
+          description: RFC3339 format
+        timezone:
+          type: string
+          default: Africa/Nairobi
+        notes:
+          type: string
+        createdByUserId:
+          type: string
+
+    WorkOrderSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        workOrderId:
+          type: string
+        phaseId:
+          type: string
+        scheduledStart:
+          type: string
+          format: date-time
+          nullable: true
+        scheduledEnd:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        notes:
+          type: string
+        createdByUserId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateDeliverableRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+
+    WorkOrderDeliverable:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        workOrderId:
+          type: string
+        phaseId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliverableStatus'
+        evidenceAttachmentId:
+          type: string
+        submittedByUserId:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+          nullable: true
+        reviewedByUserId:
+          type: string
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        reviewNotes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DeliverableStatus:
+      type: string
+      enum:
+        - pending
+        - submitted
+        - approved
+        - rejected
+
+    WorkOrderApproval:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        workOrderId:
+          type: string
+        phaseId:
+          type: string
+        approvalType:
+          type: string
+        requestedByUserId:
+          type: string
+        requestedAt:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/ApprovalStatus'
+        decidedByUserId:
+          type: string
+        decidedAt:
+          type: string
+          format: date-time
+          nullable: true
+        decisionNotes:
+          type: string
+
+    ApprovalStatus:
+      type: string
+      enum:
+        - pending
+        - approved
+        - rejected
+
+    # BOM Schemas
+    WorkOrderPart:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        workOrderId:
+          type: string
+        serviceShopId:
+          type: string
+        partId:
+          type: string
+        partName:
+          type: string
+        partPuk:
+          type: string
+        partCategory:
+          type: string
+        deviceModelId:
+          type: string
+        isCompatible:
+          type: boolean
+        qtyPlanned:
+          type: integer
+          format: int64
+        qtyUsed:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Service Shop Schemas
+    CreateServiceShopRequest:
+      type: object
+      required:
+        - countyCode
+        - name
+      properties:
+        countyCode:
+          type: string
+        countyName:
+          type: string
+        subCountyCode:
+          type: string
+        subCountyName:
+          type: string
+        coverageLevel:
+          type: string
+          default: county
+        name:
+          type: string
+        location:
+          type: string
+        active:
+          type: boolean
+
+    ServiceShop:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        countyCode:
+          type: string
+        countyName:
+          type: string
+        subCountyCode:
+          type: string
+        subCountyName:
+          type: string
+        coverageLevel:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Service Staff Schemas
+    CreateServiceStaffRequest:
+      type: object
+      required:
+        - serviceShopId
+        - userId
+        - role
+      properties:
+        serviceShopId:
+          type: string
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/StaffRole'
+        phone:
+          type: string
+        active:
+          type: boolean
+
+    ServiceStaff:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        serviceShopId:
+          type: string
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/StaffRole'
+        phone:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    StaffRole:
+      type: string
+      enum:
+        - lead_technician
+        - assistant_technician
+        - storekeeper
+
+    # Program Schemas
+    CreateProgramRequest:
+      type: object
+      required:
+        - schoolId
+      properties:
+        schoolId:
+          type: string
+        startDate:
+          type: string
+          format: date
+          description: YYYY-MM-DD
+        goLiveDate:
+          type: string
+          format: date
+          description: YYYY-MM-DD
+        accountManagerUserId:
+          type: string
+        notes:
+          type: string
+
+    SchoolServiceProgram:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProgramStatus'
+        currentPhase:
+          $ref: '#/components/schemas/PhaseType'
+        startDate:
+          type: string
+          format: date
+        goLiveDate:
+          type: string
+          format: date
+        accountManagerUserId:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProgramStatus:
+      type: string
+      enum:
+        - active
+        - paused
+        - completed
+
+    # Phase Schemas
+    CreatePhaseRequest:
+      type: object
+      required:
+        - phaseType
+      properties:
+        phaseType:
+          $ref: '#/components/schemas/PhaseType'
+        ownerRole:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        notes:
+          type: string
+
+    ServicePhase:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        programId:
+          type: string
+        phaseType:
+          $ref: '#/components/schemas/PhaseType'
+        status:
+          $ref: '#/components/schemas/PhaseStatus'
+        ownerRole:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PhaseType:
+      type: string
+      enum:
+        - demo
+        - survey
+        - install
+        - integrate
+        - commission
+        - ops
+
+    PhaseStatus:
+      type: string
+      enum:
+        - pending
+        - in_progress
+        - blocked
+        - done
+
+    # Survey Schemas
+    CreateSurveyRequest:
+      type: object
+      properties:
+        conductedByUserId:
+          type: string
+        conductedAt:
+          type: string
+          format: date-time
+          description: RFC3339 format
+        summary:
+          type: string
+        risks:
+          type: string
+
+    SiteSurvey:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        programId:
+          type: string
+        status:
+          $ref: '#/components/schemas/SurveyStatus'
+        conductedByUserId:
+          type: string
+        conductedAt:
+          type: string
+          format: date-time
+          nullable: true
+        summary:
+          type: string
+        risks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SurveyStatus:
+      type: string
+      enum:
+        - draft
+        - submitted
+        - approved
+
+    CreateSurveyRoomRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        roomType:
+          type: string
+        floor:
+          type: string
+        powerNotes:
+          type: string
+        networkNotes:
+          type: string
+
+    SurveyRoom:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        surveyId:
+          type: string
+        name:
+          type: string
+        roomType:
+          type: string
+        floor:
+          type: string
+        powerNotes:
+          type: string
+        networkNotes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateSurveyPhotoRequest:
+      type: object
+      required:
+        - attachmentId
+      properties:
+        roomId:
+          type: string
+        attachmentId:
+          type: string
+        caption:
+          type: string
+
+    SurveyPhoto:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        surveyId:
+          type: string
+        roomId:
+          type: string
+        attachmentId:
+          type: string
+        caption:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # Attachment Schemas
+    CreateAttachmentRequest:
+      type: object
+      required:
+        - entityId
+        - fileName
+      properties:
+        entityType:
+          $ref: '#/components/schemas/AttachmentEntityType'
+        entityId:
+          type: string
+        fileName:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          format: int64
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        schoolId:
+          type: string
+        entityType:
+          $ref: '#/components/schemas/AttachmentEntityType'
+        entityId:
+          type: string
+        fileName:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          format: int64
+        objectKey:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    AttachmentEntityType:
+      type: string
+      enum:
+        - incident
+        - work_order
+
+    # Audit Log Schemas
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        userId:
+          type: string
+        userEmail:
+          type: string
+        action:
+          type: string
+          enum: [create, update, delete]
+        entityType:
+          type: string
+        entityId:
+          type: string
+        beforeState:
+          type: object
+          nullable: true
+          description: Entity state before change (JSON)
+        afterState:
+          type: object
+          nullable: true
+          description: Entity state after change (JSON)
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        requestId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: invalid json
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: unauthorized
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: forbidden
+
+    NotFound:
+      description: Resource not found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: not found
+
+    Conflict:
+      description: Conflict - resource state conflict
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: conflict
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: internal server error

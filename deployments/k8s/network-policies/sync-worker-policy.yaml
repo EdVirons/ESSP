@@ -1,0 +1,78 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sync-worker-policy
+  namespace: essp
+  labels:
+    app: sync-worker
+    app.kubernetes.io/name: sync-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  podSelector:
+    matchLabels:
+      app: sync-worker
+  policyTypes:
+  - Ingress
+  - Egress
+
+  ingress:
+  # Allow ingress for health checks (optional, from monitoring system)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8084
+
+  egress:
+  # Allow egress to PostgreSQL
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow egress to external PostgreSQL (if managed service)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow egress to NATS
+  - to:
+    - podSelector:
+        matchLabels:
+          app: nats
+    ports:
+    - protocol: TCP
+      port: 4222
+
+  # Allow egress to SSOT services for fetching exports
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-school
+    ports:
+    - protocol: TCP
+      port: 8081
+
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-devices
+    ports:
+    - protocol: TCP
+      port: 8082
+
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ssot-parts
+    ports:
+    - protocol: TCP
+      port: 8083

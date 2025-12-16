@@ -1,0 +1,96 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+          for svc in ims-api ssot-school ssot-devices ssot-parts sync-worker; do
+            cd services/$svc
+            GOOS=linux GOARCH=amd64 go build -o ../../dist/$svc-linux-amd64 ./cmd/...
+            GOOS=darwin GOARCH=amd64 go build -o ../../dist/$svc-darwin-amd64 ./cmd/...
+            GOOS=windows GOARCH=amd64 go build -o ../../dist/$svc-windows-amd64.exe ./cmd/...
+            cd ../..
+          done
+
+      - name: Create release archives
+        run: |
+          cd dist
+          for file in *; do
+            if [[ "$file" == *.exe ]]; then
+              zip "${file%.exe}.zip" "$file"
+            else
+              tar czf "$file.tar.gz" "$file"
+            fi
+          done
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## What's Changed
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ## Docker Images
+            Pull the Docker images for this release:
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}/ims-api:${{ steps.version.outputs.VERSION }}
+            docker pull ghcr.io/${{ github.repository }}/ssot-school:${{ steps.version.outputs.VERSION }}
+            docker pull ghcr.io/${{ github.repository }}/ssot-devices:${{ steps.version.outputs.VERSION }}
+            docker pull ghcr.io/${{ github.repository }}/ssot-parts:${{ steps.version.outputs.VERSION }}
+            docker pull ghcr.io/${{ github.repository }}/sync-worker:${{ steps.version.outputs.VERSION }}
+            ```
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+          draft: false
+          prerelease: false
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        run: |
+          for svc in ims-api ssot-school ssot-devices ssot-parts sync-worker; do
+            docker build \
+              -t ghcr.io/${{ github.repository }}/$svc:${{ steps.version.outputs.VERSION }} \
+              -t ghcr.io/${{ github.repository }}/$svc:latest \
+              -f services/$svc/Dockerfile \
+              services/$svc
+            docker push ghcr.io/${{ github.repository }}/$svc:${{ steps.version.outputs.VERSION }}
+            docker push ghcr.io/${{ github.repository }}/$svc:latest
+          done

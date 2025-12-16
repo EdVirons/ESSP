@@ -1,0 +1,93 @@
+{{- if .Values.ssotDevices.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "essp.fullname" . }}-ssot-devices
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ssot-devices
+spec:
+  replicas: {{ .Values.ssotDevices.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "essp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ssot-devices
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "essp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ssot-devices
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "essp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: ssot-devices
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        image: "{{ .Values.global.imageRegistry }}{{ .Values.ssotDevices.image.repository }}:{{ .Values.ssotDevices.image.tag }}"
+        imagePullPolicy: {{ include "essp.imagePullPolicy" .Values.ssotDevices.image }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.ssotDevices.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: HTTP_ADDR
+          value: {{ .Values.ssotDevices.config.httpAddr | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.ssotDevices.config.logLevel | quote }}
+        {{- include "essp.commonEnv" . | nindent 8 }}
+        {{- with .Values.ssotDevices.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "essp.fullname" . }}-config
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.ssotDevices.resources | nindent 10 }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

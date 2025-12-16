@@ -1,0 +1,145 @@
+# Production environment values
+# High availability, optimized resources, strict security
+
+global:
+  namespace: essp-prod
+
+imsApi:
+  replicaCount: 3
+  image:
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilization: 70
+    targetMemoryUtilization: 80
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  config:
+    logLevel: "info"
+    authEnabled: true
+    corsEnabled: true
+
+ssotSchool:
+  replicaCount: 2
+  image:
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    logLevel: "warn"
+
+ssotDevices:
+  replicaCount: 2
+  image:
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    logLevel: "warn"
+
+ssotParts:
+  replicaCount: 2
+  image:
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    logLevel: "warn"
+
+syncWorker:
+  replicaCount: 2
+  image:
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    logLevel: "warn"
+    syncInterval: "5m"
+
+database:
+  host: postgresql.essp-prod.svc.cluster.local
+  name: ssp_ims_prod
+  sslMode: require
+
+redis:
+  host: redis.essp-prod.svc.cluster.local
+
+nats:
+  url: nats://nats.essp-prod.svc.cluster.local:4222
+
+minio:
+  endpoint: minio.essp-prod.svc.cluster.local:9000
+  bucket: essp-attachments-prod
+  useSSL: true
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.essp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ims-api
+          port: 8080
+  tls:
+    - secretName: essp-prod-tls
+      hosts:
+        - api.essp.example.com
+
+networkPolicy:
+  enabled: true
+
+# Production-specific pod anti-affinity for high availability
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - essp
+          topologyKey: kubernetes.io/hostname

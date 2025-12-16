@@ -1,0 +1,38 @@
+# CODEOWNERS file for ESSP microservices platform
+# Each line is a file pattern followed by one or more owners.
+# Order is important; the last matching pattern takes precedence.
+
+# Default owners for everything in the repo
+* @essp-team
+
+# Service-specific ownership
+/services/ims-api/ @essp-team @ims-api-team
+/services/ssot-school/ @essp-team @ssot-team
+/services/ssot-devices/ @essp-team @ssot-team
+/services/ssot-parts/ @essp-team @ssot-team
+/services/sync-worker/ @essp-team @sync-team
+
+# Shared libraries require approval from platform team
+/shared/ @essp-team @platform-team
+
+# Infrastructure and deployment
+/deployments/ @essp-team @devops-team
+/charts/ @essp-team @devops-team
+.github/workflows/ @essp-team @devops-team
+docker-compose*.yml @essp-team @devops-team
+Dockerfile @essp-team @devops-team
+
+# Database migrations require DBA review
+**/migrations/ @essp-team @dba-team
+
+# Documentation
+*.md @essp-team
+/docs/ @essp-team @tech-writers
+
+# Configuration files
+*.yml @essp-team @devops-team
+*.yaml @essp-team @devops-team
+.golangci.yml @essp-team @platform-team
+go.work @essp-team @platform-team
+go.mod @essp-team @platform-team
+Makefile @essp-team @platform-team

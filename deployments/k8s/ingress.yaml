@@ -1,0 +1,171 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: essp-ingress
+  namespace: essp
+  labels:
+    app.kubernetes.io/name: essp-ingress
+    app.kubernetes.io/part-of: essp-platform
+  annotations:
+    # NGINX Ingress Controller annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+
+    # Rate limiting (adjust as needed)
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # CORS (if needed)
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Tenant-Id,X-School-Id"
+
+    # SSL/TLS configuration
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+spec:
+  ingressClassName: nginx
+
+  tls:
+  - hosts:
+    - essp.example.com
+    secretName: essp-tls-certificate
+
+  rules:
+  - host: essp.example.com
+    http:
+      paths:
+      # IMS API routes
+      - path: /api(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ims-api
+            port:
+              number: 8080
+
+      # SSOT School routes
+      - path: /ssot/school(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-school
+            port:
+              number: 8081
+
+      # SSOT Devices routes
+      - path: /ssot/devices(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-devices
+            port:
+              number: 8082
+
+      # SSOT Parts routes
+      - path: /ssot/parts(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-parts
+            port:
+              number: 8083
+---
+# Alternative Ingress without path rewriting (comment out if using the above)
+# This version preserves the full path and sends it to the backend services
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: essp-ingress-no-rewrite
+  namespace: essp
+  labels:
+    app.kubernetes.io/name: essp-ingress
+    app.kubernetes.io/part-of: essp-platform
+  annotations:
+    # NGINX Ingress Controller annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Tenant-Id,X-School-Id"
+
+    # SSL/TLS configuration
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+
+  tls:
+  - hosts:
+    - api.essp.example.com
+    - ssot.essp.example.com
+    secretName: essp-tls-certificate
+
+  rules:
+  # IMS API on dedicated subdomain
+  - host: api.essp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ims-api
+            port:
+              number: 8080
+
+  # SSOT services on dedicated subdomain
+  - host: ssot.essp.example.com
+    http:
+      paths:
+      - path: /school
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-school
+            port:
+              number: 8081
+      - path: /devices
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-devices
+            port:
+              number: 8082
+      - path: /parts
+        pathType: Prefix
+        backend:
+          service:
+            name: ssot-parts
+            port:
+              number: 8083

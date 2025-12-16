@@ -1,0 +1,10 @@
+go 1.22
+
+use (
+	./services/ims-api
+	./services/ssot-school
+	./services/ssot-devices
+	./services/ssot-parts
+	./services/sync-worker
+	./shared
+)

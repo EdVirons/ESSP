@@ -1,0 +1,286 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ims-api
+  namespace: essp
+  labels:
+    app: ims-api
+    app.kubernetes.io/name: ims-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: essp-platform
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ims-api
+  template:
+    metadata:
+      labels:
+        app: ims-api
+        app.kubernetes.io/name: ims-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: essp-platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ims-api
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: ims-api
+        image: essp/ims-api:latest
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+
+        env:
+        # Environment variables from ConfigMap
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: APP_ENV
+        - name: HTTP_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: HTTP_ADDR
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: LOG_LEVEL
+
+        # Database configuration from Secret
+        - name: PG_DSN
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: PG_DSN
+
+        # Redis configuration
+        - name: REDIS_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: REDIS_ADDR
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: REDIS_PASSWORD
+        - name: REDIS_DB
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: REDIS_DB
+
+        # NATS configuration
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: NATS_URL
+
+        # MinIO configuration
+        - name: MINIO_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: MINIO_ENDPOINT
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ACCESS_KEY
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_SECRET_KEY
+        - name: MINIO_USE_SSL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: MINIO_USE_SSL
+        - name: MINIO_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: MINIO_REGION
+        - name: MINIO_PRESIGN_EXPIRY_SECONDS
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: MINIO_PRESIGN_EXPIRY_SECONDS
+        - name: ATTACHMENTS_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: ATTACHMENTS_BUCKET
+        - name: ATTACHMENTS_PUBLIC_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: ATTACHMENTS_PUBLIC_BASE_URL
+
+        # SSOT Service URLs
+        - name: SCHOOL_SSOT_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: SCHOOL_SSOT_BASE_URL
+        - name: DEVICE_SSOT_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: DEVICE_SSOT_BASE_URL
+        - name: PARTS_SSOT_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: PARTS_SSOT_BASE_URL
+        - name: SSOT_SYNC_PAGE_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: SSOT_SYNC_PAGE_SIZE
+
+        # Authentication
+        - name: AUTH_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: AUTH_ENABLED
+        - name: AUTH_AUDIENCE
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: AUTH_AUDIENCE
+        - name: AUTH_ISSUER
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: AUTH_ISSUER
+        - name: AUTH_JWKS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: AUTH_JWKS_URL
+
+        # Tenancy
+        - name: TENANT_HEADER
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: TENANT_HEADER
+        - name: SCHOOL_HEADER
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: SCHOOL_HEADER
+
+        # CORS
+        - name: CORS_ALLOWED_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: CORS_ALLOWED_ORIGINS
+
+        # Work Order Settings
+        - name: AUTO_ROUTE_WORK_ORDERS
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: AUTO_ROUTE_WORK_ORDERS
+        - name: DEFAULT_REPAIR_LOCATION
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: DEFAULT_REPAIR_LOCATION
+
+        # Rate Limiting
+        - name: RATE_LIMIT_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: RATE_LIMIT_ENABLED
+        - name: RATE_LIMIT_READ_RPM
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: RATE_LIMIT_READ_RPM
+        - name: RATE_LIMIT_WRITE_RPM
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: RATE_LIMIT_WRITE_RPM
+        - name: RATE_LIMIT_BURST
+          valueFrom:
+            configMapKeyRef:
+              name: ims-api-config
+              key: RATE_LIMIT_BURST
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL

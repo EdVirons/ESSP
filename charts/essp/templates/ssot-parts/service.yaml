@@ -1,0 +1,20 @@
+{{- if .Values.ssotParts.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "essp.fullname" . }}-ssot-parts
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ssot-parts
+spec:
+  type: {{ .Values.ssotParts.service.type }}
+  ports:
+  - port: {{ .Values.ssotParts.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "essp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ssot-parts
+{{- end }}

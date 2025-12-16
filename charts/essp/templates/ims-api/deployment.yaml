@@ -1,0 +1,104 @@
+{{- if .Values.imsApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "essp.fullname" . }}-ims-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ims-api
+spec:
+  {{- if not .Values.imsApi.autoscaling.enabled }}
+  replicas: {{ .Values.imsApi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "essp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ims-api
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "essp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ims-api
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "essp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: ims-api
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        image: "{{ .Values.global.imageRegistry }}{{ .Values.imsApi.image.repository }}:{{ .Values.imsApi.image.tag }}"
+        imagePullPolicy: {{ include "essp.imagePullPolicy" .Values.imsApi.image }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.imsApi.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: HTTP_ADDR
+          value: {{ .Values.imsApi.config.httpAddr | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.imsApi.config.logLevel | quote }}
+        - name: AUTH_ENABLED
+          value: {{ .Values.imsApi.config.authEnabled | quote }}
+        - name: CORS_ENABLED
+          value: {{ .Values.imsApi.config.corsEnabled | quote }}
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "essp.fullname" . }}-secrets
+              key: jwt-secret
+        {{- include "essp.commonEnv" . | nindent 8 }}
+        {{- with .Values.imsApi.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "essp.fullname" . }}-config
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.imsApi.resources | nindent 10 }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,139 @@
+groups:
+  - name: essp_http_recording_rules
+    interval: 30s
+    rules:
+      # Request rate per service (requests per second)
+      - record: essp:http_requests:rate5m
+        expr: |
+          sum(rate(http_requests_total[5m])) by (service)
+
+      # Request rate per service and method
+      - record: essp:http_requests:rate5m_by_method
+        expr: |
+          sum(rate(http_requests_total[5m])) by (service, method)
+
+      # Error rate per service (errors per second)
+      - record: essp:http_errors:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+
+      # Error ratio per service (0-1)
+      - record: essp:http_error_ratio:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          /
+          sum(rate(http_requests_total[5m])) by (service)
+
+      # Client error rate (4xx) per service
+      - record: essp:http_client_errors:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"4.."}[5m])) by (service)
+
+      # Success rate per service (2xx and 3xx)
+      - record: essp:http_success_ratio:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"[23].."}[5m])) by (service)
+          /
+          sum(rate(http_requests_total[5m])) by (service)
+
+  - name: essp_latency_recording_rules
+    interval: 30s
+    rules:
+      # P50 latency per service
+      - record: essp:http_request_duration:p50
+        expr: |
+          histogram_quantile(0.50,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          )
+
+      # P95 latency per service
+      - record: essp:http_request_duration:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          )
+
+      # P99 latency per service
+      - record: essp:http_request_duration:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          )
+
+      # Average latency per service
+      - record: essp:http_request_duration:avg
+        expr: |
+          sum(rate(http_request_duration_seconds_sum[5m])) by (service)
+          /
+          sum(rate(http_request_duration_seconds_count[5m])) by (service)
+
+      # P95 latency per service and path
+      - record: essp:http_request_duration:p95_by_path
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service, path)
+          )
+
+  - name: essp_business_recording_rules
+    interval: 30s
+    rules:
+      # Incident creation rate (per hour)
+      - record: essp:incidents_created:rate1h
+        expr: |
+          sum(rate(incidents_created_total[1h]))
+
+      # Work order creation rate (per hour)
+      - record: essp:work_orders_created:rate1h
+        expr: |
+          sum(rate(work_orders_created_total[1h]))
+
+      # Incident creation rate (per day)
+      - record: essp:incidents_created:rate1d
+        expr: |
+          sum(rate(incidents_created_total[1d]))
+
+      # Work order creation rate (per day)
+      - record: essp:work_orders_created:rate1d
+        expr: |
+          sum(rate(work_orders_created_total[1d]))
+
+  - name: essp_availability_recording_rules
+    interval: 30s
+    rules:
+      # Service availability (percentage)
+      - record: essp:service_availability:ratio5m
+        expr: |
+          avg(up{job=~"ims-api|ssot-.*|sync-worker"}) by (job)
+
+      # Overall platform availability
+      - record: essp:platform_availability:ratio5m
+        expr: |
+          avg(up{job=~"ims-api|ssot-.*|sync-worker"})
+
+  - name: essp_database_recording_rules
+    interval: 30s
+    rules:
+      # Database connection pool utilization
+      - record: essp:db_connections:utilization
+        expr: |
+          db_connections_active / 100
+
+  - name: essp_throughput_recording_rules
+    interval: 30s
+    rules:
+      # Total platform request rate (requests per second)
+      - record: essp:platform_requests:rate5m
+        expr: |
+          sum(rate(http_requests_total[5m]))
+
+      # Total platform error rate (errors per second)
+      - record: essp:platform_errors:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+
+      # Platform error ratio
+      - record: essp:platform_error_ratio:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total[5m]))

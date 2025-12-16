@@ -1,0 +1,128 @@
+# Example custom values file
+# This file demonstrates how to customize the ESSP deployment
+
+global:
+  namespace: essp-custom
+  imageRegistry: myregistry.io/
+  imagePullSecrets:
+    - name: regcred
+
+# Custom IMS API configuration
+imsApi:
+  replicaCount: 3
+  image:
+    tag: v1.2.0
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilization: 60
+  config:
+    logLevel: "info"
+    authEnabled: true
+  env:
+    - name: CUSTOM_FEATURE_FLAG
+      value: "enabled"
+    - name: MAX_CONNECTIONS
+      value: "100"
+
+# Disable services not needed
+ssotSchool:
+  enabled: true
+ssotDevices:
+  enabled: true
+ssotParts:
+  enabled: false  # Disable parts service
+syncWorker:
+  enabled: true
+  config:
+    syncInterval: "10m"
+
+# Database configuration
+database:
+  host: postgres.db.svc.cluster.local
+  port: 5432
+  name: essp_production
+  sslMode: require
+
+# Redis configuration with password
+redis:
+  host: redis.cache.svc.cluster.local
+  port: 6379
+
+# NATS with authentication
+nats:
+  url: nats://nats.messaging.svc.cluster.local:4222
+
+# MinIO with SSL
+minio:
+  endpoint: s3.storage.svc.cluster.local:9000
+  bucket: essp-prod-attachments
+  useSSL: true
+
+# Ingress with TLS
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: api.mycompany.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ims-api
+          port: 8080
+  tls:
+    - secretName: essp-tls-cert
+      hosts:
+        - api.mycompany.com
+
+# Enable network policies
+networkPolicy:
+  enabled: true
+
+# Secrets (should be stored securely, not in git)
+secrets:
+  database:
+    username: "essp_user"
+    password: "CHANGE_ME_IN_PRODUCTION"
+  redis:
+    password: "CHANGE_ME_IN_PRODUCTION"
+  minio:
+    accessKey: "CHANGE_ME_IN_PRODUCTION"
+    secretKey: "CHANGE_ME_IN_PRODUCTION"
+  jwt:
+    secret: "CHANGE_ME_IN_PRODUCTION"
+
+# Pod anti-affinity for high availability
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - essp
+        topologyKey: kubernetes.io/hostname
+
+# Node selector for dedicated nodes
+nodeSelector:
+  workload: essp
+
+# Tolerations for tainted nodes
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "essp"
+    effect: "NoSchedule"

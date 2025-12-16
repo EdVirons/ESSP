@@ -1,0 +1,20 @@
+{{- if .Values.ssotDevices.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "essp.fullname" . }}-ssot-devices
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ssot-devices
+spec:
+  type: {{ .Values.ssotDevices.service.type }}
+  ports:
+  - port: {{ .Values.ssotDevices.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "essp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ssot-devices
+{{- end }}

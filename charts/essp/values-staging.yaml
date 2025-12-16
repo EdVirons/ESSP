@@ -1,0 +1,126 @@
+# Staging environment values
+# Moderate resources, production-like configuration
+
+global:
+  namespace: essp-staging
+
+imsApi:
+  replicaCount: 2
+  image:
+    tag: staging
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilization: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  config:
+    logLevel: "info"
+    authEnabled: true
+    corsEnabled: true
+
+ssotSchool:
+  replicaCount: 1
+  image:
+    tag: staging
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    logLevel: "info"
+
+ssotDevices:
+  replicaCount: 1
+  image:
+    tag: staging
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    logLevel: "info"
+
+ssotParts:
+  replicaCount: 1
+  image:
+    tag: staging
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    logLevel: "info"
+
+syncWorker:
+  replicaCount: 1
+  image:
+    tag: staging
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    logLevel: "info"
+    syncInterval: "5m"
+
+database:
+  host: postgresql.essp-staging.svc.cluster.local
+  name: ssp_ims_staging
+
+redis:
+  host: redis.essp-staging.svc.cluster.local
+
+nats:
+  url: nats://nats.essp-staging.svc.cluster.local:4222
+
+minio:
+  endpoint: minio.essp-staging.svc.cluster.local:9000
+  bucket: essp-attachments-staging
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: api.essp.staging.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ims-api
+          port: 8080
+  tls:
+    - secretName: essp-staging-tls
+      hosts:
+        - api.essp.staging.example.com
+
+networkPolicy:
+  enabled: true

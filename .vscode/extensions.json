@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "golang.go",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "ms-vscode.makefile-tools",
+    "tamasfe.even-better-toml"
+  ]
+}

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "essp.fullname" . }}-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "essp.labels" . | nindent 4 }}
+data:
+  # Database configuration
+  DB_HOST: {{ .Values.database.host | quote }}
+  DB_PORT: {{ .Values.database.port | quote }}
+  DB_NAME: {{ .Values.database.name | quote }}
+  DB_SSL_MODE: {{ .Values.database.sslMode | quote }}
+
+  # Redis configuration
+  REDIS_HOST: {{ .Values.redis.host | quote }}
+  REDIS_PORT: {{ .Values.redis.port | quote }}
+  REDIS_DB: {{ .Values.redis.db | quote }}
+
+  # NATS configuration
+  NATS_URL: {{ .Values.nats.url | quote }}
+  NATS_CLUSTER: {{ .Values.nats.cluster | quote }}
+
+  # MinIO configuration
+  MINIO_ENDPOINT: {{ .Values.minio.endpoint | quote }}
+  MINIO_BUCKET: {{ .Values.minio.bucket | quote }}
+  MINIO_USE_SSL: {{ .Values.minio.useSSL | quote }}
+
+  {{- with .Values.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}

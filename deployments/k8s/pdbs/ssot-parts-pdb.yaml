@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ssot-parts-pdb
+  namespace: essp
+  labels:
+    app: ssot-parts
+    app.kubernetes.io/name: ssot-parts
+    app.kubernetes.io/component: ssot
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ssot-parts

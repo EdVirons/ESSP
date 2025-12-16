@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sync-worker-pdb
+  namespace: essp
+  labels:
+    app: sync-worker
+    app.kubernetes.io/name: sync-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: essp-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: sync-worker
