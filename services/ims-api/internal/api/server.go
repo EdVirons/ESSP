@@ -183,6 +183,12 @@ func (s *Server) setupAPIRoutes(blobClient *blob.MinIO) {
 		presentations := handlers.NewPresentationsHandler(s.logger, s.pg, blobClient)
 		salesMetrics := handlers.NewSalesMetricsHandler(s.logger, s.pg)
 
+		// Knowledge Base handler
+		kbArticles := handlers.NewKBArticlesHandler(s.logger, s.pg)
+
+		// Marketing Knowledge Base handler
+		marketingKB := handlers.NewMarketingKBHandler(s.logger, s.pg)
+
 		// Mount routes from separate files
 		s.mountIncidentRoutes(r, inc)
 		s.mountWorkOrderRoutes(r, wo, woops, woUpdate, woRework, woBulk)
@@ -197,6 +203,8 @@ func (s *Server) setupAPIRoutes(blobClient *blob.MinIO) {
 		s.mountReportRoutes(r, rpt)
 		s.mountEdTechRoutes(r, edtech)
 		s.mountSalesRoutes(r, demoPipeline, presentations, salesMetrics)
+		s.mountKBRoutes(r, kbArticles)
+		s.mountMarketingKBRoutes(r, marketingKB)
 
 		// Messaging routes
 		RegisterMessagingRoutes(r, s.logger, s.pg, s.wsHub)

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { Download, FileText, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
@@ -27,7 +27,7 @@ export function AuditLogs() {
   const [showDetail, setShowDetail] = React.useState(false);
 
   // API hooks
-  const { data, isLoading } = useAuditLogs({
+  const { data, isLoading, error, refetch } = useAuditLogs({
     ...filters,
     startDate: startDate?.toISOString(),
     endDate: endDate?.toISOString(),
@@ -93,6 +93,36 @@ export function AuditLogs() {
     { value: '', label: 'All Entity Types' },
     ...(entityTypes || []),
   ];
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="rounded-xl bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 p-6 text-white shadow-lg">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur">
+              <FileText className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Audit Logs</h1>
+              <p className="text-slate-300">View system activity and change history</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+          <p className="text-red-600 text-center mb-4">
+            {(error as Error).message || 'Failed to load audit logs'}
+          </p>
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

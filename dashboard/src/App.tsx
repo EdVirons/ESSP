@@ -23,6 +23,7 @@ import { Profile } from '@/pages/Profile';
 import { Messages } from '@/pages/Messages';
 import LiveChat from '@/pages/LiveChat';
 import { KnowledgeBase } from '@/pages/KnowledgeBase';
+import { MarketingKB } from '@/pages/MarketingKB';
 import { SalesDashboard } from '@/pages/SalesDashboard';
 import { DemoPipeline } from '@/pages/DemoPipeline';
 import { Presentations } from '@/pages/Presentations';
@@ -89,6 +90,7 @@ function App() {
                 <Route path="/messages/:id" element={<Messages />} />
                 <Route path="/live-chat" element={<LiveChat />} />
                 <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/marketing-kb" element={<MarketingKB />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/reports/work-orders" element={<WorkOrdersReport />} />
                 <Route path="/reports/incidents" element={<IncidentsReport />} />

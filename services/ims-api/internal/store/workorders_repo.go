@@ -33,7 +33,7 @@ func (r *WorkOrderRepo) Create(ctx context.Context, wo models.WorkOrder) error {
 func (r *WorkOrderRepo) GetByID(ctx context.Context, tenantID, schoolID, id string) (models.WorkOrder, error) {
 	var wo models.WorkOrder
 	row := r.pool.QueryRow(ctx, `
-		SELECT id, incident_id, tenant_id, school_id, device_id, status, service_shop_id, assigned_staff_id, repair_location, service_shop_id, assigned_staff_id, repair_location,
+		SELECT id, incident_id, tenant_id, school_id, device_id, status, service_shop_id, assigned_staff_id, repair_location,
 		       assigned_to, task_type, cost_estimate_cents, notes, created_at, updated_at
 		FROM work_orders
 		WHERE tenant_id=$1 AND school_id=$2 AND id=$3
@@ -90,7 +90,7 @@ func (r *WorkOrderRepo) List(ctx context.Context, p WorkOrderListParams) ([]mode
 	args = append(args, limitPlus)
 
 	sql := `
-		SELECT id, incident_id, tenant_id, school_id, device_id, status, service_shop_id, assigned_staff_id, repair_location, service_shop_id, assigned_staff_id, repair_location,
+		SELECT id, incident_id, tenant_id, school_id, device_id, status, service_shop_id, assigned_staff_id, repair_location,
 		       assigned_to, task_type, cost_estimate_cents, notes, created_at, updated_at
 		FROM work_orders
 		WHERE ` + strings.Join(conds, " AND ") + `

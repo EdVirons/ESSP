@@ -24,6 +24,7 @@ import {
 import { demoPipelineApi } from '@/api/demo-pipeline';
 import { CreateLeadModal } from '@/components/sales/CreateLeadModal';
 import { LeadDetailSheet } from '@/components/sales/LeadDetailSheet';
+import { ScheduleDemoModal } from '@/components/sales/ScheduleDemoModal';
 import { toast } from '@/lib/toast';
 import type {
   DemoLead,
@@ -31,6 +32,7 @@ import type {
   DemoLeadStage,
   CreateDemoLeadRequest,
   UpdateLeadStageRequest,
+  CreateDemoScheduleRequest,
 } from '@/types/sales';
 import { stageLabels, stageColors } from '@/types/sales';
 
@@ -120,6 +122,9 @@ export function DemoPipeline() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStage, setSelectedStage] = useState<DemoLeadStage | 'all'>('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [scheduleLeadId, setScheduleLeadId] = useState<string | null>(null);
+  const [scheduleLeadName, setScheduleLeadName] = useState<string>('');
   const [selectedLead, setSelectedLead] = useState<DemoLeadWithActivities | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
 
@@ -180,6 +185,22 @@ export function DemoPipeline() {
     },
   });
 
+  // Schedule demo mutation
+  const scheduleDemoMutation = useMutation({
+    mutationFn: ({ leadId, data }: { leadId: string; data: CreateDemoScheduleRequest }) =>
+      demoPipelineApi.scheduleDemo(leadId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['demo-leads'] });
+      setScheduleModalOpen(false);
+      setScheduleLeadId(null);
+      setScheduleLeadName('');
+      toast.success('Demo scheduled', 'The demo has been scheduled successfully');
+    },
+    onError: () => {
+      toast.error('Failed to schedule demo', 'Please try again');
+    },
+  });
+
   const fetchLeadDetails = useCallback(async (id: string) => {
     try {
       const lead = await demoPipelineApi.getLead(id);
@@ -202,9 +223,16 @@ export function DemoPipeline() {
     addNoteMutation.mutate({ leadId, note });
   };
 
-  const handleScheduleDemo = (_leadId: string) => {
-    // TODO: Implement demo scheduling modal
-    toast.info('Coming soon', 'Demo scheduling will be available soon');
+  const handleScheduleDemo = (leadId: string, leadName?: string) => {
+    setScheduleLeadId(leadId);
+    setScheduleLeadName(leadName || '');
+    setScheduleModalOpen(true);
+  };
+
+  const handleScheduleDemoSubmit = (data: CreateDemoScheduleRequest) => {
+    if (scheduleLeadId) {
+      scheduleDemoMutation.mutate({ leadId: scheduleLeadId, data });
+    }
   };
 
   const getLeadsByStage = (stage: DemoLeadStage) =>
@@ -275,9 +303,9 @@ export function DemoPipeline() {
         </div>
       )}
 
-      {/* Pipeline Kanban */}
+      {/* Pipeline Kanban - Desktop View */}
       {!isLoading && (
-        <div className="grid grid-cols-7 gap-4 overflow-x-auto pb-4">
+        <div className="hidden lg:grid grid-cols-7 gap-4 overflow-x-auto pb-4">
           {displayStages.map((stage) => {
             const stageLeads = getLeadsByStage(stage);
             const totalValue = getTotalValueByStage(stage);
@@ -309,7 +337,7 @@ export function DemoPipeline() {
                         key={lead.id}
                         lead={lead}
                         onClick={() => handleLeadClick(lead)}
-                        onScheduleDemo={() => handleScheduleDemo(lead.id)}
+                        onScheduleDemo={() => handleScheduleDemo(lead.id, lead.schoolName)}
                         onAddNote={() => {
                           handleLeadClick(lead);
                         }}
@@ -318,6 +346,64 @@ export function DemoPipeline() {
                   )}
                 </div>
               </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pipeline List - Mobile View */}
+      {!isLoading && (
+        <div className="lg:hidden space-y-4">
+          {displayStages.map((stage) => {
+            const stageLeads = getLeadsByStage(stage);
+            const totalValue = getTotalValueByStage(stage);
+
+            return (
+              <Card key={stage} className="overflow-hidden">
+                <div className={`px-4 py-3 ${stageColors[stage].replace('text-', 'bg-').replace('800', '100')}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h3 className={`font-semibold ${stageColors[stage].split(' ')[1]}`}>
+                        {stageLabels[stage]}
+                      </h3>
+                      <Badge variant="secondary" className="bg-white">
+                        {stageLeads.length}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">
+                      {formatCurrency(totalValue)}
+                    </p>
+                  </div>
+                </div>
+                <CardContent className="p-3">
+                  {stageLeads.length === 0 ? (
+                    <p className="text-center py-4 text-gray-400 text-sm">No leads</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {stageLeads.slice(0, 3).map((lead) => (
+                        <div
+                          key={lead.id}
+                          onClick={() => handleLeadClick(lead)}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{lead.schoolName}</p>
+                            <p className="text-xs text-gray-500">{lead.contactName || 'No contact'}</p>
+                          </div>
+                          <p className="font-semibold text-sm">
+                            {lead.estimatedValue ? formatCurrency(lead.estimatedValue) : '-'}
+                          </p>
+                        </div>
+                      ))}
+                      {stageLeads.length > 3 && (
+                        <p className="text-center text-xs text-gray-500 py-2">
+                          +{stageLeads.length - 3} more leads
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             );
           })}
         </div>
@@ -381,8 +467,21 @@ export function DemoPipeline() {
         }}
         onUpdateStage={handleUpdateStage}
         onAddNote={handleAddNote}
-        onScheduleDemo={handleScheduleDemo}
+        onScheduleDemo={(leadId) => handleScheduleDemo(leadId, selectedLead?.schoolName)}
         isUpdating={updateStageMutation.isPending || addNoteMutation.isPending}
+      />
+
+      {/* Schedule Demo Modal */}
+      <ScheduleDemoModal
+        open={scheduleModalOpen}
+        onClose={() => {
+          setScheduleModalOpen(false);
+          setScheduleLeadId(null);
+          setScheduleLeadName('');
+        }}
+        onSubmit={handleScheduleDemoSubmit}
+        isLoading={scheduleDemoMutation.isPending}
+        leadName={scheduleLeadName}
       />
     </div>
   );

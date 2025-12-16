@@ -10,3 +10,5 @@ export * from './device';
 export * from './parts';
 export * from './reports';
 export * from './edtech';
+export * from './kb';
+export * from './marketing-kb';

@@ -52,6 +52,8 @@ type Postgres struct {
 	presentationViewsRepo *PresentationViewsRepo
 	salesMetricsDailyRepo *SalesMetricsDailyRepo
 	ssotLocationsRepo *SSOTLocationsRepo
+	kbArticlesRepo    *KBArticleRepo
+	marketingKBRepo   *MarketingKBRepo
 }
 
 // AuditStoreRef is a placeholder for the audit store to avoid circular dependency
@@ -108,6 +110,8 @@ func NewPostgres(ctx context.Context, dsn string) (*Postgres, error) {
 	s.presentationViewsRepo = &PresentationViewsRepo{pool: pool}
 	s.salesMetricsDailyRepo = &SalesMetricsDailyRepo{pool: pool}
 	s.ssotLocationsRepo = &SSOTLocationsRepo{pool: pool}
+	s.kbArticlesRepo = &KBArticleRepo{pool: pool}
+	s.marketingKBRepo = &MarketingKBRepo{pool: pool}
 	return s, nil
 }
 
@@ -158,3 +162,5 @@ func (p *Postgres) Presentations() *PresentationsRepo { return p.presentationsRe
 func (p *Postgres) PresentationViews() *PresentationViewsRepo { return p.presentationViewsRepo }
 func (p *Postgres) SalesMetricsDaily() *SalesMetricsDailyRepo { return p.salesMetricsDailyRepo }
 func (p *Postgres) SSOTLocations() *SSOTLocationsRepo { return p.ssotLocationsRepo }
+func (p *Postgres) KBArticles() *KBArticleRepo         { return p.kbArticlesRepo }
+func (p *Postgres) MarketingKB() *MarketingKBRepo      { return p.marketingKBRepo }

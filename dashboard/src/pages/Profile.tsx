@@ -127,13 +127,7 @@ export function Profile() {
         <UserProfileCard profile={profile} />
 
         {/* Preferences card */}
-        <UserPreferencesCard
-          preferences={profile.preferences}
-          onEdit={() => {
-            // TODO: Open preferences edit modal
-            console.log('Edit preferences');
-          }}
-        />
+        <UserPreferencesCard preferences={profile.preferences} />
 
         {/* Permissions card - full width */}
         <div className="lg:col-span-2">

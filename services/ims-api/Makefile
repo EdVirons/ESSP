@@ -2,7 +2,7 @@ APP?=app
 DB_URL?=postgres://ssp:ssp@localhost:5432/ssp_ims?sslmode=disable
 TEST_DB_URL?=postgres://ssp:ssp@localhost:5433/ssp_ims_test?sslmode=disable
 
-.PHONY: run test test-unit test-integration test-coverage test-coverage-html tidy migrate-up migrate-down test-env-up test-env-down test-db-setup
+.PHONY: run test test-unit test-integration test-coverage test-coverage-html tidy migrate-up migrate-down test-env-up test-env-down test-db-setup seed seed-clean
 
 run:
 	go run ./cmd/api
@@ -70,3 +70,11 @@ migrate-up:
 
 migrate-down:
 	go run ./cmd/migrate down
+
+# Seed database with realistic Kenyan test data
+seed:
+	DB_URL=$(DB_URL) go run ./cmd/seed
+
+# Clean and re-seed database
+seed-clean:
+	DB_URL=$(DB_URL) go run ./cmd/seed --clean

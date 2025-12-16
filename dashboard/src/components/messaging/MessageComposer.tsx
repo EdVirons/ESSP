@@ -3,6 +3,7 @@ import { Send, Paperclip, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSendMessage } from '@/hooks/useMessages';
+import { messagingApi } from '@/api/messaging';
 import { cn } from '@/lib/utils';
 
 interface MessageComposerProps {
@@ -25,14 +26,51 @@ export function MessageComposer({
 
   const sendMessage = useSendMessage(threadId);
 
+  const [isUploading, setIsUploading] = useState(false);
+
+  const uploadAttachments = async (files: File[]): Promise<string[]> => {
+    const attachmentRefs: string[] = [];
+
+    for (const file of files) {
+      // Get upload URL from the server
+      const { uploadUrl, attachmentRef } = await messagingApi.getUploadUrl({
+        fileName: file.name,
+        contentType: file.type || 'application/octet-stream',
+        sizeBytes: file.size,
+      });
+
+      // Upload file to the pre-signed URL
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+        },
+      });
+
+      attachmentRefs.push(attachmentRef);
+    }
+
+    return attachmentRefs;
+  };
+
   const handleSubmit = useCallback(async () => {
     if (!content.trim() && attachments.length === 0) return;
-    if (sendMessage.isPending) return;
+    if (sendMessage.isPending || isUploading) return;
 
     try {
+      setIsUploading(true);
+
+      // Upload attachments if any
+      let attachmentRefs: string[] = [];
+      if (attachments.length > 0) {
+        attachmentRefs = await uploadAttachments(attachments);
+      }
+
+      // Send message with attachment references
       await sendMessage.mutateAsync({
         content: content.trim(),
-        // TODO: Handle attachments upload
+        attachments: attachmentRefs.length > 0 ? attachmentRefs : undefined,
       });
 
       setContent('');
@@ -42,8 +80,10 @@ export function MessageComposer({
       textareaRef.current?.focus();
     } catch (error) {
       console.error('Failed to send message:', error);
+    } finally {
+      setIsUploading(false);
     }
-  }, [content, attachments, sendMessage]);
+  }, [content, attachments, sendMessage, isUploading]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -72,7 +112,7 @@ export function MessageComposer({
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const canSend = (content.trim() || attachments.length > 0) && !disabled;
+  const canSend = (content.trim() || attachments.length > 0) && !disabled && !isUploading;
 
   return (
     <div className="border-t border-gray-200 bg-white p-4">
@@ -105,8 +145,9 @@ export function MessageComposer({
           variant="ghost"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
-          disabled={disabled}
+          disabled={disabled || isUploading}
           className="flex-shrink-0"
+          aria-label="Add attachment"
         >
           <Paperclip className="h-5 w-5 text-gray-500" />
         </Button>
@@ -139,10 +180,11 @@ export function MessageComposer({
         {/* Send button */}
         <Button
           onClick={handleSubmit}
-          disabled={!canSend || sendMessage.isPending}
+          disabled={!canSend || sendMessage.isPending || isUploading}
           className="flex-shrink-0 bg-cyan-600 hover:bg-cyan-700"
+          aria-label={isUploading ? 'Uploading attachments' : sendMessage.isPending ? 'Sending message' : 'Send message'}
         >
-          {sendMessage.isPending ? (
+          {sendMessage.isPending || isUploading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <Send className="h-5 w-5" />

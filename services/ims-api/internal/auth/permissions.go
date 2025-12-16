@@ -127,8 +127,18 @@ const (
 	PermDeviceCreate = "device:create"
 	PermDeviceUpdate = "device:update"
 
-	// Knowledge Base permissions (placeholder for future feature)
-	PermKBRead = "kb:read"
+	// Knowledge Base permissions
+	PermKBCreate = "kb:create"
+	PermKBRead   = "kb:read"
+	PermKBUpdate = "kb:update"
+	PermKBDelete = "kb:delete"
+
+	// Marketing Knowledge Base permissions
+	PermMKBCreate  = "mkb:create"
+	PermMKBRead    = "mkb:read"
+	PermMKBUpdate  = "mkb:update"
+	PermMKBDelete  = "mkb:delete"
+	PermMKBApprove = "mkb:approve"
 
 	// Sales/Marketing permissions
 	PermDemoManage     = "demo:manage"        // Manage demo pipeline
@@ -299,6 +309,11 @@ var RolePermissions = map[string][]string{
 		// Content/Presentations
 		PermContentManage,
 		PermPresentations,
+
+		// Marketing Knowledge Base (can create/read/update, but not delete/approve)
+		PermMKBCreate,
+		PermMKBRead,
+		PermMKBUpdate,
 
 		// Activity and team
 		PermProjectTeamRead,

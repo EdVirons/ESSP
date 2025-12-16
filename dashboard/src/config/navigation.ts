@@ -125,6 +125,15 @@ export const navItems: NavItem[] = [
     roles: ['ssp_admin', 'ssp_sales_marketing'],
   },
   {
+    title: 'Marketing KB',
+    href: '/marketing-kb',
+    icon: BookOpen,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
+    permissions: ['mkb:read'],
+    roles: ['ssp_admin', 'ssp_sales_marketing'],
+  },
+  {
     title: 'Projects',
     href: '/projects',
     icon: Layers,
@@ -355,6 +364,15 @@ export const navGroups: NavGroup[] = [
         color: 'text-pink-600',
         bgColor: 'bg-pink-100',
         permissions: ['presentations:view'],
+        roles: ['ssp_admin', 'ssp_sales_marketing'],
+      },
+      {
+        title: 'Marketing KB',
+        href: '/marketing-kb',
+        icon: BookOpen,
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-100',
+        permissions: ['mkb:read'],
         roles: ['ssp_admin', 'ssp_sales_marketing'],
       },
       {

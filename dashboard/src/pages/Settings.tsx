@@ -34,14 +34,19 @@ function ToggleSwitch({
   checked,
   onChange,
   disabled,
+  label,
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
+  label?: string;
 }) {
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -306,6 +311,7 @@ export function Settings() {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -357,18 +363,21 @@ export function Settings() {
                   <ToggleSwitch
                     checked={notifications.emailAlerts}
                     onChange={(checked) => setNotifications({ ...notifications, emailAlerts: checked })}
+                    label="Toggle email notifications"
                   />
                 </SettingsRow>
                 <SettingsRow title="Browser Notifications" description="Show desktop push notifications">
                   <ToggleSwitch
                     checked={notifications.browserNotifications}
                     onChange={(checked) => setNotifications({ ...notifications, browserNotifications: checked })}
+                    label="Toggle browser notifications"
                   />
                 </SettingsRow>
                 <SettingsRow title="Weekly Reports" description="Receive weekly summary emails">
                   <ToggleSwitch
                     checked={notifications.weeklyReports}
                     onChange={(checked) => setNotifications({ ...notifications, weeklyReports: checked })}
+                    label="Toggle weekly reports"
                   />
                 </SettingsRow>
               </CardContent>
@@ -387,18 +396,21 @@ export function Settings() {
                   <ToggleSwitch
                     checked={notifications.workOrderUpdates}
                     onChange={(checked) => setNotifications({ ...notifications, workOrderUpdates: checked })}
+                    label="Toggle work order updates"
                   />
                 </SettingsRow>
                 <SettingsRow title="Incident Alerts" description="When new incidents are reported">
                   <ToggleSwitch
                     checked={notifications.incidentAlerts}
                     onChange={(checked) => setNotifications({ ...notifications, incidentAlerts: checked })}
+                    label="Toggle incident alerts"
                   />
                 </SettingsRow>
                 <SettingsRow title="Sync Notifications" description="When SSOT sync completes">
                   <ToggleSwitch
                     checked={notifications.syncNotifications}
                     onChange={(checked) => setNotifications({ ...notifications, syncNotifications: checked })}
+                    label="Toggle sync notifications"
                   />
                 </SettingsRow>
               </CardContent>
@@ -468,18 +480,21 @@ export function Settings() {
                   <ToggleSwitch
                     checked={appearance.sidebarCollapsed}
                     onChange={(checked) => setAppearance({ ...appearance, sidebarCollapsed: checked })}
+                    label="Toggle collapsed sidebar"
                   />
                 </SettingsRow>
                 <SettingsRow title="Compact Mode" description="Reduce spacing for more content">
                   <ToggleSwitch
                     checked={appearance.compactMode}
                     onChange={(checked) => setAppearance({ ...appearance, compactMode: checked })}
+                    label="Toggle compact mode"
                   />
                 </SettingsRow>
                 <SettingsRow title="Show Avatars" description="Display user avatars in lists">
                   <ToggleSwitch
                     checked={appearance.showAvatars}
                     onChange={(checked) => setAppearance({ ...appearance, showAvatars: checked })}
+                    label="Toggle show avatars"
                   />
                 </SettingsRow>
               </CardContent>
@@ -586,12 +601,14 @@ export function Settings() {
                   <ToggleSwitch
                     checked={ssotSettings.autoSync}
                     onChange={(checked) => setSsotSettings({ ...ssotSettings, autoSync: checked })}
+                    label="Toggle auto sync"
                   />
                 </SettingsRow>
                 <SettingsRow title="Sync on Startup" description="Sync when dashboard loads">
                   <ToggleSwitch
                     checked={ssotSettings.syncOnStartup}
                     onChange={(checked) => setSsotSettings({ ...ssotSettings, syncOnStartup: checked })}
+                    label="Toggle sync on startup"
                   />
                 </SettingsRow>
                 <div className="py-3 border-b border-gray-100">

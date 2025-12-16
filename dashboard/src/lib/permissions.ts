@@ -29,7 +29,8 @@ export const rolePermissions: Record<string, string[]> = {
     'telemetry:ingest',
     'messages:read', 'messages:create', 'messages:manage',
     'chat:accept', 'chat:transfer', 'chat:manage',
-    'kb:read',
+    'kb:read', 'kb:create', 'kb:update', 'kb:delete',
+    'mkb:read', 'mkb:create', 'mkb:update', 'mkb:delete', 'mkb:approve',
     'audit:read',
     'settings:read', 'settings:update',
   ],
@@ -126,6 +127,9 @@ export const rolePermissions: Record<string, string[]> = {
     // Content/Presentations
     'content:manage',
     'presentations:view',
+
+    // Marketing Knowledge Base (can create/read/update, but not delete/approve)
+    'mkb:create', 'mkb:read', 'mkb:update',
 
     // Activity and team
     'project:team:read',

@@ -8,6 +8,7 @@ import {
   Clock,
   Database,
   ArrowRight,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -86,7 +87,7 @@ function SyncCard({ title, icon, count, lastSyncAt, onSync, isSyncing, color }: 
 }
 
 export function SSOTSync() {
-  const { data: syncStatus, isLoading, refetch } = useSyncStatus();
+  const { data: syncStatus, isLoading, error, refetch } = useSyncStatus();
   const syncSchools = useSyncSchools();
   const syncDevices = useSyncDevices();
   const syncParts = useSyncParts();
@@ -106,6 +107,28 @@ export function SSOTSync() {
     (syncStatus?.schools?.count || 0) +
     (syncStatus?.devices?.count || 0) +
     (syncStatus?.parts?.count || 0);
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">SSOT Sync Control</h1>
+          <p className="text-gray-500">Manage synchronization of Single Source of Truth data</p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+          <p className="text-red-600 text-center mb-4">
+            {(error as Error).message || 'Failed to load sync status'}
+          </p>
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
