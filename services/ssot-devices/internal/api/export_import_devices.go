@@ -11,7 +11,7 @@ import (
 )
 
 func exportAll(ctx context.Context, db *pgxpool.Pool, tenant string) (models.ExportPayload, error) {
-	p := models.ExportPayload{Version: "1", GeneratedAt: time.Now().UTC()}
+	p := models.ExportPayload{Version: "2", GeneratedAt: time.Now().UTC()}
 	rows, err := db.Query(ctx, `SELECT id, tenant_id, make, model, category, spec_json, created_at, updated_at FROM device_models WHERE tenant_id=$1 ORDER BY make, model`, tenant)
 	if err != nil { return p, err }
 	for rows.Next() {
@@ -29,14 +29,27 @@ func exportAll(ctx context.Context, db *pgxpool.Pool, tenant string) (models.Exp
 		p.Devices = append(p.Devices, x)
 	}
 	rows.Close()
+
+	// Export network identities (MAC addresses)
+	rows, err = db.Query(ctx, `SELECT id, tenant_id, device_id, mac_address, interface_name, interface_type, is_primary, first_seen_at, last_seen_at, created_at, updated_at FROM device_network_identities WHERE tenant_id=$1 ORDER BY device_id, is_primary DESC`, tenant)
+	if err != nil { return p, err }
+	for rows.Next() {
+		var x models.DeviceNetworkIdentity
+		var ifType string
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.DeviceID, &x.MACAddress, &x.InterfaceName, &ifType, &x.IsPrimary, &x.FirstSeenAt, &x.LastSeenAt, &x.CreatedAt, &x.UpdatedAt); err != nil { rows.Close(); return p, err }
+		x.InterfaceType = models.InterfaceType(ifType)
+		p.NetworkIdentities = append(p.NetworkIdentities, x)
+	}
+	rows.Close()
 	return p, nil
 }
 
 func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[string]any) (map[string]any, error) {
 	modelsList, _ := body["models"].([]any)
 	devices, _ := body["devices"].([]any)
-	if len(modelsList)==0 && len(devices)==0 { return nil, errors.New("no ssot data provided") }
-	res := map[string]any{"models": 0, "devices": 0}
+	networkIds, _ := body["networkIdentities"].([]any)
+	if len(modelsList)==0 && len(devices)==0 && len(networkIds)==0 { return nil, errors.New("no ssot data provided") }
+	res := map[string]any{"models": 0, "devices": 0, "networkIdentities": 0}
 
 	err := withTx(ctx, db, func(tx pgx.Tx) error {
 	now := time.Now().UTC()
@@ -76,6 +89,27 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 		`, id, tenant, serial, asset, dmid, school, assigned, life, enrolled, now)
 		if err != nil { return err }
 		res["devices"] = res["devices"].(int) + 1
+	}
+
+	// Import network identities (MAC addresses)
+	for _, it := range networkIds {
+		m, ok := it.(map[string]any); if !ok { continue }
+		id := trim(m["id"]); if id=="" { id=newID("netid") }
+		deviceID := trim(m["deviceId"])
+		mac := trim(m["macAddress"])
+		if deviceID=="" || mac=="" { continue }
+		mac = models.NormalizeMACAddress(mac)
+		ifName := trim(m["interfaceName"])
+		ifType := trim(m["interfaceType"]); if ifType=="" { ifType="unknown" }
+		isPrimary := false
+		if v, ok := m["isPrimary"].(bool); ok { isPrimary=v }
+		_, err := tx.Exec(ctx, `
+			INSERT INTO device_network_identities (id, tenant_id, device_id, mac_address, interface_name, interface_type, is_primary, first_seen_at, last_seen_at, created_at, updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$8,$8,$8)
+			ON CONFLICT (tenant_id, mac_address) DO UPDATE SET device_id=EXCLUDED.device_id, interface_name=EXCLUDED.interface_name, interface_type=EXCLUDED.interface_type, is_primary=EXCLUDED.is_primary, last_seen_at=$8, updated_at=$8
+		`, id, tenant, deviceID, mac, ifName, ifType, isPrimary, now)
+		if err != nil { return err }
+		res["networkIdentities"] = res["networkIdentities"].(int) + 1
 	}
 	return nil
 	})

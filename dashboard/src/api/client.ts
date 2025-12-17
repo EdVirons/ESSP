@@ -11,7 +11,10 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token and tenant headers
+// Storage key for impersonation state (must match ImpersonationContext)
+const IMPERSONATION_STORAGE_KEY = 'impersonation_state';
+
+// Request interceptor to add auth token, tenant headers, and impersonation headers
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // Get token from localStorage
@@ -21,11 +24,27 @@ apiClient.interceptors.request.use(
     }
 
     // Get tenant and school from localStorage or context
-    const tenantId = localStorage.getItem('tenant_id') || 'demo-tenant';
+    const tenantId = localStorage.getItem('tenant_id') || 'demo';
     const schoolId = localStorage.getItem('school_id') || 'demo-school';
 
     config.headers['X-Tenant-ID'] = tenantId;
     config.headers['X-School-ID'] = schoolId;
+
+    // Add impersonation headers if active
+    try {
+      const impersonationState = localStorage.getItem(IMPERSONATION_STORAGE_KEY);
+      if (impersonationState) {
+        const state = JSON.parse(impersonationState);
+        if (state.targetUser?.userId) {
+          config.headers['X-Impersonate-User'] = state.targetUser.userId;
+          if (state.reason) {
+            config.headers['X-Impersonate-Reason'] = state.reason;
+          }
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
 
     return config;
   },

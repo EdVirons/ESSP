@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { ImpersonationBanner } from '@/components/ImpersonationBanner';
 import { cn } from '@/lib/utils';
 import { useNotificationContext } from '@/contexts/NotificationContext';
+import { useImpersonation } from '@/contexts/ImpersonationContext';
 
 export function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isConnected } = useNotificationContext();
+  const { isImpersonating } = useImpersonation();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -19,7 +22,10 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={cn("min-h-screen bg-gray-50", isImpersonating && "border-t-4 border-orange-500")}>
+      {/* Impersonation banner - shown when ops manager is acting as school contact */}
+      <ImpersonationBanner />
+
       <Header onMenuClick={toggleMobileMenu} />
 
       {/* Mobile sidebar overlay */}

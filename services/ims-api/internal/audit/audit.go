@@ -25,6 +25,10 @@ type AuditContext struct {
 	IPAddress string
 	UserAgent string
 	RequestID string
+	// Impersonation fields
+	ImpersonatedUserID    string
+	ImpersonatedUserEmail string
+	ImpersonationReason   string
 }
 
 // AuditLogger provides methods for logging entity changes
@@ -54,19 +58,22 @@ func (l *Logger) LogCreate(ctx context.Context, entityType, entityID string, aft
 	}
 
 	log := AuditLog{
-		ID:          store.NewID("audit"),
-		TenantID:    auditCtx.TenantID,
-		UserID:      auditCtx.UserID,
-		UserEmail:   auditCtx.UserEmail,
-		Action:      string(ActionCreate),
-		EntityType:  entityType,
-		EntityID:    entityID,
-		BeforeState: nil,
-		AfterState:  afterJSON,
-		IPAddress:   auditCtx.IPAddress,
-		UserAgent:   auditCtx.UserAgent,
-		RequestID:   auditCtx.RequestID,
-		CreatedAt:   time.Now().UTC(),
+		ID:                    store.NewID("audit"),
+		TenantID:              auditCtx.TenantID,
+		UserID:                auditCtx.UserID,
+		UserEmail:             auditCtx.UserEmail,
+		Action:                string(ActionCreate),
+		EntityType:            entityType,
+		EntityID:              entityID,
+		BeforeState:           nil,
+		AfterState:            afterJSON,
+		IPAddress:             auditCtx.IPAddress,
+		UserAgent:             auditCtx.UserAgent,
+		RequestID:             auditCtx.RequestID,
+		CreatedAt:             time.Now().UTC(),
+		ImpersonatedUserID:    auditCtx.ImpersonatedUserID,
+		ImpersonatedUserEmail: auditCtx.ImpersonatedUserEmail,
+		ImpersonationReason:   auditCtx.ImpersonationReason,
 	}
 
 	return l.store.Create(ctx, log)
@@ -87,19 +94,22 @@ func (l *Logger) LogUpdate(ctx context.Context, entityType, entityID string, bef
 	}
 
 	log := AuditLog{
-		ID:          store.NewID("audit"),
-		TenantID:    auditCtx.TenantID,
-		UserID:      auditCtx.UserID,
-		UserEmail:   auditCtx.UserEmail,
-		Action:      string(ActionUpdate),
-		EntityType:  entityType,
-		EntityID:    entityID,
-		BeforeState: beforeJSON,
-		AfterState:  afterJSON,
-		IPAddress:   auditCtx.IPAddress,
-		UserAgent:   auditCtx.UserAgent,
-		RequestID:   auditCtx.RequestID,
-		CreatedAt:   time.Now().UTC(),
+		ID:                    store.NewID("audit"),
+		TenantID:              auditCtx.TenantID,
+		UserID:                auditCtx.UserID,
+		UserEmail:             auditCtx.UserEmail,
+		Action:                string(ActionUpdate),
+		EntityType:            entityType,
+		EntityID:              entityID,
+		BeforeState:           beforeJSON,
+		AfterState:            afterJSON,
+		IPAddress:             auditCtx.IPAddress,
+		UserAgent:             auditCtx.UserAgent,
+		RequestID:             auditCtx.RequestID,
+		CreatedAt:             time.Now().UTC(),
+		ImpersonatedUserID:    auditCtx.ImpersonatedUserID,
+		ImpersonatedUserEmail: auditCtx.ImpersonatedUserEmail,
+		ImpersonationReason:   auditCtx.ImpersonationReason,
 	}
 
 	return l.store.Create(ctx, log)
@@ -115,19 +125,22 @@ func (l *Logger) LogDelete(ctx context.Context, entityType, entityID string, bef
 	}
 
 	log := AuditLog{
-		ID:          store.NewID("audit"),
-		TenantID:    auditCtx.TenantID,
-		UserID:      auditCtx.UserID,
-		UserEmail:   auditCtx.UserEmail,
-		Action:      string(ActionDelete),
-		EntityType:  entityType,
-		EntityID:    entityID,
-		BeforeState: beforeJSON,
-		AfterState:  nil,
-		IPAddress:   auditCtx.IPAddress,
-		UserAgent:   auditCtx.UserAgent,
-		RequestID:   auditCtx.RequestID,
-		CreatedAt:   time.Now().UTC(),
+		ID:                    store.NewID("audit"),
+		TenantID:              auditCtx.TenantID,
+		UserID:                auditCtx.UserID,
+		UserEmail:             auditCtx.UserEmail,
+		Action:                string(ActionDelete),
+		EntityType:            entityType,
+		EntityID:              entityID,
+		BeforeState:           beforeJSON,
+		AfterState:            nil,
+		IPAddress:             auditCtx.IPAddress,
+		UserAgent:             auditCtx.UserAgent,
+		RequestID:             auditCtx.RequestID,
+		CreatedAt:             time.Now().UTC(),
+		ImpersonatedUserID:    auditCtx.ImpersonatedUserID,
+		ImpersonatedUserEmail: auditCtx.ImpersonatedUserEmail,
+		ImpersonationReason:   auditCtx.ImpersonationReason,
 	}
 
 	return l.store.Create(ctx, log)
@@ -156,4 +169,8 @@ type AuditLog struct {
 	UserAgent   string
 	RequestID   string
 	CreatedAt   time.Time
+	// Impersonation fields
+	ImpersonatedUserID    string
+	ImpersonatedUserEmail string
+	ImpersonationReason   string
 }

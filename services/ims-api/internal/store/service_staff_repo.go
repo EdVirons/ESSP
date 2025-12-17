@@ -105,3 +105,74 @@ func (r *ServiceStaffRepo) List(ctx context.Context, p StaffListParams) ([]model
 	}
 	return out,next,nil
 }
+
+func (r *ServiceStaffRepo) Update(ctx context.Context, s models.ServiceStaff) error {
+	result, err := r.pool.Exec(ctx, `
+		UPDATE service_staff SET
+			service_shop_id = $3,
+			role = $4,
+			phone = $5,
+			active = $6,
+			updated_at = $7
+		WHERE tenant_id = $1 AND id = $2
+	`, s.TenantID, s.ID, s.ServiceShopID, s.Role, s.Phone, s.Active, s.UpdatedAt)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return errors.New("not found")
+	}
+	return nil
+}
+
+func (r *ServiceStaffRepo) Delete(ctx context.Context, tenantID, id string) error {
+	result, err := r.pool.Exec(ctx, `
+		DELETE FROM service_staff WHERE tenant_id = $1 AND id = $2
+	`, tenantID, id)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return errors.New("not found")
+	}
+	return nil
+}
+
+type ServiceStaffStats struct {
+	Total    int            `json:"total"`
+	Active   int            `json:"active"`
+	Inactive int            `json:"inactive"`
+	ByRole   map[string]int `json:"byRole"`
+}
+
+func (r *ServiceStaffRepo) GetStats(ctx context.Context, tenantID string) (ServiceStaffStats, error) {
+	stats := ServiceStaffStats{ByRole: make(map[string]int)}
+
+	// Count total
+	if err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM service_staff WHERE tenant_id = $1`, tenantID).Scan(&stats.Total); err != nil {
+		return stats, err
+	}
+
+	// Count active
+	if err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM service_staff WHERE tenant_id = $1 AND active = true`, tenantID).Scan(&stats.Active); err != nil {
+		return stats, err
+	}
+	stats.Inactive = stats.Total - stats.Active
+
+	// Count by role
+	rows, err := r.pool.Query(ctx, `SELECT role, COUNT(*) FROM service_staff WHERE tenant_id = $1 GROUP BY role`, tenantID)
+	if err != nil {
+		return stats, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var role string
+		var count int
+		if err := rows.Scan(&role, &count); err != nil {
+			return stats, err
+		}
+		stats.ByRole[role] = count
+	}
+
+	return stats, nil
+}

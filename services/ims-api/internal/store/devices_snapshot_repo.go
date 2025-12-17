@@ -204,6 +204,30 @@ func (r *DevicesSnapshotRepo) ListModels(ctx context.Context, tenantID string) (
 	return models, nil
 }
 
+// ListBySchool returns all devices for a school (no pagination, for inventory view)
+func (r *DevicesSnapshotRepo) ListBySchool(ctx context.Context, tenantID, schoolID string) ([]models.DeviceSnapshot, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT tenant_id, device_id, school_id, model, serial, asset_tag, status, updated_at
+		FROM devices_snapshot
+		WHERE tenant_id=$1 AND school_id=$2
+		ORDER BY updated_at DESC
+	`, tenantID, schoolID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	items := []models.DeviceSnapshot{}
+	for rows.Next() {
+		var d models.DeviceSnapshot
+		if err := rows.Scan(&d.TenantID, &d.DeviceID, &d.SchoolID, &d.Model, &d.Serial, &d.AssetTag, &d.Status, &d.UpdatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, d)
+	}
+	return items, nil
+}
+
 func (r *DevicesSnapshotRepo) ListMakes(ctx context.Context, tenantID string) ([]string, error) {
 	// Extract make from model (first word before space or the whole string)
 	rows, err := r.pool.Query(ctx, `

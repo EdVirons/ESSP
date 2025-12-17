@@ -12,3 +12,5 @@ export * from './reports';
 export * from './edtech';
 export * from './kb';
 export * from './marketing-kb';
+export * from './inventory';
+export * from './hr';

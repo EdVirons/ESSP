@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ImpersonationProvider } from '@/contexts/ImpersonationContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Login } from '@/pages/Login';
 import { Overview } from '@/pages/Overview';
@@ -13,6 +14,8 @@ import { Incidents } from '@/pages/Incidents';
 import { WorkOrders } from '@/pages/WorkOrders';
 import { Projects } from '@/pages/Projects';
 import { ServiceShops } from '@/pages/ServiceShops';
+import { Staff } from '@/pages/Staff';
+import { HR } from '@/pages/HR';
 import { AuditLogs } from '@/pages/AuditLogs';
 import { Settings } from '@/pages/Settings';
 import { Schools } from '@/pages/Schools';
@@ -28,6 +31,7 @@ import { SalesDashboard } from '@/pages/SalesDashboard';
 import { DemoPipeline } from '@/pages/DemoPipeline';
 import { Presentations } from '@/pages/Presentations';
 import { Reports } from '@/pages/Reports';
+import { SchoolInventory } from '@/pages/SchoolInventory';
 import {
   WorkOrdersReport,
   IncidentsReport,
@@ -53,8 +57,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename="/">
         <AuthProvider>
-          <NotificationProvider>
-            <Routes>
+          <ImpersonationProvider>
+            <NotificationProvider>
+              <Routes>
               {/* Redirect root to overview */}
               <Route path="/" element={<Navigate to="/overview" replace />} />
 
@@ -81,9 +86,12 @@ function App() {
                 <Route path="/projects/:id" element={<Projects />} />
                 <Route path="/service-shops" element={<ServiceShops />} />
                 <Route path="/service-shops/:id" element={<ServiceShops />} />
+                <Route path="/staff" element={<Staff />} />
+                <Route path="/hr" element={<HR />} />
                 <Route path="/schools" element={<Schools />} />
                 <Route path="/devices" element={<DevicesPage />} />
                 <Route path="/devices/:id" element={<DevicesPage />} />
+                <Route path="/school-inventory" element={<SchoolInventory />} />
                 <Route path="/parts-catalog" element={<PartsCatalog />} />
                 <Route path="/ssot-sync" element={<SSOTSync />} />
                 <Route path="/messages" element={<Messages />} />
@@ -103,8 +111,9 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-            <Toaster />
-          </NotificationProvider>
+              <Toaster />
+            </NotificationProvider>
+          </ImpersonationProvider>
         </AuthProvider>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />

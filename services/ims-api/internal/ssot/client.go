@@ -98,3 +98,72 @@ func (c *Client) ListParts(updatedSince time.Time, cursor string, limit int) (Pa
 	err := c.fetch("/v1/parts", q, &out)
 	return out, err
 }
+
+// HR SSOT types and methods
+
+type HRExportPayload struct {
+	Version         string           `json:"version"`
+	GeneratedAt     time.Time        `json:"generatedAt"`
+	OrgUnits        []HROrgUnit      `json:"orgUnits"`
+	People          []HRPerson       `json:"people"`
+	Teams           []HRTeam         `json:"teams"`
+	TeamMemberships []HRMembership   `json:"teamMemberships"`
+}
+
+type HROrgUnit struct {
+	ID        string    `json:"id"`
+	TenantID  string    `json:"tenantId"`
+	ParentID  string    `json:"parentId"`
+	Code      string    `json:"code"`
+	Name      string    `json:"name"`
+	Kind      string    `json:"kind"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type HRPerson struct {
+	ID         string    `json:"id"`
+	TenantID   string    `json:"tenantId"`
+	OrgUnitID  string    `json:"orgUnitId"`
+	Status     string    `json:"status"`
+	GivenName  string    `json:"givenName"`
+	FamilyName string    `json:"familyName"`
+	Email      string    `json:"email"`
+	Phone      string    `json:"phone"`
+	Title      string    `json:"title"`
+	AvatarURL  string    `json:"avatarUrl"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+}
+
+type HRTeam struct {
+	ID          string    `json:"id"`
+	TenantID    string    `json:"tenantId"`
+	OrgUnitID   string    `json:"orgUnitId"`
+	Key         string    `json:"key"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+type HRMembership struct {
+	ID        string     `json:"id"`
+	TenantID  string     `json:"tenantId"`
+	TeamID    string     `json:"teamId"`
+	PersonID  string     `json:"personId"`
+	Role      string     `json:"role"`
+	Status    string     `json:"status"`
+	StartedAt *time.Time `json:"startedAt"`
+	EndedAt   *time.Time `json:"endedAt"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+}
+
+// FetchHRExport fetches the full HR export from the ssot-hr service
+func (c *Client) FetchHRExport() (HRExportPayload, error) {
+	var out HRExportPayload
+	q := url.Values{}
+	err := c.fetch("/v1/export", q, &out)
+	return out, err
+}

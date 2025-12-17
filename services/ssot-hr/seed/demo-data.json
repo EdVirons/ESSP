@@ -1,0 +1,251 @@
+{
+  "version": "1",
+  "orgUnits": [
+    {
+      "id": "org_edvirons",
+      "code": "edvirons",
+      "name": "EdVirons",
+      "kind": "company",
+      "parentId": ""
+    },
+    {
+      "id": "org_executive",
+      "code": "exec",
+      "name": "Executive",
+      "kind": "division",
+      "parentId": "org_edvirons"
+    },
+    {
+      "id": "org_operations",
+      "code": "ops",
+      "name": "Operations",
+      "kind": "division",
+      "parentId": "org_edvirons"
+    },
+    {
+      "id": "org_tech",
+      "code": "tech",
+      "name": "Technical Services",
+      "kind": "department",
+      "parentId": "org_operations"
+    },
+    {
+      "id": "org_support",
+      "code": "support",
+      "name": "Support Services",
+      "kind": "department",
+      "parentId": "org_operations"
+    },
+    {
+      "id": "org_warehouse",
+      "code": "warehouse",
+      "name": "Warehouse & Logistics",
+      "kind": "department",
+      "parentId": "org_operations"
+    },
+    {
+      "id": "org_sales",
+      "code": "sales",
+      "name": "Sales & Marketing",
+      "kind": "division",
+      "parentId": "org_edvirons"
+    },
+    {
+      "id": "org_schools",
+      "code": "schools",
+      "name": "Partner Schools",
+      "kind": "division",
+      "parentId": "org_edvirons"
+    }
+  ],
+  "people": [
+    {
+      "id": "person_admin",
+      "givenName": "System",
+      "familyName": "Administrator",
+      "email": "admin@edvirons.com",
+      "title": "System Administrator",
+      "orgUnitId": "org_executive",
+      "status": "active"
+    },
+    {
+      "id": "person_ops_manager",
+      "givenName": "Omar",
+      "familyName": "Martinez",
+      "email": "ops_manager@edvirons.com",
+      "title": "Operations Manager",
+      "orgUnitId": "org_operations",
+      "status": "active"
+    },
+    {
+      "id": "person_school_contact",
+      "givenName": "Sarah",
+      "familyName": "Chen",
+      "email": "school_contact@edvirons.com",
+      "title": "School Liaison",
+      "orgUnitId": "org_schools",
+      "status": "active"
+    },
+    {
+      "id": "person_support_agent",
+      "givenName": "Alex",
+      "familyName": "Johnson",
+      "email": "support_agent@edvirons.com",
+      "title": "Support Specialist",
+      "orgUnitId": "org_support",
+      "status": "active"
+    },
+    {
+      "id": "person_lead_tech",
+      "givenName": "Laura",
+      "familyName": "Williams",
+      "email": "lead_tech@edvirons.com",
+      "title": "Lead Technician",
+      "orgUnitId": "org_tech",
+      "status": "active"
+    },
+    {
+      "id": "person_field_tech",
+      "givenName": "Felix",
+      "familyName": "Thompson",
+      "email": "field_tech@edvirons.com",
+      "title": "Field Technician",
+      "orgUnitId": "org_tech",
+      "status": "active"
+    },
+    {
+      "id": "person_warehouse",
+      "givenName": "Winston",
+      "familyName": "Baker",
+      "email": "warehouse@edvirons.com",
+      "title": "Warehouse Manager",
+      "orgUnitId": "org_warehouse",
+      "status": "active"
+    },
+    {
+      "id": "person_sales",
+      "givenName": "Sophia",
+      "familyName": "Martinez",
+      "email": "sales_marketing@edvirons.com",
+      "title": "Sales Representative",
+      "orgUnitId": "org_sales",
+      "status": "active"
+    }
+  ],
+  "teams": [
+    {
+      "id": "team_admin",
+      "key": "administrators",
+      "name": "Administrators",
+      "description": "System administrators with full access",
+      "orgUnitId": "org_executive"
+    },
+    {
+      "id": "team_ops",
+      "key": "operations",
+      "name": "Operations Team",
+      "description": "Operations management team",
+      "orgUnitId": "org_operations"
+    },
+    {
+      "id": "team_support",
+      "key": "support",
+      "name": "Support Team",
+      "description": "Customer support and helpdesk",
+      "orgUnitId": "org_support"
+    },
+    {
+      "id": "team_field_tech",
+      "key": "field-technicians",
+      "name": "Field Technicians",
+      "description": "On-site technical support team",
+      "orgUnitId": "org_tech"
+    },
+    {
+      "id": "team_warehouse",
+      "key": "warehouse",
+      "name": "Warehouse Team",
+      "description": "Inventory and logistics management",
+      "orgUnitId": "org_warehouse"
+    },
+    {
+      "id": "team_sales",
+      "key": "sales-marketing",
+      "name": "Sales & Marketing",
+      "description": "Sales and marketing team",
+      "orgUnitId": "org_sales"
+    },
+    {
+      "id": "team_school_relations",
+      "key": "school-relations",
+      "name": "School Relations",
+      "description": "School contact and coordination team",
+      "orgUnitId": "org_schools"
+    }
+  ],
+  "teamMemberships": [
+    {
+      "id": "tmem_admin_admin",
+      "teamId": "team_admin",
+      "personId": "person_admin",
+      "role": "lead",
+      "status": "active"
+    },
+    {
+      "id": "tmem_ops_ops",
+      "teamId": "team_ops",
+      "personId": "person_ops_manager",
+      "role": "lead",
+      "status": "active"
+    },
+    {
+      "id": "tmem_admin_ops",
+      "teamId": "team_admin",
+      "personId": "person_ops_manager",
+      "role": "member",
+      "status": "active"
+    },
+    {
+      "id": "tmem_support_agent",
+      "teamId": "team_support",
+      "personId": "person_support_agent",
+      "role": "member",
+      "status": "active"
+    },
+    {
+      "id": "tmem_tech_lead",
+      "teamId": "team_field_tech",
+      "personId": "person_lead_tech",
+      "role": "lead",
+      "status": "active"
+    },
+    {
+      "id": "tmem_tech_field",
+      "teamId": "team_field_tech",
+      "personId": "person_field_tech",
+      "role": "member",
+      "status": "active"
+    },
+    {
+      "id": "tmem_warehouse_mgr",
+      "teamId": "team_warehouse",
+      "personId": "person_warehouse",
+      "role": "lead",
+      "status": "active"
+    },
+    {
+      "id": "tmem_sales_rep",
+      "teamId": "team_sales",
+      "personId": "person_sales",
+      "role": "member",
+      "status": "active"
+    },
+    {
+      "id": "tmem_school_contact",
+      "teamId": "team_school_relations",
+      "personId": "person_school_contact",
+      "role": "member",
+      "status": "active"
+    }
+  ]
+}

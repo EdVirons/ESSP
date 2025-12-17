@@ -7,6 +7,7 @@ import (
 	"github.com/edvirons/ssp/ims/internal/config"
 	"github.com/edvirons/ssp/ims/internal/middleware"
 	"github.com/edvirons/ssp/ims/internal/store"
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
@@ -225,4 +226,190 @@ func parseOffset(s string) int {
 		return 0
 	}
 	return v
+}
+
+// ==================== HR SSOT Handlers ====================
+
+func (h *SSOTListHandler) ListPeople(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	q := r.URL.Query()
+
+	params := store.PersonSnapshotListParams{
+		TenantID:  tenant,
+		Query:     q.Get("q"),
+		Status:    q.Get("status"),
+		OrgUnitID: q.Get("orgUnitId"),
+		Limit:     parseLimit(q.Get("limit"), 50, 200),
+		Offset:    parseOffset(q.Get("offset")),
+	}
+
+	items, total, err := h.pg.PeopleSnapshot().List(r.Context(), params)
+	if err != nil {
+		h.log.Error("failed to list people", zap.Error(err))
+		http.Error(w, "failed to list people", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
+		"offset": params.Offset,
+	})
+}
+
+func (h *SSOTListHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	personID := chi.URLParam(r, "personId")
+
+	person, err := h.pg.PeopleSnapshot().Get(r.Context(), tenant, personID)
+	if err != nil {
+		h.log.Error("failed to get person", zap.Error(err), zap.String("personId", personID))
+		http.Error(w, "person not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, person)
+}
+
+func (h *SSOTListHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	q := r.URL.Query()
+
+	params := store.TeamSnapshotListParams{
+		TenantID:  tenant,
+		Query:     q.Get("q"),
+		Key:       q.Get("key"),
+		OrgUnitID: q.Get("orgUnitId"),
+		Limit:     parseLimit(q.Get("limit"), 50, 200),
+		Offset:    parseOffset(q.Get("offset")),
+	}
+
+	items, total, err := h.pg.TeamsSnapshot().List(r.Context(), params)
+	if err != nil {
+		h.log.Error("failed to list teams", zap.Error(err))
+		http.Error(w, "failed to list teams", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
+		"offset": params.Offset,
+	})
+}
+
+func (h *SSOTListHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	teamID := chi.URLParam(r, "teamId")
+
+	team, err := h.pg.TeamsSnapshot().Get(r.Context(), tenant, teamID)
+	if err != nil {
+		h.log.Error("failed to get team", zap.Error(err), zap.String("teamId", teamID))
+		http.Error(w, "team not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, team)
+}
+
+func (h *SSOTListHandler) ListOrgUnits(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	q := r.URL.Query()
+
+	params := store.OrgUnitSnapshotListParams{
+		TenantID: tenant,
+		Query:    q.Get("q"),
+		Kind:     q.Get("kind"),
+		ParentID: q.Get("parentId"),
+		Limit:    parseLimit(q.Get("limit"), 50, 200),
+		Offset:   parseOffset(q.Get("offset")),
+	}
+
+	items, total, err := h.pg.OrgUnitsSnapshot().List(r.Context(), params)
+	if err != nil {
+		h.log.Error("failed to list org units", zap.Error(err))
+		http.Error(w, "failed to list org units", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
+		"offset": params.Offset,
+	})
+}
+
+func (h *SSOTListHandler) GetOrgUnit(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	orgUnitID := chi.URLParam(r, "orgUnitId")
+
+	unit, err := h.pg.OrgUnitsSnapshot().Get(r.Context(), tenant, orgUnitID)
+	if err != nil {
+		h.log.Error("failed to get org unit", zap.Error(err), zap.String("orgUnitId", orgUnitID))
+		http.Error(w, "org unit not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, unit)
+}
+
+func (h *SSOTListHandler) GetOrgTree(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+
+	tree, err := h.pg.OrgUnitsSnapshot().GetTree(r.Context(), tenant)
+	if err != nil {
+		h.log.Error("failed to get org tree", zap.Error(err))
+		http.Error(w, "failed to get org tree", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, tree)
+}
+
+// ==================== Team Memberships Handlers ====================
+
+func (h *SSOTListHandler) ListTeamMemberships(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	q := r.URL.Query()
+
+	params := store.TeamMembershipSnapshotListParams{
+		TenantID: tenant,
+		TeamID:   q.Get("teamId"),
+		PersonID: q.Get("personId"),
+		Role:     q.Get("role"),
+		Status:   q.Get("status"),
+		Limit:    parseLimit(q.Get("limit"), 50, 200),
+		Offset:   parseOffset(q.Get("offset")),
+	}
+
+	items, total, err := h.pg.TeamMembershipsSnapshot().List(r.Context(), params)
+	if err != nil {
+		h.log.Error("failed to list team memberships", zap.Error(err))
+		http.Error(w, "failed to list team memberships", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
+		"offset": params.Offset,
+	})
+}
+
+func (h *SSOTListHandler) GetTeamMembership(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	membershipID := chi.URLParam(r, "membershipId")
+
+	membership, err := h.pg.TeamMembershipsSnapshot().Get(r.Context(), tenant, membershipID)
+	if err != nil {
+		h.log.Error("failed to get team membership", zap.Error(err), zap.String("membershipId", membershipID))
+		http.Error(w, "team membership not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, membership)
 }

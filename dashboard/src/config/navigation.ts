@@ -24,6 +24,8 @@ import {
   Clock,
   CheckCircle,
   List,
+  Monitor,
+  Contact,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -152,6 +154,24 @@ export const navItems: NavItem[] = [
     roles: ['ssp_admin', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_warehouse_manager'],
   },
   {
+    title: 'Staff',
+    href: '/staff',
+    icon: Users,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-100',
+    permissions: ['ops:manage_staff'],
+    roles: ['ssp_admin', 'ssp_ops_manager'],
+  },
+  {
+    title: 'HR Directory',
+    href: '/hr',
+    icon: Contact,
+    color: 'text-violet-600',
+    bgColor: 'bg-violet-100',
+    permissions: ['hr:read', 'people:read'],
+    roles: ['ssp_admin', 'ssp_ops_manager'],
+  },
+  {
     title: 'Schools',
     href: '/schools',
     icon: School,
@@ -172,6 +192,15 @@ export const navItems: NavItem[] = [
     bgColor: 'bg-indigo-100',
     permissions: ['device:read'],
     roles: ['ssp_admin', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_warehouse_manager'],
+  },
+  {
+    title: 'School Inventory',
+    href: '/school-inventory',
+    icon: Monitor,
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-100',
+    permissions: ['inventory:read'],
+    roles: ['ssp_school_contact'],
   },
   {
     title: 'Parts Catalog',
@@ -286,6 +315,24 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    id: 'my-school',
+    title: 'My School',
+    icon: School,
+    color: 'text-teal-600',
+    roles: ['ssp_school_contact'],
+    items: [
+      {
+        title: 'Device Inventory',
+        href: '/school-inventory',
+        icon: Monitor,
+        color: 'text-teal-600',
+        bgColor: 'bg-teal-100',
+        permissions: ['inventory:read'],
+        roles: ['ssp_school_contact'],
+      },
+    ],
+  },
+  {
     id: 'support',
     title: 'Support & Operations',
     icon: Headphones,
@@ -391,7 +438,7 @@ export const navGroups: NavGroup[] = [
     title: 'Inventory & Catalog',
     icon: Boxes,
     color: 'text-rose-600',
-    roles: ['ssp_admin', 'ssp_warehouse_manager', 'ssp_supplier', 'ssp_lead_tech', 'ssp_support_agent'],
+    roles: ['ssp_admin', 'ssp_ops_manager', 'ssp_warehouse_manager', 'ssp_supplier', 'ssp_lead_tech', 'ssp_support_agent'],
     items: [
       {
         title: 'Parts Catalog',
@@ -420,6 +467,15 @@ export const navGroups: NavGroup[] = [
         permissions: ['serviceshop:read'],
         roles: ['ssp_admin', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_warehouse_manager'],
       },
+      {
+        title: 'Staff',
+        href: '/staff',
+        icon: Users,
+        color: 'text-indigo-600',
+        bgColor: 'bg-indigo-100',
+        permissions: ['ops:manage_staff'],
+        roles: ['ssp_admin', 'ssp_ops_manager'],
+      },
     ],
   },
   {
@@ -427,7 +483,7 @@ export const navGroups: NavGroup[] = [
     title: 'Directory',
     icon: Users,
     color: 'text-green-600',
-    roles: ['ssp_admin', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_demo_team', 'ssp_sales_marketing', 'ssp_contractor'],
+    roles: ['ssp_admin', 'ssp_ops_manager', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_demo_team', 'ssp_sales_marketing', 'ssp_contractor'],
     items: [
       {
         title: 'Schools',
@@ -441,6 +497,15 @@ export const navGroups: NavGroup[] = [
           'ssp_admin', 'ssp_support_agent', 'ssp_lead_tech', 'ssp_demo_team',
           'ssp_sales_marketing', 'ssp_contractor',
         ],
+      },
+      {
+        title: 'HR Directory',
+        href: '/hr',
+        icon: Contact,
+        color: 'text-violet-600',
+        bgColor: 'bg-violet-100',
+        permissions: ['hr:read', 'people:read'],
+        roles: ['ssp_admin', 'ssp_ops_manager'],
       },
     ],
   },

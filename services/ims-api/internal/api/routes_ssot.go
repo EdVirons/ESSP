@@ -16,6 +16,11 @@ func (s *Server) mountSSOTRoutes(r chi.Router, sync *handlers.SSOTSyncHandler, s
 		r.Post("/ssot/sync/schools", sync.SyncSchools)
 		r.Post("/ssot/sync/devices", sync.SyncDevices)
 		r.Post("/ssot/sync/parts", sync.SyncParts)
+		// HR SSOT sync routes
+		r.Post("/ssot/sync/people", sync.SyncPeople)
+		r.Post("/ssot/sync/teams", sync.SyncTeams)
+		r.Post("/ssot/sync/org-units", sync.SyncOrgUnits)
+		r.Post("/ssot/sync/team-memberships", sync.SyncTeamMemberships)
 	})
 
 	// SSOT Webhooks (admin/system operations)
@@ -39,6 +44,17 @@ func (s *Server) mountSSOTRoutes(r chi.Router, sync *handlers.SSOTSyncHandler, s
 		r.Get("/ssot/device-models/makes", ssotList.GetDeviceMakes)
 		r.Get("/ssot/parts", ssotList.ListParts)
 		r.Get("/ssot/status", ssotList.GetSyncStatus)
+
+		// HR SSOT endpoints
+		r.Get("/ssot/people", ssotList.ListPeople)
+		r.Get("/ssot/people/{personId}", ssotList.GetPerson)
+		r.Get("/ssot/teams", ssotList.ListTeams)
+		r.Get("/ssot/teams/{teamId}", ssotList.GetTeam)
+		r.Get("/ssot/org-units", ssotList.ListOrgUnits)
+		r.Get("/ssot/org-units/tree", ssotList.GetOrgTree)
+		r.Get("/ssot/org-units/{orgUnitId}", ssotList.GetOrgUnit)
+		r.Get("/ssot/team-memberships", ssotList.ListTeamMemberships)
+		r.Get("/ssot/team-memberships/{membershipId}", ssotList.GetTeamMembership)
 	})
 
 	// SSOT snapshot lookup helpers (debug/internal)

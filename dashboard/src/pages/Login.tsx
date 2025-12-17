@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Lock, User, Loader2, Sparkles, GraduationCap, Shield, Wrench, School, Headphones, Package, Users, TrendingUp } from 'lucide-react';
+import { AlertCircle, Lock, User, Loader2, Sparkles, GraduationCap, Shield, Wrench, School, Headphones, Package, Users, TrendingUp, Building2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface DemoCredential {
@@ -19,12 +19,13 @@ interface DemoCredential {
 
 const demoCredentials: DemoCredential[] = [
   { username: 'admin', password: 'admin123', role: 'ssp_admin', label: 'Admin', icon: Shield, color: 'text-cyan-600 bg-cyan-100' },
+  { username: 'ops_manager', password: 'ops123', role: 'ssp_ops_manager', label: 'Ops Manager', icon: Building2, color: 'text-orange-600 bg-orange-100' },
   { username: 'school_contact', password: 'school123', role: 'ssp_school_contact', label: 'School Contact', icon: School, color: 'text-green-600 bg-green-100' },
   { username: 'support_agent', password: 'support123', role: 'ssp_support_agent', label: 'Support Agent', icon: Headphones, color: 'text-blue-600 bg-blue-100' },
   { username: 'lead_tech', password: 'lead123', role: 'ssp_lead_tech', label: 'Lead Tech', icon: Users, color: 'text-purple-600 bg-purple-100' },
   { username: 'field_tech', password: 'tech123', role: 'ssp_field_tech', label: 'Field Tech', icon: Wrench, color: 'text-amber-600 bg-amber-100' },
   { username: 'warehouse', password: 'warehouse123', role: 'ssp_warehouse_manager', label: 'Warehouse', icon: Package, color: 'text-rose-600 bg-rose-100' },
-  { username: 'sales_marketing', password: 'sales123', role: 'ssp_sales_marketing', label: 'Sales', icon: TrendingUp, color: 'text-orange-600 bg-orange-100' },
+  { username: 'sales_marketing', password: 'sales123', role: 'ssp_sales_marketing', label: 'Sales', icon: TrendingUp, color: 'text-teal-600 bg-teal-100' },
 ];
 
 interface LocationState {

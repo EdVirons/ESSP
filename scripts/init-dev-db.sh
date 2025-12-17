@@ -17,7 +17,7 @@ POSTGRES_USER=${POSTGRES_USER:-ssp}
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ssp}
 
 # Database names
-DATABASES=("ssp_ims" "ssp_school" "ssp_devices" "ssp_parts")
+DATABASES=("ssp_ims" "ssp_school" "ssp_devices" "ssp_parts" "ssp_hr")
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}ESSP Development Database Initialization${NC}"
@@ -97,6 +97,16 @@ else
     echo -e "${YELLOW}no migrations${NC}"
 fi
 
+# SSOT HR migrations
+echo -n "  SSOT HR... "
+cd "$PROJECT_ROOT/services/ssot-hr"
+if [ -d "migrations" ] && [ "$(ls -A migrations/*.sql 2>/dev/null)" ]; then
+    PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d ssp_hr -f migrations/001_init.sql 2>&1 | grep -v "NOTICE" || true
+    echo -e "${GREEN}done${NC}"
+else
+    echo -e "${YELLOW}no migrations${NC}"
+fi
+
 echo ""
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}Database initialization complete!${NC}"
@@ -107,6 +117,7 @@ echo -e "  IMS:     postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:
 echo -e "  School:  postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/ssp_school?sslmode=disable"
 echo -e "  Devices: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/ssp_devices?sslmode=disable"
 echo -e "  Parts:   postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/ssp_parts?sslmode=disable"
+echo -e "  HR:      postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/ssp_hr?sslmode=disable"
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
 echo -e "  1. Start services:"
@@ -114,11 +125,13 @@ echo -e "     cd services/ims-api && go run ./cmd/api"
 echo -e "     cd services/ssot-school && go run ./cmd/ssot_school"
 echo -e "     cd services/ssot-devices && go run ./cmd/ssot_devices"
 echo -e "     cd services/ssot-parts && go run ./cmd/ssot_parts"
+echo -e "     cd services/ssot-hr && go run ./cmd/ssot_hr"
 echo -e "     cd services/sync-worker && go run ./cmd/worker"
 echo ""
 echo -e "  2. Access services:"
-echo -e "     IMS API:      http://localhost:8080"
+echo -e "     IMS API:      http://localhost:8100"
 echo -e "     SSOT School:  http://localhost:8081"
 echo -e "     SSOT Devices: http://localhost:8082"
 echo -e "     SSOT Parts:   http://localhost:8083"
+echo -e "     SSOT HR:      http://localhost:8300"
 echo ""

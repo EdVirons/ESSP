@@ -5,6 +5,7 @@ use (
 	./services/ssot-school
 	./services/ssot-devices
 	./services/ssot-parts
+	./services/ssot-hr
 	./services/sync-worker
 	./shared
 )

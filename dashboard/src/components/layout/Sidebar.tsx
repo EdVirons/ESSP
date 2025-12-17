@@ -17,10 +17,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { hasPermission, hasRole } = useAuth();
   const { data: unreadCounts } = useUnreadCounts();
   const location = useLocation();
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['main', 'my-incidents', 'support', 'sales', 'inventory', 'directory', 'knowledge', 'admin']));
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['support']));
 
   // Filter nav item visibility
   const isItemVisible = (item: NavItem): boolean => {
+    // If item is restricted to school_contact only, hide from admin
+    if (item.roles?.length === 1 && item.roles[0] === 'ssp_school_contact') {
+      return hasRole('ssp_school_contact');
+    }
     if (hasRole('ssp_admin')) return true;
     if (!item.permissions && !item.roles) return true;
     if (item.permissions?.length && item.permissions.some((p) => hasPermission(p))) return true;
@@ -31,6 +35,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   // Filter groups and their items based on user permissions and roles
   const visibleGroups = useMemo(() => {
     return navGroups
+      .filter((group) => {
+        // Hide groups that are only for school_contact from admins
+        if (group.roles?.length === 1 && group.roles[0] === 'ssp_school_contact') {
+          return hasRole('ssp_school_contact');
+        }
+        return true;
+      })
       .map((group) => ({
         ...group,
         items: group.items.filter(isItemVisible),
@@ -71,13 +82,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupId)) {
-        next.delete(groupId);
+      if (prev.has(groupId)) {
+        // Clicking expanded group collapses it
+        return new Set();
       } else {
-        next.add(groupId);
+        // Clicking collapsed group expands it (and closes others)
+        return new Set([groupId]);
       }
-      return next;
     });
   };
 

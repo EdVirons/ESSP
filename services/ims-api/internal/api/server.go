@@ -74,8 +74,8 @@ func (s *Server) setupMiddleware() {
 	s.r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   splitCSV(s.cfg.CORSAllowedOrigins),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-Id", s.cfg.TenantHeader, s.cfg.SchoolHeader},
-		ExposedHeaders:   []string{"X-Request-Id"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-Id", s.cfg.TenantHeader, s.cfg.SchoolHeader, "X-Impersonate-User", "X-Impersonate-Reason"},
+		ExposedHeaders:   []string{"X-Request-Id", "X-Impersonation-Active", "X-Impersonated-User", "X-Impersonated-Schools"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
@@ -189,6 +189,15 @@ func (s *Server) setupAPIRoutes(blobClient *blob.MinIO) {
 		// Marketing Knowledge Base handler
 		marketingKB := handlers.NewMarketingKBHandler(s.logger, s.pg)
 
+		// Device inventory handler
+		deviceInv := handlers.NewDeviceInventoryHandler(s.logger, s.pg, auditLogger)
+
+		// Impersonation handler
+		impersonation := handlers.NewImpersonationHandler(s.logger, s.pg)
+
+		// Add impersonation middleware - must be after auth middleware
+		r.Use(middleware.Impersonation(s.logger, impersonation.LoadImpersonationTarget))
+
 		// Mount routes from separate files
 		s.mountIncidentRoutes(r, inc)
 		s.mountWorkOrderRoutes(r, wo, woops, woUpdate, woRework, woBulk)
@@ -205,6 +214,8 @@ func (s *Server) setupAPIRoutes(blobClient *blob.MinIO) {
 		s.mountSalesRoutes(r, demoPipeline, presentations, salesMetrics)
 		s.mountKBRoutes(r, kbArticles)
 		s.mountMarketingKBRoutes(r, marketingKB)
+		s.mountDeviceInventoryRoutes(r, deviceInv)
+		s.mountImpersonationRoutes(r, impersonation)
 
 		// Messaging routes
 		RegisterMessagingRoutes(r, s.logger, s.pg, s.wsHub)

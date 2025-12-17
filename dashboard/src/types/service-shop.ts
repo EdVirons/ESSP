@@ -47,3 +47,17 @@ export interface CreateServiceStaffRequest {
   phone?: string;
   active?: boolean;
 }
+
+export interface UpdateServiceStaffRequest {
+  serviceShopId?: string;
+  role?: StaffRole;
+  phone?: string;
+  active?: boolean;
+}
+
+export interface ServiceStaffStats {
+  total: number;
+  active: number;
+  inactive: number;
+  byRole: Record<StaffRole, number>;
+}

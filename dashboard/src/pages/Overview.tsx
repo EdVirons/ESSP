@@ -9,6 +9,7 @@ import {
   SchoolContactDashboard,
   FieldTechDashboard,
   LeadTechDashboard,
+  OperationsManagerDashboard,
   WarehouseManagerDashboard,
   SupportAgentDashboard,
   SalesMarketingDashboard,
@@ -24,6 +25,11 @@ export function Overview() {
   // Admin gets the system admin dashboard
   if (hasRole('ssp_admin')) {
     return <AdminDashboard />;
+  }
+
+  // Operations Manager gets the global operations dashboard
+  if (hasRole('ssp_ops_manager')) {
+    return <OperationsManagerDashboard />;
   }
 
   // School contacts get their own focused dashboard

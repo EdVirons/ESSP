@@ -51,6 +51,7 @@ type Config struct {
 	SchoolSSOTBaseURL string
 	DeviceSSOTBaseURL string
 	PartsSSOTBaseURL string
+	HRSSOTBaseURL     string
 	SSOTSyncPageSize int
 
 	RateLimitEnabled  bool
@@ -114,6 +115,7 @@ func MustLoad() Config {
 		SchoolSSOTBaseURL: getenv("SCHOOL_SSOT_BASE_URL", ""),
 		DeviceSSOTBaseURL: getenv("DEVICE_SSOT_BASE_URL", ""),
 		PartsSSOTBaseURL: getenv("PARTS_SSOT_BASE_URL", ""),
+		HRSSOTBaseURL:     getenv("HR_SSOT_BASE_URL", "http://localhost:8300"),
 		SSOTSyncPageSize: mustAtoi(getenv("SSOT_SYNC_PAGE_SIZE", "500")),
 
 		RateLimitEnabled:  mustAtob(getenv("RATE_LIMIT_ENABLED", "true")),

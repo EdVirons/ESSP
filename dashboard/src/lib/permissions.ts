@@ -33,6 +33,46 @@ export const rolePermissions: Record<string, string[]> = {
     'mkb:read', 'mkb:create', 'mkb:update', 'mkb:delete', 'mkb:approve',
     'audit:read',
     'settings:read', 'settings:update',
+    // HR SSOT permissions
+    'hr:read', 'hr:create', 'hr:update', 'hr:delete',
+    'people:read', 'teams:read', 'org:read',
+  ],
+
+  // Operations Manager - global field operations lead (between Admin and Lead Tech)
+  ssp_ops_manager: [
+    // All Lead Tech permissions
+    'workorder:read', 'workorder:create', 'workorder:update',
+    'workorder:schedule', 'workorder:deliverable', 'workorder:approval',
+    'bom:read', 'bom:update', 'bom:consume',
+    'attachment:read', 'attachment:create',
+    'school:read', 'school:contact:read',
+    'servicestaff:read', 'servicestaff:create', 'servicestaff:update',
+    'serviceshop:read', 'serviceshop:create', 'serviceshop:update',
+    'device:read',
+    'parts:read',
+    'inventory:read', 'inventory:update',
+    'telemetry:ingest',
+    'project:team:read', 'project:team:update',
+    'activity:read', 'activity:create', 'activity:update',
+    'notification:read', 'notification:update',
+    'messages:read', 'messages:create', 'messages:manage',
+    'kb:read',
+
+    // Operations Manager specific - global/cross-shop capabilities
+    'ops:manage_shops',      // Create/update service shops globally
+    'ops:global_inventory',  // View/manage inventory across all shops
+    'ops:reassign_work',     // Reassign work orders between shops
+    'ops:global_reports',    // Access global operations reports
+    'ops:manage_staff',      // Manage staff across all shops
+    'ops:dashboard',         // Access operations dashboard
+
+    // Additional management permissions
+    'reports:read',
+    'dashboard:read',
+    // HR permissions (read-only for ops manager)
+    'hr:read', 'people:read', 'teams:read', 'org:read',
+    // Impersonation - can act as school contacts
+    'impersonate:user',
   ],
 
   // Support agent - tickets/dispatch

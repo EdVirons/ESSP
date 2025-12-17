@@ -26,14 +26,24 @@ func (s *Store) Create(ctx context.Context, log AuditLog) error {
 		INSERT INTO audit_logs (
 			id, tenant_id, user_id, user_email, action,
 			entity_type, entity_id, before_state, after_state,
-			ip_address, user_agent, request_id, created_at
+			ip_address, user_agent, request_id, created_at,
+			impersonated_user_id, impersonated_user_email, impersonation_reason
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
 		)
 	`, log.ID, log.TenantID, log.UserID, log.UserEmail, log.Action,
 		log.EntityType, log.EntityID, log.BeforeState, log.AfterState,
-		log.IPAddress, log.UserAgent, log.RequestID, log.CreatedAt)
+		log.IPAddress, log.UserAgent, log.RequestID, log.CreatedAt,
+		nullIfEmpty(log.ImpersonatedUserID), nullIfEmpty(log.ImpersonatedUserEmail), nullIfEmpty(log.ImpersonationReason))
 	return err
+}
+
+// nullIfEmpty returns nil if the string is empty, otherwise returns a pointer to the string
+func nullIfEmpty(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }
 
 // ListParams defines parameters for listing audit logs
@@ -54,19 +64,22 @@ type ListParams struct {
 
 // ListResult represents a single audit log result with decoded JSON
 type ListResult struct {
-	ID          string    `json:"id"`
-	TenantID    string    `json:"tenantId"`
-	UserID      string    `json:"userId"`
-	UserEmail   string    `json:"userEmail"`
-	Action      string    `json:"action"`
-	EntityType  string    `json:"entityType"`
-	EntityID    string    `json:"entityId"`
-	BeforeState any       `json:"beforeState,omitempty"`
-	AfterState  any       `json:"afterState,omitempty"`
-	IPAddress   string    `json:"ipAddress"`
-	UserAgent   string    `json:"userAgent"`
-	RequestID   string    `json:"requestId"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID                    string    `json:"id"`
+	TenantID              string    `json:"tenantId"`
+	UserID                string    `json:"userId"`
+	UserEmail             string    `json:"userEmail"`
+	Action                string    `json:"action"`
+	EntityType            string    `json:"entityType"`
+	EntityID              string    `json:"entityId"`
+	BeforeState           any       `json:"beforeState,omitempty"`
+	AfterState            any       `json:"afterState,omitempty"`
+	IPAddress             string    `json:"ipAddress"`
+	UserAgent             string    `json:"userAgent"`
+	RequestID             string    `json:"requestId"`
+	CreatedAt             time.Time `json:"createdAt"`
+	ImpersonatedUserID    *string   `json:"impersonatedUserId,omitempty"`
+	ImpersonatedUserEmail *string   `json:"impersonatedUserEmail,omitempty"`
+	ImpersonationReason   *string   `json:"impersonationReason,omitempty"`
 }
 
 // List retrieves audit logs with filtering and pagination
@@ -124,7 +137,8 @@ func (s *Store) List(ctx context.Context, p ListParams) ([]ListResult, string, e
 	sql := `
 		SELECT id, tenant_id, user_id, user_email, action,
 		       entity_type, entity_id, before_state, after_state,
-		       ip_address, user_agent, request_id, created_at
+		       ip_address, user_agent, request_id, created_at,
+		       impersonated_user_id, impersonated_user_email, impersonation_reason
 		FROM audit_logs
 		WHERE ` + strings.Join(conds, " AND ") + `
 		ORDER BY created_at DESC, id DESC
@@ -145,6 +159,7 @@ func (s *Store) List(ctx context.Context, p ListParams) ([]ListResult, string, e
 			&log.ID, &log.TenantID, &log.UserID, &log.UserEmail, &log.Action,
 			&log.EntityType, &log.EntityID, &beforeState, &afterState,
 			&log.IPAddress, &log.UserAgent, &log.RequestID, &log.CreatedAt,
+			&log.ImpersonatedUserID, &log.ImpersonatedUserEmail, &log.ImpersonationReason,
 		); err != nil {
 			return nil, "", err
 		}
@@ -184,13 +199,15 @@ func (s *Store) GetByID(ctx context.Context, tenantID, id string) (ListResult, e
 	err := s.pool.QueryRow(ctx, `
 		SELECT id, tenant_id, user_id, user_email, action,
 		       entity_type, entity_id, before_state, after_state,
-		       ip_address, user_agent, request_id, created_at
+		       ip_address, user_agent, request_id, created_at,
+		       impersonated_user_id, impersonated_user_email, impersonation_reason
 		FROM audit_logs
 		WHERE tenant_id=$1 AND id=$2
 	`, tenantID, id).Scan(
 		&log.ID, &log.TenantID, &log.UserID, &log.UserEmail, &log.Action,
 		&log.EntityType, &log.EntityID, &beforeState, &afterState,
 		&log.IPAddress, &log.UserAgent, &log.RequestID, &log.CreatedAt,
+		&log.ImpersonatedUserID, &log.ImpersonatedUserEmail, &log.ImpersonationReason,
 	)
 
 	if err != nil {

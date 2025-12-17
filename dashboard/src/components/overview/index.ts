@@ -5,6 +5,7 @@ export { NotificationsPanel } from './NotificationsPanel';
 export { SchoolContactDashboard } from './SchoolContactDashboard';
 export { FieldTechDashboard } from './FieldTechDashboard';
 export { LeadTechDashboard } from './LeadTechDashboard';
+export { OperationsManagerDashboard } from './OperationsManagerDashboard';
 export { WarehouseManagerDashboard } from './WarehouseManagerDashboard';
 export { SupportAgentDashboard } from './SupportAgentDashboard';
 export { SalesMarketingDashboard } from './SalesMarketingDashboard';

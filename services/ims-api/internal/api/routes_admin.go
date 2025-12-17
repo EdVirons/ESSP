@@ -107,6 +107,7 @@ func (s *Server) mountServiceShopRoutes(r chi.Router, shops *handlers.ServiceSho
 	// Service Staff - read operations
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RequirePermission(auth.PermServiceStaffRead, s.logger))
+		r.Get("/service-staff/stats", staff.GetStats)
 		r.Get("/service-staff/{id}", staff.GetByID)
 		r.Get("/service-staff", staff.List)
 	})
@@ -116,6 +117,20 @@ func (s *Server) mountServiceShopRoutes(r chi.Router, shops *handlers.ServiceSho
 		r.Use(s.writeRateLimitMiddleware())
 		r.Use(middleware.RequirePermission(auth.PermServiceStaffCreate, s.logger))
 		r.Post("/service-staff", staff.Create)
+	})
+
+	// Service Staff - update operations
+	r.Group(func(r chi.Router) {
+		r.Use(s.writeRateLimitMiddleware())
+		r.Use(middleware.RequirePermission(auth.PermServiceStaffUpdate, s.logger))
+		r.Patch("/service-staff/{id}", staff.Update)
+	})
+
+	// Service Staff - delete operations
+	r.Group(func(r chi.Router) {
+		r.Use(s.writeRateLimitMiddleware())
+		r.Use(middleware.RequirePermission(auth.PermServiceStaffUpdate, s.logger))
+		r.Delete("/service-staff/{id}", staff.Delete)
 	})
 
 	// Parts - read operations

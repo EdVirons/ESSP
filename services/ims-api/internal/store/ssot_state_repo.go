@@ -11,9 +11,13 @@ import (
 type SSOTResource string
 
 const (
-	SSOTSchools SSOTResource = "schools"
-	SSOTDevices SSOTResource = "devices"
-	SSOTParts   SSOTResource = "parts"
+	SSOTSchools  SSOTResource = "schools"
+	SSOTDevices  SSOTResource = "devices"
+	SSOTParts    SSOTResource = "parts"
+	SSOTPeople   SSOTResource = "people"
+	SSOTTeams    SSOTResource = "teams"
+	SSOTOrgUnits SSOTResource = "org-units"
+	SSOTTeamMemberships SSOTResource = "team-memberships"
 )
 
 type SSOTSyncState struct {

@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, ChevronDown, Shield } from 'lucide-react';
+import { User, Settings, LogOut, ChevronDown, Shield, UserCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { Button } from '@/components/ui/button';
 import { Popover } from '@/components/ui/popover';
 import { UserAvatar } from './UserAvatar';
+import { ImpersonationModal } from '@/components/ImpersonationModal';
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, profile, logout } = useAuth();
+  const [impersonationModalOpen, setImpersonationModalOpen] = useState(false);
+  const { user, profile, logout, hasPermission } = useAuth();
+  const { isImpersonating } = useImpersonation();
   const navigate = useNavigate();
+
+  const canImpersonate = hasPermission('impersonate:user') || hasPermission('*');
 
   const handleLogout = async () => {
     setIsOpen(false);
@@ -23,6 +29,7 @@ export function UserMenu() {
   const roles = profile?.roles || user?.roles || [];
 
   return (
+    <>
     <Popover
       open={isOpen}
       onClose={() => setIsOpen(false)}
@@ -105,6 +112,19 @@ export function UserMenu() {
             <Settings className="h-4 w-4" />
             Settings
           </Link>
+          {/* Impersonation option - only for ops managers/admins */}
+          {canImpersonate && !isImpersonating && (
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                setImpersonationModalOpen(true);
+              }}
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-orange-600 hover:bg-orange-50"
+            >
+              <UserCircle2 className="h-4 w-4" />
+              Impersonate User
+            </button>
+          )}
         </div>
 
         {/* Logout */}
@@ -119,5 +139,12 @@ export function UserMenu() {
         </div>
       </div>
     </Popover>
+
+    {/* Impersonation modal */}
+    <ImpersonationModal
+      open={impersonationModalOpen}
+      onClose={() => setImpersonationModalOpen(false)}
+    />
+    </>
   );
 }

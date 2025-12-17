@@ -197,10 +197,12 @@ networks:
 #   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_school;"
 #   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_devices;"
 #   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_parts;"
+#   docker exec -it essp-postgres-dev psql -U ssp -c "CREATE DATABASE ssp_hr;"
 #
 # Then run migrations and start services with go run:
 #   cd services/ims-api && make migrate-up && go run ./cmd/api
 #   cd services/ssot-school && make migrate-up && go run ./cmd/ssot_school
 #   cd services/ssot-devices && make migrate-up && go run ./cmd/ssot_devices
 #   cd services/ssot-parts && make migrate-up && go run ./cmd/ssot_parts
+#   cd services/ssot-hr && make migrate-up && go run ./cmd/ssot_hr
 #   cd services/sync-worker && go run ./cmd/worker

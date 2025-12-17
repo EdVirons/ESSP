@@ -67,6 +67,15 @@ const (
 	PermInventoryTransfer = "inventory:transfer"
 	PermInventoryAudit    = "inventory:audit"
 
+	// Device Inventory permissions (school device tracking)
+	PermLocationRead     = "location:read"
+	PermLocationWrite    = "location:write"
+	PermAssignmentRead   = "assignment:read"
+	PermAssignmentWrite  = "assignment:write"
+	PermGroupRead        = "group:read"
+	PermGroupWrite       = "group:write"
+	PermDeviceInventory  = "device:inventory" // View school device inventory
+
 	// Reporting permissions
 	PermReportInventory = "report:inventory"
 
@@ -133,6 +142,9 @@ const (
 	PermKBUpdate = "kb:update"
 	PermKBDelete = "kb:delete"
 
+	// Impersonation permission (ops managers can act on behalf of school contacts)
+	PermImpersonate = "impersonate:user"
+
 	// Marketing Knowledge Base permissions
 	PermMKBCreate  = "mkb:create"
 	PermMKBRead    = "mkb:read"
@@ -150,6 +162,14 @@ const (
 	PermReportsRead    = "reports:read"       // Read general reports
 	PermDashboardRead  = "dashboard:read"     // Access dashboard
 
+	// Operations Manager permissions (global field operations)
+	PermOpsManageShops     = "ops:manage_shops"      // Create/update service shops globally
+	PermOpsGlobalInventory = "ops:global_inventory"  // View/manage inventory across all shops
+	PermOpsReassignWork    = "ops:reassign_work"     // Reassign work orders between shops
+	PermOpsGlobalReports   = "ops:global_reports"    // Access global operations reports
+	PermOpsManageStaff     = "ops:manage_staff"      // Manage staff across all shops
+	PermOpsDashboard       = "ops:dashboard"         // Access operations manager dashboard
+
 	// Wildcard for admin
 	PermAll = "*"
 )
@@ -164,6 +184,70 @@ var RolePermissions = map[string][]string{
 		PermSSOTRead,
 		PermSSOTSync,
 		PermSSOTWebhook,
+	},
+
+	// Operations Manager - global field operations lead (between Admin and Lead Tech)
+	"ssp_ops_manager": {
+		// All Lead Tech permissions
+		PermWorkOrderRead,
+		PermWorkOrderUpdate,
+		PermWorkOrderSchedule,
+		PermWorkOrderDeliverable,
+		PermWorkOrderApproval,
+		PermBOMRead,
+		PermBOMUpdate,
+		PermBOMConsume,
+		PermAttachmentCreate,
+		PermAttachmentRead,
+		PermSchoolRead,
+		PermSchoolContactRead,
+		PermServiceStaffRead,
+		PermServiceShopRead,
+		PermDeviceRead,
+		PermPartsRead,
+		PermInventoryRead,
+		PermTelemetryIngest,
+		PermProjectTeamRead,
+		PermProjectTeamUpdate,
+		PermActivityCreate,
+		PermActivityRead,
+		PermActivityUpdate,
+		PermNotificationRead,
+		PermNotificationUpdate,
+		PermMessagesRead,
+		PermMessagesCreate,
+		PermMessagesManage,
+		PermKBRead,
+
+		// Operations Manager specific - global/cross-shop capabilities
+		PermOpsManageShops,     // Create/update service shops
+		PermOpsGlobalInventory, // View/manage inventory across all shops
+		PermOpsReassignWork,    // Reassign work orders between shops
+		PermOpsGlobalReports,   // Access global operations reports
+		PermOpsManageStaff,     // Manage staff across all shops
+		PermOpsDashboard,       // Access operations dashboard
+
+		// Additional management permissions
+		PermServiceShopCreate, // Create new service shops
+		PermServiceShopUpdate, // Update service shops
+		PermServiceStaffCreate, // Create staff
+		PermServiceStaffUpdate, // Update staff
+		PermWorkOrderCreate,   // Create work orders
+		PermInventoryUpdate,   // Update inventory
+		PermReportsRead,       // View reports
+		PermDashboardRead,     // View dashboard
+
+		// Device inventory management
+		PermDeviceInventory,
+		PermLocationRead,
+		PermLocationWrite,
+		PermAssignmentRead,
+		PermAssignmentWrite,
+		PermGroupRead,
+		PermGroupWrite,
+
+		// Impersonation - can act on behalf of school contacts
+		PermImpersonate,
 	},
 
 	// Support agent - tickets/dispatch
@@ -326,7 +410,7 @@ var RolePermissions = map[string][]string{
 		PermMessagesCreate,
 	},
 
-	// School contact - create incidents, approve sign-offs
+	// School contact - create incidents, approve sign-offs, manage device inventory
 	"ssp_school_contact": {
 		PermIncidentCreate,
 		PermIncidentRead,
@@ -341,6 +425,15 @@ var RolePermissions = map[string][]string{
 		PermActivityRead,
 		PermNotificationRead,
 		PermNotificationUpdate,
+		// Device inventory management for their school
+		PermDeviceInventory,
+		PermLocationRead,
+		PermLocationWrite,    // Create/update school locations
+		PermAssignmentRead,
+		PermAssignmentWrite,  // Assign/unassign devices
+		PermGroupRead,
+		PermGroupWrite,       // Create/manage device groups
+		PermDeviceCreate,     // Register new devices
 	},
 
 	// Supplier - parts catalog + fulfillment visibility

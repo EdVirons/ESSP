@@ -54,6 +54,18 @@ type Postgres struct {
 	ssotLocationsRepo *SSOTLocationsRepo
 	kbArticlesRepo    *KBArticleRepo
 	marketingKBRepo   *MarketingKBRepo
+
+	// Device inventory
+	locationsRepo     *LocationsRepo
+	assignmentsRepo   *AssignmentsRepo
+	groupsRepo        *GroupsRepo
+	networkSnapRepo   *NetworkSnapshotRepo
+
+	// HR SSOT snapshots
+	peopleSnap          *PeopleSnapshotRepo
+	teamsSnap           *TeamsSnapshotRepo
+	orgUnitsSnap        *OrgUnitsSnapshotRepo
+	teamMembershipsSnap *TeamMembershipsSnapshotRepo
 }
 
 // AuditStoreRef is a placeholder for the audit store to avoid circular dependency
@@ -112,6 +124,18 @@ func NewPostgres(ctx context.Context, dsn string) (*Postgres, error) {
 	s.ssotLocationsRepo = &SSOTLocationsRepo{pool: pool}
 	s.kbArticlesRepo = &KBArticleRepo{pool: pool}
 	s.marketingKBRepo = &MarketingKBRepo{pool: pool}
+
+	// Device inventory
+	s.locationsRepo = &LocationsRepo{pool: pool}
+	s.assignmentsRepo = &AssignmentsRepo{pool: pool}
+	s.groupsRepo = &GroupsRepo{pool: pool}
+	s.networkSnapRepo = &NetworkSnapshotRepo{pool: pool}
+
+	// HR SSOT snapshots
+	s.peopleSnap = &PeopleSnapshotRepo{pool: pool}
+	s.teamsSnap = &TeamsSnapshotRepo{pool: pool}
+	s.orgUnitsSnap = &OrgUnitsSnapshotRepo{pool: pool}
+	s.teamMembershipsSnap = &TeamMembershipsSnapshotRepo{pool: pool}
 	return s, nil
 }
 
@@ -164,3 +188,15 @@ func (p *Postgres) SalesMetricsDaily() *SalesMetricsDailyRepo { return p.salesMe
 func (p *Postgres) SSOTLocations() *SSOTLocationsRepo { return p.ssotLocationsRepo }
 func (p *Postgres) KBArticles() *KBArticleRepo         { return p.kbArticlesRepo }
 func (p *Postgres) MarketingKB() *MarketingKBRepo      { return p.marketingKBRepo }
+
+// Device inventory
+func (p *Postgres) Locations() *LocationsRepo         { return p.locationsRepo }
+func (p *Postgres) Assignments() *AssignmentsRepo     { return p.assignmentsRepo }
+func (p *Postgres) Groups() *GroupsRepo               { return p.groupsRepo }
+func (p *Postgres) NetworkSnapshot() *NetworkSnapshotRepo { return p.networkSnapRepo }
+
+// HR SSOT snapshots
+func (p *Postgres) PeopleSnapshot() *PeopleSnapshotRepo                 { return p.peopleSnap }
+func (p *Postgres) TeamsSnapshot() *TeamsSnapshotRepo                   { return p.teamsSnap }
+func (p *Postgres) OrgUnitsSnapshot() *OrgUnitsSnapshotRepo             { return p.orgUnitsSnap }
+func (p *Postgres) TeamMembershipsSnapshot() *TeamMembershipsSnapshotRepo { return p.teamMembershipsSnap }

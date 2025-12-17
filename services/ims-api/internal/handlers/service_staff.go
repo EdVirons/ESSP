@@ -90,3 +90,78 @@ func (h *ServiceStaffHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items, "nextCursor": next})
 }
+
+type updateStaffReq struct {
+	ServiceShopID *string           `json:"serviceShopId"`
+	Role          *models.StaffRole `json:"role"`
+	Phone         *string           `json:"phone"`
+	Active        *bool             `json:"active"`
+}
+
+func (h *ServiceStaffHandler) Update(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	tenant := middleware.TenantID(r.Context())
+
+	// Get existing staff
+	st, err := h.pg.ServiceStaff().GetByID(r.Context(), tenant, id)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	// Parse update request
+	var req updateStaffReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	// Apply updates
+	if req.ServiceShopID != nil {
+		st.ServiceShopID = strings.TrimSpace(*req.ServiceShopID)
+	}
+	if req.Role != nil {
+		st.Role = *req.Role
+	}
+	if req.Phone != nil {
+		st.Phone = strings.TrimSpace(*req.Phone)
+	}
+	if req.Active != nil {
+		st.Active = *req.Active
+	}
+	st.UpdatedAt = time.Now().UTC()
+
+	if err := h.pg.ServiceStaff().Update(r.Context(), st); err != nil {
+		h.log.Error("failed to update staff", zap.Error(err))
+		http.Error(w, "failed to update staff", http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, st)
+}
+
+func (h *ServiceStaffHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	tenant := middleware.TenantID(r.Context())
+
+	if err := h.pg.ServiceStaff().Delete(r.Context(), tenant, id); err != nil {
+		if err.Error() == "not found" {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+		h.log.Error("failed to delete staff", zap.Error(err))
+		http.Error(w, "failed to delete staff", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *ServiceStaffHandler) GetStats(w http.ResponseWriter, r *http.Request) {
+	tenant := middleware.TenantID(r.Context())
+	stats, err := h.pg.ServiceStaff().GetStats(r.Context(), tenant)
+	if err != nil {
+		h.log.Error("failed to get staff stats", zap.Error(err))
+		http.Error(w, "failed to get stats", http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, stats)
+}

@@ -50,6 +50,13 @@ var demoUsers = map[string]DemoUser{
 		Email:       "lead.tech@essp.local",
 		DisplayName: "Robert Chen",
 	},
+	"ops_manager": {
+		Username:    "ops_manager",
+		Password:    "ops123",
+		Roles:       []string{"ssp_ops_manager"},
+		Email:       "ops.manager@essp.local",
+		DisplayName: "Michael Thompson",
+	},
 	"field_tech": {
 		Username:    "field_tech",
 		Password:    "tech123",

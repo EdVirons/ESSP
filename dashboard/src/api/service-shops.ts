@@ -5,6 +5,7 @@ import type {
   CreateServiceShopRequest,
   ServiceStaff,
   CreateServiceStaffRequest,
+  ServiceStaffStats,
   PaginatedResponse,
 } from '@/types';
 
@@ -128,6 +129,15 @@ export function useDeleteServiceStaff() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SERVICE_STAFF_KEY] });
     },
+  });
+}
+
+// Service Staff Stats
+export function useServiceStaffStats() {
+  return useQuery({
+    queryKey: [SERVICE_STAFF_KEY, 'stats'],
+    queryFn: () => api.get<ServiceStaffStats>('/service-staff/stats'),
+    staleTime: 30_000,
   });
 }
 

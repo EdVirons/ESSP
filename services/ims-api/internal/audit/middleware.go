@@ -27,6 +27,14 @@ func Middleware() func(http.Handler) http.Handler {
 				RequestID: r.Header.Get("X-Request-Id"),
 			}
 
+			// Capture impersonation context if present
+			impCtx := middleware.GetImpersonation(r.Context())
+			if impCtx.Active {
+				auditCtx.ImpersonatedUserID = impCtx.TargetUserID
+				auditCtx.ImpersonatedUserEmail = impCtx.TargetEmail
+				auditCtx.ImpersonationReason = impCtx.Reason
+			}
+
 			ctx := context.WithValue(r.Context(), ctxAuditKey, auditCtx)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
