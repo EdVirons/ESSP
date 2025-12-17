@@ -1,3 +1,4 @@
+-- +goose Up
 -- Migration: Program Multi-Team Collaboration
 -- Adds team management, activity feed, and notifications for programs
 
@@ -150,3 +151,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_phase_assignments_unique_active
 CREATE INDEX IF NOT EXISTS idx_phase_assignments_phase ON phase_user_assignments(tenant_id, phase_id) WHERE removed_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_phase_assignments_user ON phase_user_assignments(tenant_id, user_id) WHERE removed_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_phase_assignments_program ON phase_user_assignments(tenant_id, program_id) WHERE removed_at IS NULL;
+
+-- +goose Down
+DROP TABLE IF EXISTS phase_user_assignments;
+ALTER TABLE work_orders DROP COLUMN IF EXISTS created_by_user_name;
+ALTER TABLE work_orders DROP COLUMN IF EXISTS created_by_user_id;
+ALTER TABLE work_orders DROP COLUMN IF EXISTS created_from_program;
+ALTER TABLE service_phases DROP COLUMN IF EXISTS status_changed_by_user_name;
+ALTER TABLE service_phases DROP COLUMN IF EXISTS status_changed_by_user_id;
+ALTER TABLE service_phases DROP COLUMN IF EXISTS status_changed_at;
+ALTER TABLE service_phases DROP COLUMN IF EXISTS owner_user_name;
+ALTER TABLE service_phases DROP COLUMN IF EXISTS owner_user_id;
+DROP TABLE IF EXISTS user_notifications;
+DROP TABLE IF EXISTS program_attachments;
+DROP TABLE IF EXISTS program_activities;
+DROP TABLE IF EXISTS program_team_members;

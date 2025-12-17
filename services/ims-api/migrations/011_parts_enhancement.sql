@@ -1,3 +1,4 @@
+-- +goose Up
 -- Parts Enhancement Migration
 -- Add new fields for price, supplier, and status tracking
 
@@ -14,3 +15,14 @@ ALTER TABLE parts
 CREATE INDEX IF NOT EXISTS idx_parts_category ON parts (tenant_id, category, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_parts_active ON parts (tenant_id, active, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_parts_supplier ON parts (tenant_id, supplier) WHERE supplier != '';
+
+-- +goose Down
+DROP INDEX IF EXISTS idx_parts_supplier;
+DROP INDEX IF EXISTS idx_parts_active;
+DROP INDEX IF EXISTS idx_parts_category;
+ALTER TABLE parts DROP COLUMN IF EXISTS updated_at;
+ALTER TABLE parts DROP COLUMN IF EXISTS active;
+ALTER TABLE parts DROP COLUMN IF EXISTS description;
+ALTER TABLE parts DROP COLUMN IF EXISTS supplier_sku;
+ALTER TABLE parts DROP COLUMN IF EXISTS supplier;
+ALTER TABLE parts DROP COLUMN IF EXISTS unit_cost_cents;

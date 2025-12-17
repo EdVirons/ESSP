@@ -77,7 +77,7 @@ type Config struct {
 func MustLoad() Config {
 	c := Config{
 		AppEnv:   getenv("APP_ENV", "dev"),
-		HTTPAddr: getenv("HTTP_ADDR", ":8080"),
+		HTTPAddr: getenv("HTTP_ADDR", ":8100"),
 		LogLevel: getenv("LOG_LEVEL", "info"),
 
 		PGDSN: getenvWithFallbacks("PG_DSN", "DATABASE_URL", "postgres://edvirons:edvirons@localhost:5432/ims?sslmode=disable"),

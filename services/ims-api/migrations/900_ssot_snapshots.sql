@@ -1,3 +1,4 @@
+-- +goose Up
 -- IMS SSOT snapshot cache
 CREATE TABLE IF NOT EXISTS ims_ssot_snapshots (
   tenant_id TEXT NOT NULL,
@@ -9,3 +10,6 @@ CREATE TABLE IF NOT EXISTS ims_ssot_snapshots (
 );
 
 CREATE INDEX IF NOT EXISTS idx_ims_ssot_snapshots_updated ON ims_ssot_snapshots(updated_at DESC);
+
+-- +goose Down
+DROP TABLE IF EXISTS ims_ssot_snapshots;

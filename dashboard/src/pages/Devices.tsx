@@ -251,11 +251,11 @@ export function Devices() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <p className="text-sm text-gray-500 text-center sm:text-left">
             Showing {(filters.offset || 0) + 1} to {Math.min((filters.offset || 0) + (filters.limit || 50), total)} of {total} devices
           </p>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -264,8 +264,11 @@ export function Devices() {
             >
               Previous
             </Button>
-            <span className="flex items-center px-3 text-sm text-gray-600">
-              Page {currentPage} of {totalPages}
+            <span className="flex items-center px-3 text-sm text-gray-600 min-w-[80px] justify-center">
+              <span className="hidden sm:inline">Page </span>
+              {currentPage}
+              <span className="sm:hidden">/{totalPages}</span>
+              <span className="hidden sm:inline"> of {totalPages}</span>
             </span>
             <Button
               variant="outline"

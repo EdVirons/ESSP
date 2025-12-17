@@ -136,8 +136,9 @@ export function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && pagination.total > 0 && (
-        <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2">
+          {/* Left section - stacks on mobile */}
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4">
             <div className="text-sm text-gray-500">
               Showing {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} of{' '}
               {pagination.total.toLocaleString()} results
@@ -161,15 +162,19 @@ export function DataTable<T extends Record<string, any>>({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">
-              Page {currentPage} of {totalPages}
+          {/* Right section - navigation */}
+          <div className="flex items-center justify-center gap-2 sm:justify-end">
+            <span className="text-sm text-gray-500 min-w-[70px] text-center">
+              <span className="hidden sm:inline">Page </span>
+              {currentPage}
+              <span className="sm:hidden">/{totalPages}</span>
+              <span className="hidden sm:inline"> of {totalPages}</span>
             </span>
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 hidden sm:flex"
                 disabled={currentPage === 1}
                 onClick={() => onPageChange?.(0)}
               >
@@ -196,7 +201,7 @@ export function DataTable<T extends Record<string, any>>({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 hidden sm:flex"
                 disabled={currentPage === totalPages}
                 onClick={() => onPageChange?.((totalPages - 1) * pagination.limit)}
               >

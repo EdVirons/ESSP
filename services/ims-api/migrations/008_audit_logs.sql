@@ -1,7 +1,8 @@
+-- +goose Up
 -- Migration 008: Audit Logs
 -- Comprehensive audit logging for all critical entity operations
 
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
     tenant_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
@@ -29,3 +30,6 @@ COMMENT ON COLUMN audit_logs.action IS 'Type of action performed: create, update
 COMMENT ON COLUMN audit_logs.entity_type IS 'Type of entity being audited: incident, work_order, service_shop, etc.';
 COMMENT ON COLUMN audit_logs.before_state IS 'Complete entity state before the change (for updates/deletes)';
 COMMENT ON COLUMN audit_logs.after_state IS 'Complete entity state after the change (for creates/updates)';
+
+-- +goose Down
+DROP TABLE IF EXISTS audit_logs;

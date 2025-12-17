@@ -217,8 +217,8 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2">
-        <div className="text-sm text-gray-500">
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between px-2">
+        <div className="text-sm text-gray-500 text-center sm:text-left">
           {showRowSelection && (
             <span>
               {selectedCount} of {table.getFilteredRowModel().rows.length} row(s) selected
@@ -239,6 +239,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant="outline"
             size="sm"
+            className="hidden sm:flex"
             onClick={() => {
               table.setPageIndex(0);
               onPaginationChange?.(0, table.getState().pagination.pageSize);
@@ -261,8 +262,11 @@ export function DataTable<TData, TValue>({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          <span className="text-sm text-gray-500 min-w-[80px] text-center">
+            <span className="hidden sm:inline">Page </span>
+            {table.getState().pagination.pageIndex + 1}
+            <span className="sm:hidden">/{table.getPageCount()}</span>
+            <span className="hidden sm:inline"> of {table.getPageCount()}</span>
           </span>
           <Button
             variant="outline"
@@ -281,6 +285,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant="outline"
             size="sm"
+            className="hidden sm:flex"
             onClick={() => {
               table.setPageIndex(table.getPageCount() - 1);
               onPaginationChange?.(table.getPageCount() - 1, table.getState().pagination.pageSize);
