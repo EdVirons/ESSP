@@ -188,6 +188,8 @@ var RolePermissions = map[string][]string{
 
 	// Operations Manager - global field operations lead (between Admin and Lead Tech)
 	"ssp_ops_manager": {
+		// SSOT read access for school directory
+		PermSSOTRead,
 		// All Lead Tech permissions
 		PermWorkOrderRead,
 		PermWorkOrderUpdate,

@@ -40,6 +40,8 @@ export const rolePermissions: Record<string, string[]> = {
 
   // Operations Manager - global field operations lead (between Admin and Lead Tech)
   ssp_ops_manager: [
+    // SSOT read access for school directory
+    'ssot:read',
     // All Lead Tech permissions
     'workorder:read', 'workorder:create', 'workorder:update',
     'workorder:schedule', 'workorder:deliverable', 'workorder:approval',

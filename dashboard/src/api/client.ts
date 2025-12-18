@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(
     }
 
     // Get tenant and school from localStorage or context
-    const tenantId = localStorage.getItem('tenant_id') || 'demo';
+    const tenantId = localStorage.getItem('tenant_id') || 'demo-tenant';
     const schoolId = localStorage.getItem('school_id') || 'demo-school';
 
     config.headers['X-Tenant-ID'] = tenantId;
