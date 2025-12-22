@@ -167,15 +167,22 @@ jobs:
           fi
 
       - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DROPLET_SSH_KEY }}
+          DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+          DROPLET_USER: ${{ secrets.DROPLET_USER }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/id_rsa
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Verify SSH connection
+          ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 \
+            "${DROPLET_USER}@${DROPLET_HOST}" "echo 'SSH connection verified'"
 
       - name: Copy deployment files
         run: |
-          scp -o StrictHostKeyChecking=no \
+          scp -o StrictHostKeyChecking=no -o BatchMode=yes \
             deployments/docker/docker-compose.prod.yml \
             deployments/docker/nginx.prod.conf \
             deployments/docker/init-databases.sql \
