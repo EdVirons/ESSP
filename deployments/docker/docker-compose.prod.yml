@@ -1,5 +1,6 @@
 # Docker Compose configuration for ESSP Production Deployment
 # Deploy all services to a Digital Ocean droplet
+# Version: 1.0.0
 
 services:
   # =============================================================================
