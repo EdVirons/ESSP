@@ -206,11 +206,14 @@ jobs:
             cd /opt/essp
 
             # Move deployment files
-            mv /tmp/docker-compose.prod.yml .
-            mv /tmp/nginx.prod.conf .
-            mv /tmp/init-databases.sql .
-            mv /tmp/deploy-droplet.sh .
+            mv /tmp/docker-compose.prod.yml . 2>/dev/null || true
+            mv /tmp/nginx.prod.conf . 2>/dev/null || true
+            mv /tmp/init-databases.sql . 2>/dev/null || true
+            mv /tmp/deploy-droplet.sh . 2>/dev/null || true
             chmod +x deploy-droplet.sh
+
+            # Install Docker first (if not present)
+            ./deploy-droplet.sh install
 
             # Create .env file if it doesn't exist
             if [ ! -f .env ]; then
@@ -231,7 +234,7 @@ jobs:
               sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
             fi
 
-            # Login to GHCR
+            # Login to GHCR (Docker is now installed)
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u github --password-stdin
 
             # Run deployment
