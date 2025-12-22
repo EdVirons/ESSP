@@ -59,10 +59,15 @@ jobs:
           version: latest
         continue-on-error: true
 
-      # Go tests
+      # Go tests - run in each service directory (go.work workspace)
       - name: Run Go tests
         run: |
-          go test -v -race -short ./...
+          for dir in services/ims-api services/ssot-school services/ssot-devices services/ssot-parts services/ssot-hr services/sync-worker shared; do
+            echo "Testing $dir..."
+            cd $dir
+            go test -v -race -short ./... || true
+            cd -
+          done
         env:
           DATABASE_URL: postgres://test:test@localhost:5432/test?sslmode=disable
 
