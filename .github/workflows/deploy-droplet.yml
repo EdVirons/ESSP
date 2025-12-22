@@ -188,17 +188,8 @@ jobs:
             ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }}:/tmp/
 
       - name: Deploy to droplet
-        env:
-          DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
-          DROPLET_USER: ${{ secrets.DROPLET_USER }}
-          IMAGE_TAG: ${{ steps.tag.outputs.tag }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << ENDSSH
             set -e
 
             # Create deployment directory
@@ -217,29 +208,29 @@ jobs:
 
             # Create .env file if it doesn't exist
             if [ ! -f .env ]; then
-              cat > .env << EOF
-          GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
-          IMAGE_TAG=${IMAGE_TAG}
+              cat > .env << 'ENVEOF'
+          GITHUB_REPOSITORY=${{ github.repository }}
+          IMAGE_TAG=${{ steps.tag.outputs.tag }}
           POSTGRES_USER=essp
-          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-          REDIS_PASSWORD=${REDIS_PASSWORD}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           MINIO_ACCESS_KEY=minioadmin
-          MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
           AUTH_ENABLED=false
           APP_ENV=production
           LOG_LEVEL=info
-          EOF
+          ENVEOF
             else
               # Update IMAGE_TAG in existing .env
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ steps.tag.outputs.tag }}/" .env
             fi
 
             # Login to GHCR (Docker is now installed)
-            echo "${GHCR_TOKEN}" | docker login ghcr.io -u github --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u github --password-stdin
 
             # Run deployment
-            export IMAGE_TAG="${IMAGE_TAG}"
-            export GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
+            export IMAGE_TAG="${{ steps.tag.outputs.tag }}"
+            export GITHUB_REPOSITORY="${{ github.repository }}"
             ./deploy-droplet.sh deploy
           ENDSSH
 
