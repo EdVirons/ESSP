@@ -4,5 +4,5 @@ export { useIncidentFilters } from './useIncidentFilters';
 export { useDeviceFilters } from './useDeviceFilters';
 export { useDeviceSelection } from './useDeviceSelection';
 export { useDefaultRoute } from './useDefaultRoute';
-export { useWarehouseDashboard, useLowStockItems, usePendingPartIssues, useStockMovements } from './useWarehouseDashboard';
-export { useLeadTechDashboard, usePendingApprovals, useTodaysSchedule, useTeamMetrics } from './useLeadTechDashboard';
+export { useWarehouseDashboard } from './useWarehouseDashboard';
+export { useLeadTechDashboard } from './useLeadTechDashboard';

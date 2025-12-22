@@ -7,7 +7,6 @@ export {
   useIncident,
   useCreateIncident,
   useUpdateIncidentStatus,
-  usePrefetchIncident,
 } from './incidents';
 
 // Work Orders
@@ -18,8 +17,6 @@ export {
   useUpdateWorkOrderStatus,
   useWorkOrderBOM,
   useAddBOMItem,
-  useConsumeBOMItem,
-  useReleaseBOMItem,
   useWorkOrderSchedules,
   useCreateSchedule,
   useWorkOrderDeliverables,
@@ -65,15 +62,6 @@ export {
   useAuditLogEntityTypes,
   exportAuditLogs,
 } from './audit-logs';
-
-// Health
-export {
-  useServiceHealth,
-  useDashboardMetrics,
-  useActivityFeed,
-  useHealthCheck,
-  useReadinessCheck,
-} from './health';
 
 // SSOT (Single Source of Truth)
 export {
