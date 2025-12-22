@@ -218,18 +218,17 @@ jobs:
             ./deploy-droplet.sh install
 
             # Create/update .env file
-            cat > .env <<- ENVEOF
-            GITHUB_REPOSITORY=${REPO_LOWER}
-            IMAGE_TAG=${IMAGE_TAG}
-            POSTGRES_USER=essp
-            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            REDIS_PASSWORD=${REDIS_PASSWORD}
-            MINIO_ACCESS_KEY=minioadmin
-            MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-            AUTH_ENABLED=false
-            APP_ENV=production
-            LOG_LEVEL=info
-            ENVEOF
+            printf '%s\n' \
+              "GITHUB_REPOSITORY=${REPO_LOWER}" \
+              "IMAGE_TAG=${IMAGE_TAG}" \
+              "POSTGRES_USER=essp" \
+              "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" \
+              "REDIS_PASSWORD=${REDIS_PASSWORD}" \
+              "MINIO_ACCESS_KEY=minioadmin" \
+              "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
+              "AUTH_ENABLED=false" \
+              "APP_ENV=production" \
+              "LOG_LEVEL=info" > .env
 
             # Login to GHCR (Docker is now installed)
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u github --password-stdin
