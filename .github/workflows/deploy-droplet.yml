@@ -189,7 +189,18 @@ jobs:
 
       - name: Deploy to droplet
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << ENDSSH
+          # Variables for deployment (lowercase repo name for Docker)
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="${{ steps.tag.outputs.tag }}"
+
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} \
+            REPO_LOWER="$REPO_LOWER" \
+            IMAGE_TAG="$IMAGE_TAG" \
+            POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" \
+            REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_SECRET_KEY }}" \
+            GHCR_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            'bash -s' << 'ENDSSH'
             set -e
 
             # Create deployment directory
@@ -206,31 +217,26 @@ jobs:
             # Install Docker first (if not present)
             ./deploy-droplet.sh install
 
-            # Create .env file if it doesn't exist
-            if [ ! -f .env ]; then
-              cat > .env << 'ENVEOF'
-          GITHUB_REPOSITORY=${{ github.repository }}
-          IMAGE_TAG=${{ steps.tag.outputs.tag }}
-          POSTGRES_USER=essp
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-          MINIO_ACCESS_KEY=minioadmin
-          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
-          AUTH_ENABLED=false
-          APP_ENV=production
-          LOG_LEVEL=info
-          ENVEOF
-            else
-              # Update IMAGE_TAG in existing .env
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ steps.tag.outputs.tag }}/" .env
-            fi
+            # Create/update .env file
+            cat > .env << ENVEOF
+GITHUB_REPOSITORY=${REPO_LOWER}
+IMAGE_TAG=${IMAGE_TAG}
+POSTGRES_USER=essp
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+REDIS_PASSWORD=${REDIS_PASSWORD}
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+AUTH_ENABLED=false
+APP_ENV=production
+LOG_LEVEL=info
+ENVEOF
 
             # Login to GHCR (Docker is now installed)
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u github --password-stdin
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u github --password-stdin
 
             # Run deployment
-            export IMAGE_TAG="${{ steps.tag.outputs.tag }}"
-            export GITHUB_REPOSITORY="${{ github.repository }}"
+            export IMAGE_TAG="${IMAGE_TAG}"
+            export GITHUB_REPOSITORY="${REPO_LOWER}"
             ./deploy-droplet.sh deploy
           ENDSSH
 
