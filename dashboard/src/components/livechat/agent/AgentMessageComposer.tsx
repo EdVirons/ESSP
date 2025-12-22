@@ -24,6 +24,7 @@ export function AgentMessageComposer({
   // Handle typing indicator
   useEffect(() => {
     if (content && !isTyping) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsTyping(true);
       onTyping?.(true);
     }

@@ -78,6 +78,7 @@ export function PermissionGate({
 /**
  * Hook version for programmatic permission checking
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePermissionCheck(
   permissions?: string[],
   roles?: string[],

@@ -55,6 +55,7 @@ export function useTyping({
               },
             };
           } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { [payload.userId]: _, ...rest } = prev;
             return rest;
           }

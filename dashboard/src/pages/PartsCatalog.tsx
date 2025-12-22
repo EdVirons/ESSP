@@ -62,8 +62,9 @@ export function PartsCatalog() {
   } = usePartsCRUD({ onRefetch: refetch });
 
   const categories = React.useMemo(() => {
-    if (!categoriesData?.items) return [];
-    return categoriesData.items.map((cat) => ({
+    const items = categoriesData?.items;
+    if (!items) return [];
+    return items.map((cat) => ({
       value: cat,
       label: cat.charAt(0).toUpperCase() + cat.slice(1),
     }));

@@ -66,6 +66,7 @@ interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ({ className, align = "center", sideOffset = 4, children, ...props }, _ref) => {
     const { open, onOpenChange } = useDropdownMenu();
     const contentRef = React.useRef<HTMLDivElement>(null);

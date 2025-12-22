@@ -57,8 +57,9 @@ export function CreateLeadModal({
   }, [countiesData?.items]);
 
   const subCounties = React.useMemo(() => {
-    if (!subCountiesData?.items) return [];
-    return subCountiesData.items;
+    const items = subCountiesData?.items;
+    if (!items) return [];
+    return items;
   }, [subCountiesData?.items]);
 
   const handleCountyChange = (code: string) => {

@@ -374,6 +374,7 @@ export function SortableHeader({
 }
 
 // Checkbox column helper
+// eslint-disable-next-line react-refresh/only-export-components
 export function createSelectColumn<TData>(): ColumnDef<TData> {
   return {
     id: 'select',

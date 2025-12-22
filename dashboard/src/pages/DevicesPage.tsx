@@ -52,10 +52,10 @@ export function DevicesPage() {
   const totalDevices = devicesData?.total || 0;
   const models = modelsData?.items || [];
   const makes = makesData?.makes || [];
-  const schools = schoolsData?.items || [];
 
   // School options for filter
   const schoolOptions = React.useMemo(() => {
+    const schools = schoolsData?.items || [];
     return [
       { value: '', label: 'All Schools' },
       ...schools.map((s) => ({
@@ -63,7 +63,7 @@ export function DevicesPage() {
         label: s.name,
       })),
     ];
-  }, [schools]);
+  }, [schoolsData?.items]);
 
   // Handle sync
   const handleSync = async () => {

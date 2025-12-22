@@ -28,10 +28,11 @@ export function AddInventoryModal({
   const { data: partsData, isLoading: partsLoading } = useParts({ limit: 20, active: true });
 
   const filteredParts = React.useMemo(() => {
-    if (!partsData?.items) return [];
-    if (!searchQuery) return partsData.items.slice(0, 10);
+    const items = partsData?.items;
+    if (!items) return [];
+    if (!searchQuery) return items.slice(0, 10);
     const query = searchQuery.toLowerCase();
-    return partsData.items.filter(
+    return items.filter(
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.puk.toLowerCase().includes(query)

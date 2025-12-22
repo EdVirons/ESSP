@@ -70,4 +70,5 @@ export function StaffList({ staff, onAddClick }: StaffListProps) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { staffRoleLabels, staffRoleColors };

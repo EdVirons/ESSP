@@ -82,8 +82,9 @@ export function Schools() {
 
   // Counties for filter dropdown (from API)
   const counties = React.useMemo(() => {
-    if (!countiesData?.items) return [];
-    return countiesData.items.map((c) => ({
+    const items = countiesData?.items;
+    if (!items) return [];
+    return items.map((c) => ({
       value: c.code,
       label: c.name,
     }));

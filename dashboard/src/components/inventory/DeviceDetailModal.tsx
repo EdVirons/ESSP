@@ -18,7 +18,6 @@ export function DeviceDetailModal({
   open,
   onClose,
   device,
-  groups: _groups = [],
   onAssignLocation,
   onAssignUser,
   onManageGroups,

@@ -43,7 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(null);
         setProfile(null);
       }
-    } catch (err) {
+    } catch {
       setUser(null);
       setProfile(null);
     } finally {
@@ -81,8 +81,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
       setError(response.message || 'Login failed');
       return false;
-    } catch (err: any) {
-      const message = err.response?.data?.message || err.message || 'Login failed';
+    } catch (err: unknown) {
+      const message = err instanceof Error && 'response' in err
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || (err as Error).message
+        : 'Login failed';
       setError(message);
       return false;
     } finally {
@@ -93,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
-    } catch (err) {
+    } catch {
       // Ignore logout errors
     } finally {
       setUser(null);
@@ -139,7 +141,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const refreshInterval = setInterval(async () => {
       try {
         await authApi.refresh();
-      } catch (err) {
+      } catch {
         // If refresh fails, check auth status
         await checkAuth();
       }
@@ -166,6 +168,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {

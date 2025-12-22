@@ -61,7 +61,7 @@ export function useServiceShopActions({
       setShowCreateModal(false);
       setCreateForm(initialCreateForm);
       onRefetch();
-    } catch (err) {
+    } catch {
       toast.error('Failed to create service shop');
     }
   }, [createShop, createForm, onRefetch]);
@@ -75,7 +75,7 @@ export function useServiceShopActions({
         setShowEditModal(false);
         setSelectedShop(null);
         onRefetch();
-      } catch (err) {
+      } catch {
         toast.error('Failed to update service shop');
       }
     },
@@ -91,7 +91,7 @@ export function useServiceShopActions({
       setShowDeleteModal(false);
       setSelectedShop(null);
       onRefetch();
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete service shop');
     }
   }, [deleteShop, selectedShop, onRefetch]);
@@ -104,7 +104,7 @@ export function useServiceShopActions({
         toast.success('Staff member added successfully');
         setShowAddStaffModal(false);
         onStaffRefetch?.();
-      } catch (err) {
+      } catch {
         toast.error('Failed to add staff member');
       }
     },
@@ -124,7 +124,7 @@ export function useServiceShopActions({
         toast.success('Inventory item added successfully');
         setShowAddInventoryModal(false);
         onInventoryRefetch?.();
-      } catch (err) {
+      } catch {
         toast.error('Failed to add inventory item');
       }
     },

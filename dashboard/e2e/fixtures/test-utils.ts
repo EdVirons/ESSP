@@ -85,6 +85,7 @@ export const test = base.extend<{
   authenticatedPage: async ({ page }, use) => {
     // Login as admin by default
     await loginAs(page, 'admin');
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(page);
   },
 
@@ -92,6 +93,7 @@ export const test = base.extend<{
     const login = async (role: UserRole) => {
       await loginAs(page, role);
     };
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(login);
   },
 });

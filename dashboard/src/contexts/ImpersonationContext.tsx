@@ -141,6 +141,7 @@ export function ImpersonationProvider({ children }: ImpersonationProviderProps) 
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useImpersonation(): ImpersonationContextType {
   const context = useContext(ImpersonationContext);
   if (context === undefined) {
@@ -149,7 +150,7 @@ export function useImpersonation(): ImpersonationContextType {
   return context;
 }
 
-// Hook to get impersonation headers for API calls
+// eslint-disable-next-line react-refresh/only-export-components
 export function useImpersonationHeaders(): Record<string, string> {
   const { isImpersonating, targetUser, reason } = useImpersonation();
 

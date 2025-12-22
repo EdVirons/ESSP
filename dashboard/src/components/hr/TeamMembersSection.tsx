@@ -38,7 +38,6 @@ export function TeamMembersSection({ teamId, onAddMember, canManageMembers = tru
   const { data: peopleData } = usePeople({ limit: 500 });
   const deleteMembership = useDeleteTeamMembership();
 
-  const memberships = membershipsData?.items ?? [];
   const peopleMap = React.useMemo(() => {
     const map = new Map<string, PersonSnapshot>();
     for (const person of peopleData?.items ?? []) {
@@ -57,6 +56,7 @@ export function TeamMembersSection({ teamId, onAddMember, canManageMembers = tru
   };
 
   const sortedMemberships = React.useMemo(() => {
+    const memberships = membershipsData?.items ?? [];
     return [...memberships].sort((a, b) => {
       // Sort by role: lead first, then member, then observer
       const roleOrder = { lead: 0, member: 1, observer: 2 };
@@ -64,7 +64,7 @@ export function TeamMembersSection({ teamId, onAddMember, canManageMembers = tru
       const bOrder = roleOrder[b.role as keyof typeof roleOrder] ?? 3;
       return aOrder - bOrder;
     });
-  }, [memberships]);
+  }, [membershipsData?.items]);
 
   if (loadingMemberships) {
     return (
@@ -79,7 +79,7 @@ export function TeamMembersSection({ teamId, onAddMember, canManageMembers = tru
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
           <Users className="h-4 w-4" aria-hidden="true" />
-          Team Members ({memberships.length})
+          Team Members ({sortedMemberships.length})
         </h4>
         {canManageMembers && onAddMember && (
           <Button variant="outline" size="sm" onClick={onAddMember}>

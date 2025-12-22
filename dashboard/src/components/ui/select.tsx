@@ -201,6 +201,7 @@ export interface SelectContentProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ({ className, children, ...props }, _ref) => {
     const { open, setOpen } = useSelectContext();
     const contentRef = React.useRef<HTMLDivElement>(null);

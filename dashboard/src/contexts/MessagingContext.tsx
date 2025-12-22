@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { messagingKeys } from '@/hooks/useMessages';
-import type { Message } from '@/types/messaging';
+import type { Message, ThreadDetailResponse } from '@/types/messaging';
 
 interface MessagingContextValue {
   // Selected thread
@@ -32,6 +32,7 @@ interface MessagingContextValue {
 
 const MessagingContext = createContext<MessagingContextValue | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMessaging() {
   const context = useContext(MessagingContext);
   if (!context) {
@@ -53,12 +54,14 @@ export function MessagingProvider({ children }: MessagingProviderProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   // WebSocket handler for real-time updates
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebSocketMessage = useCallback((wsMessage: any) => {
     switch (wsMessage.type) {
       case 'chat_message': {
         const { threadId, message } = wsMessage.payload;
 
         // Update thread cache with new message
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         queryClient.setQueryData(messagingKeys.thread(threadId), (old: any) => {
           if (!old) return old;
           return {
@@ -129,11 +132,12 @@ export function MessagingProvider({ children }: MessagingProviderProps) {
 
   const onNewMessage = useCallback((threadId: string, message: Message) => {
     // Update cache
-    queryClient.setQueryData(messagingKeys.thread(threadId), (old: any) => {
+    queryClient.setQueryData(messagingKeys.thread(threadId), (old: unknown) => {
       if (!old) return old;
+      const oldData = old as ThreadDetailResponse;
       return {
-        ...old,
-        messages: [...old.messages, message],
+        ...oldData,
+        messages: [...oldData.messages, message],
       };
     });
   }, [queryClient]);

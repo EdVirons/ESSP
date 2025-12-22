@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,7 +20,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['support']));
 
   // Filter nav item visibility
-  const isItemVisible = (item: NavItem): boolean => {
+  const isItemVisible = useCallback((item: NavItem): boolean => {
     // If item is restricted to school_contact only, hide from admin
     if (item.roles?.length === 1 && item.roles[0] === 'ssp_school_contact') {
       return hasRole('ssp_school_contact');
@@ -30,7 +30,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     if (item.permissions?.length && item.permissions.some((p) => hasPermission(p))) return true;
     if (item.roles?.length && item.roles.some((r) => hasRole(r))) return true;
     return false;
-  };
+  }, [hasPermission, hasRole]);
 
   // Filter groups and their items based on user permissions and roles
   const visibleGroups = useMemo(() => {
@@ -47,7 +47,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         items: group.items.filter(isItemVisible),
       }))
       .filter((group) => group.items.length > 0);
-  }, [hasPermission, hasRole]);
+  }, [hasRole, isItemVisible]);
 
   // Check if any item in group is active
   const isGroupActive = (group: NavGroup): boolean => {

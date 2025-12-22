@@ -102,6 +102,9 @@ export function Settings() {
   // Active tab state
   const [activeTab, setActiveTab] = React.useState('profile');
 
+  // Generate session ID once on mount (use lazy initial state to avoid impure render)
+  const [sessionId] = React.useState(() => Math.random().toString(36).substring(2, 15));
+
   // Profile state
   const [profile, setProfile] = React.useState({
     name: 'Admin User',
@@ -688,7 +691,7 @@ export function Settings() {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Session ID</label>
                     <p className="text-xs text-gray-900 font-mono bg-gray-50 p-2 rounded mt-1 truncate">
-                      {Math.random().toString(36).substring(2, 15)}...
+                      {sessionId}...
                     </p>
                   </div>
                   <div>

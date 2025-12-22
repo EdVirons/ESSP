@@ -205,7 +205,7 @@ export function DemoPipeline() {
     try {
       const lead = await demoPipelineApi.getLead(id);
       setSelectedLead(lead);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load lead details', 'Please try again');
     }
   }, []);

@@ -35,7 +35,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   const reconnectTimeoutRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
 
-  const connect = useCallback(() => {
+  const connectRef = useRef<(() => void) | null>(null);
+
+  const doConnect = useCallback(() => {
     if (!enabled || wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
@@ -65,20 +67,23 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
         console.log('[WebSocket] Disconnected', event.code, event.reason);
 
         // Attempt to reconnect with exponential backoff
-        if (reconnectAttempt < maxReconnectAttempts && enabled) {
-          const delay = Math.min(
-            reconnectInterval * Math.pow(1.5, reconnectAttempt),
-            30000 // Max 30 seconds
-          );
-          console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectAttempt + 1})`);
+        setReconnectAttempt((currentAttempt) => {
+          if (currentAttempt < maxReconnectAttempts && enabled) {
+            const delay = Math.min(
+              reconnectInterval * Math.pow(1.5, currentAttempt),
+              30000 // Max 30 seconds
+            );
+            console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${currentAttempt + 1})`);
 
-          reconnectTimeoutRef.current = window.setTimeout(() => {
-            if (mountedRef.current) {
-              setReconnectAttempt((prev) => prev + 1);
-              connect();
-            }
-          }, delay);
-        }
+            reconnectTimeoutRef.current = window.setTimeout(() => {
+              if (mountedRef.current) {
+                connectRef.current?.();
+              }
+            }, delay);
+            return currentAttempt + 1;
+          }
+          return currentAttempt;
+        });
       };
 
       ws.onerror = (error) => {
@@ -99,7 +104,16 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
     } catch (error) {
       console.error('[WebSocket] Failed to connect:', error);
     }
-  }, [enabled, onMessage, onConnect, onDisconnect, reconnectInterval, maxReconnectAttempts, reconnectAttempt]);
+  }, [enabled, onMessage, onConnect, onDisconnect, reconnectInterval, maxReconnectAttempts]);
+
+  // Update ref in effect to avoid updating during render
+  useEffect(() => {
+    connectRef.current = doConnect;
+  }, [doConnect]);
+
+  const connect = useCallback(() => {
+    connectRef.current?.();
+  }, []);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

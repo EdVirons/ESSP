@@ -20,10 +20,9 @@ export function ImpersonationModal({ open, onClose }: ImpersonationModalProps) {
   const { startImpersonation } = useImpersonation();
   const { data: usersData, isLoading } = useImpersonatableUsers();
 
-  const users = usersData?.items || [];
-
   // Filter users by search query
   const filteredUsers = React.useMemo(() => {
+    const users = usersData?.items || [];
     if (!searchQuery.trim()) return users;
     const query = searchQuery.toLowerCase();
     return users.filter(
@@ -31,7 +30,7 @@ export function ImpersonationModal({ open, onClose }: ImpersonationModalProps) {
         user.name.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query)
     );
-  }, [users, searchQuery]);
+  }, [usersData?.items, searchQuery]);
 
   const handleStart = async () => {
     if (!selectedUserId) return;
@@ -58,7 +57,7 @@ export function ImpersonationModal({ open, onClose }: ImpersonationModalProps) {
     onClose();
   };
 
-  const selectedUser = users.find((u) => u.userId === selectedUserId);
+  const selectedUser = (usersData?.items || []).find((u) => u.userId === selectedUserId);
 
   return (
     <Modal open={open} onClose={handleClose} className="max-w-lg">

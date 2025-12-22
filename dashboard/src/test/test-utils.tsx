@@ -22,6 +22,7 @@ function createTestQueryClient() {
   });
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function AllTheProviders({ children }: ProvidersProps) {
   const queryClient = createTestQueryClient();
 
@@ -41,6 +42,7 @@ const customRender = (
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
 // Re-export everything
+// eslint-disable-next-line react-refresh/only-export-components
 export * from '@testing-library/react';
 export { customRender as render };
 

@@ -238,7 +238,7 @@ function ActivityItem({
 
   const renderContent = () => {
     switch (activity.activityType) {
-      case 'status_change':
+      case 'status_change': {
         const meta = activity.metadata as { from?: string; to?: string; reason?: string };
         return (
           <p className="text-sm text-gray-600">
@@ -247,8 +247,9 @@ function ActivityItem({
             {meta.reason && <span className="text-gray-400"> - {meta.reason}</span>}
           </p>
         );
+      }
 
-      case 'assignment':
+      case 'assignment': {
         const assignMeta = activity.metadata as {
           userName?: string;
           action?: string;
@@ -261,8 +262,9 @@ function ActivityItem({
             {assignMeta.role && <span> as {assignMeta.role}</span>}
           </p>
         );
+      }
 
-      case 'work_order':
+      case 'work_order': {
         const woMeta = activity.metadata as {
           workOrderId?: string;
           action?: string;
@@ -276,8 +278,9 @@ function ActivityItem({
             </span>
           </p>
         );
+      }
 
-      case 'phase_transition':
+      case 'phase_transition': {
         const phaseMeta = activity.metadata as {
           phaseType?: string;
           from?: string;
@@ -290,6 +293,7 @@ function ActivityItem({
             <strong>{phaseMeta.to || '?'}</strong>
           </p>
         );
+      }
 
       default:
         return (

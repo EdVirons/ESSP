@@ -4,6 +4,7 @@ import type {
   CreateThreadRequest,
   CreateMessageRequest,
   ThreadsListParams,
+  ThreadDetailResponse,
 } from '@/types/messaging';
 
 // Query keys
@@ -64,14 +65,15 @@ export function useSendMessage(threadId: string) {
     mutationFn: (data: CreateMessageRequest) => messagingApi.sendMessage(threadId, data),
     onSuccess: (newMessage) => {
       // Optimistically update the thread cache
-      queryClient.setQueryData(messagingKeys.thread(threadId), (old: any) => {
+      queryClient.setQueryData(messagingKeys.thread(threadId), (old: unknown) => {
         if (!old) return old;
+        const oldData = old as ThreadDetailResponse;
         return {
-          ...old,
-          messages: [...old.messages, newMessage],
+          ...oldData,
+          messages: [...oldData.messages, newMessage],
           thread: {
-            ...old.thread,
-            messageCount: old.thread.messageCount + 1,
+            ...oldData.thread,
+            messageCount: oldData.thread.messageCount + 1,
             lastMessageAt: newMessage.createdAt,
             lastMessage: newMessage,
           },

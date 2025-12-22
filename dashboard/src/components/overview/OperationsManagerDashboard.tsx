@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2,
@@ -49,11 +50,14 @@ export function OperationsManagerDashboard() {
     { id: '5', name: 'Eldoret Office', activeWOs: 5, completedToday: 2, staff: 4, status: 'critical' },
   ];
 
+  // Capture initial time once on mount to avoid impure Date.now() calls during render
+  const [mountTime] = React.useState(() => Date.now());
+
   // Pending approvals from all shops
   const pendingApprovals = [
-    { id: '1', title: 'Laptop Screen Replacement', shopName: 'Nairobi Central', schoolName: 'Greenwood Academy', priority: 'high', requestedAt: new Date(Date.now() - 3600000).toISOString() },
-    { id: '2', title: 'Server Rack Installation', shopName: 'Mombasa Hub', schoolName: 'Coastal International', priority: 'critical', requestedAt: new Date(Date.now() - 7200000).toISOString() },
-    { id: '3', title: 'Network Switch Upgrade', shopName: 'Kisumu Branch', schoolName: 'Lakeside School', priority: 'medium', requestedAt: new Date(Date.now() - 10800000).toISOString() },
+    { id: '1', title: 'Laptop Screen Replacement', shopName: 'Nairobi Central', schoolName: 'Greenwood Academy', priority: 'high', requestedAt: new Date(mountTime - 3600000).toISOString() },
+    { id: '2', title: 'Server Rack Installation', shopName: 'Mombasa Hub', schoolName: 'Coastal International', priority: 'critical', requestedAt: new Date(mountTime - 7200000).toISOString() },
+    { id: '3', title: 'Network Switch Upgrade', shopName: 'Kisumu Branch', schoolName: 'Lakeside School', priority: 'medium', requestedAt: new Date(mountTime - 10800000).toISOString() },
   ];
 
   // Inventory alerts across all shops
@@ -65,9 +69,9 @@ export function OperationsManagerDashboard() {
 
   // Recent cross-shop activity
   const recentActivity = [
-    { id: '1', description: 'Work order transferred from Nairobi to Mombasa', actor: 'System', createdAt: new Date(Date.now() - 1800000).toISOString(), type: 'transfer' },
-    { id: '2', description: 'New technician onboarded at Kisumu Branch', actor: 'Admin', createdAt: new Date(Date.now() - 3600000).toISOString(), type: 'staff' },
-    { id: '3', description: 'Inventory replenishment approved for Eldoret', actor: 'Ops Manager', createdAt: new Date(Date.now() - 5400000).toISOString(), type: 'inventory' },
+    { id: '1', description: 'Work order transferred from Nairobi to Mombasa', actor: 'System', createdAt: new Date(mountTime - 1800000).toISOString(), type: 'transfer' },
+    { id: '2', description: 'New technician onboarded at Kisumu Branch', actor: 'Admin', createdAt: new Date(mountTime - 3600000).toISOString(), type: 'staff' },
+    { id: '3', description: 'Inventory replenishment approved for Eldoret', actor: 'Ops Manager', createdAt: new Date(mountTime - 5400000).toISOString(), type: 'inventory' },
   ];
 
   // Work order status breakdown across all shops
@@ -79,14 +83,14 @@ export function OperationsManagerDashboard() {
     overdue: 3,
   };
 
-  const formatTimeAgo = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
+  const formatTimeAgo = React.useCallback((dateStr: string) => {
+    const diff = mountTime - new Date(dateStr).getTime();
     const hours = Math.floor(diff / 3600000);
     if (hours < 1) return 'Just now';
     if (hours === 1) return '1 hour ago';
     if (hours < 24) return `${hours} hours ago`;
     return `${Math.floor(hours / 24)} days ago`;
-  };
+  }, [mountTime]);
 
   return (
     <div className="space-y-6">

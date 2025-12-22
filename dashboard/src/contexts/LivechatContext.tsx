@@ -40,6 +40,7 @@ interface LivechatContextValue {
 
 const LivechatContext = createContext<LivechatContextValue | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLivechatContext() {
   const context = useContext(LivechatContext);
   if (!context) {
@@ -64,6 +65,7 @@ export function LivechatProvider({ children }: LivechatProviderProps) {
   const [newChatNotification, setNewChatNotification] = useState<{ sessionId: string; contactName: string; subject: string } | null>(null);
 
   // WebSocket handler for real-time updates
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebSocketMessage = useCallback((wsMessage: any) => {
     switch (wsMessage.type) {
       case 'chat_session_update': {
@@ -113,6 +115,7 @@ export function LivechatProvider({ children }: LivechatProviderProps) {
 
         // If this is for the current session's thread, update it
         if (currentSession?.threadId === threadId) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           queryClient.setQueryData(messagingKeys.thread(threadId), (old: any) => {
             if (!old) return old;
             return {

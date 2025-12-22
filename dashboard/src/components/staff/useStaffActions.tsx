@@ -29,7 +29,7 @@ export function useStaffActions({ onRefetch }: UseStaffActionsOptions) {
         toast.success('Staff member added successfully');
         setShowCreateModal(false);
         onRefetch();
-      } catch (error) {
+      } catch {
         toast.error('Failed to add staff member');
       }
     },
@@ -44,7 +44,7 @@ export function useStaffActions({ onRefetch }: UseStaffActionsOptions) {
         setShowEditModal(false);
         setSelectedStaff(null);
         onRefetch();
-      } catch (error) {
+      } catch {
         toast.error('Failed to update staff member');
       }
     },
@@ -59,7 +59,7 @@ export function useStaffActions({ onRefetch }: UseStaffActionsOptions) {
       setShowDeleteModal(false);
       setSelectedStaff(null);
       onRefetch();
-    } catch (error) {
+    } catch {
       toast.error('Failed to remove staff member');
     }
   }, [selectedStaff, deleteMutation, onRefetch]);

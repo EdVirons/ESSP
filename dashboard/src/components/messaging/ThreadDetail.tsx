@@ -25,11 +25,12 @@ export function ThreadDetail({ threadId, onClose }: ThreadDetailProps) {
       const lastMessage = data.messages[data.messages.length - 1];
       markRead.mutate(lastMessage.id);
     }
-  }, [data?.messages?.length]);
+  }, [data?.messages?.length, markRead]);
 
   // Get typing users for this thread
   const threadTypingUsers = Array.from(typingUsers.entries())
-    .filter(([_, data]) => data.threadId === threadId)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([_userId, data]) => data.threadId === threadId)
     .map(([userId, data]) => ({ userId, userName: data.userName }));
 
   if (isLoading) {

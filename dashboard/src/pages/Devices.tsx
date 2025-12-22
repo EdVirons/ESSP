@@ -148,6 +148,7 @@ export function Devices() {
 
   // Calculate status counts
   const statusCounts = React.useMemo(() => {
+    const items = data?.items || [];
     const counts: Record<string, number> = { active: 0, inactive: 0, repair: 0, disposed: 0 };
     items.forEach((d) => {
       const status = d.status || 'unknown';
@@ -156,7 +157,7 @@ export function Devices() {
       }
     });
     return counts;
-  }, [items]);
+  }, [data?.items]);
 
   return (
     <div className="space-y-6">
