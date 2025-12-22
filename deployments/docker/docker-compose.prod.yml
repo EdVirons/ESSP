@@ -1,0 +1,360 @@
+# Docker Compose configuration for ESSP Production Deployment
+# Deploy all services to a Digital Ocean droplet
+
+services:
+  # =============================================================================
+  # Infrastructure Services
+  # =============================================================================
+
+  # PostgreSQL 16 - Main database for all services
+  postgres:
+    image: postgres:16-alpine
+    container_name: essp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-essp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-essp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - essp-net
+
+  # Valkey 7 (Redis-compatible) - Caching and rate limiting
+  valkey:
+    image: valkey/valkey:7-alpine
+    container_name: essp-valkey
+    restart: unless-stopped
+    volumes:
+      - valkey-data:/data
+    command:
+      - "valkey-server"
+      - "--appendonly"
+      - "yes"
+      - "--appendfsync"
+      - "everysec"
+      - "--maxmemory"
+      - "512mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:-}"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - essp-net
+
+  # NATS - Event messaging and pub/sub
+  nats:
+    image: nats:2.10-alpine
+    container_name: essp-nats
+    restart: unless-stopped
+    command:
+      - "-js"
+      - "-m"
+      - "8222"
+      - "-sd"
+      - "/data"
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - essp-net
+
+  # MinIO - S3-compatible object storage
+  minio:
+    image: minio/minio:latest
+    container_name: essp-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY is required}
+      MINIO_REGION: us-east-1
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - essp-net
+
+  # MinIO bucket initialization
+  minio-init:
+    image: minio/mc:latest
+    container_name: essp-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set minio http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb minio/essp-attachments --ignore-existing;
+      /usr/bin/mc mb minio/essp-ssot --ignore-existing;
+      echo 'MinIO buckets created successfully';
+      exit 0;
+      "
+    networks:
+      - essp-net
+
+  # =============================================================================
+  # Application Services
+  # =============================================================================
+
+  # IMS API - Main API with embedded dashboard
+  ims-api:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/ims-api:${IMAGE_TAG:-latest}
+    container_name: essp-ims-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      HTTP_ADDR: ":8080"
+      LOG_LEVEL: info
+      # Database
+      PG_DSN: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_ims?sslmode=disable"
+      # Redis
+      REDIS_ADDR: "valkey:6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
+      REDIS_DB: "0"
+      # NATS
+      NATS_URL: "nats://nats:4222"
+      # MinIO
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minioadmin}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      MINIO_USE_SSL: "false"
+      ATTACHMENTS_BUCKET: "essp-attachments"
+      # SSOT Service URLs
+      SCHOOL_SSOT_BASE_URL: "http://ssot-school:8081"
+      DEVICE_SSOT_BASE_URL: "http://ssot-devices:8082"
+      PARTS_SSOT_BASE_URL: "http://ssot-parts:8083"
+      HR_SSOT_BASE_URL: "http://ssot-hr:8300"
+      # Auth (disabled for now, enable when ready)
+      AUTH_ENABLED: "${AUTH_ENABLED:-false}"
+      # Rate limiting
+      RATE_LIMIT_ENABLED: "true"
+      RATE_LIMIT_READ_RPM: "300"
+      RATE_LIMIT_WRITE_RPM: "100"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # SSOT School Service
+  ssot-school:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/ssot-school:${IMAGE_TAG:-latest}
+    container_name: essp-ssot-school
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      HTTP_ADDR: ":8081"
+      LOG_LEVEL: info
+      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_school?sslmode=disable"
+      NATS_URL: "nats://nats:4222"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # SSOT Devices Service
+  ssot-devices:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/ssot-devices:${IMAGE_TAG:-latest}
+    container_name: essp-ssot-devices
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      HTTP_ADDR: ":8082"
+      LOG_LEVEL: info
+      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_devices?sslmode=disable"
+      NATS_URL: "nats://nats:4222"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # SSOT Parts Service
+  ssot-parts:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/ssot-parts:${IMAGE_TAG:-latest}
+    container_name: essp-ssot-parts
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      HTTP_ADDR: ":8083"
+      LOG_LEVEL: info
+      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_parts?sslmode=disable"
+      NATS_URL: "nats://nats:4222"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # SSOT HR Service
+  ssot-hr:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/ssot-hr:${IMAGE_TAG:-latest}
+    container_name: essp-ssot-hr
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      HTTP_ADDR: ":8300"
+      LOG_LEVEL: info
+      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_hr?sslmode=disable"
+      NATS_URL: "nats://nats:4222"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8300/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # Sync Worker - Background event processor
+  sync-worker:
+    image: ghcr.io/${GITHUB_REPOSITORY:-edvirons/essp}/sync-worker:${IMAGE_TAG:-latest}
+    container_name: essp-sync-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      ims-api:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: info
+      HEALTH_PORT: "8084"
+      # Database
+      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_ims?sslmode=disable"
+      # NATS
+      NATS_URL: "nats://nats:4222"
+      # SSOT Service URLs
+      SCHOOL_SSOT_BASE_URL: "http://ssot-school:8081"
+      DEVICE_SSOT_BASE_URL: "http://ssot-devices:8082"
+      PARTS_SSOT_BASE_URL: "http://ssot-parts:8083"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - essp-net
+
+  # =============================================================================
+  # Reverse Proxy
+  # =============================================================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: essp-nginx
+    restart: unless-stopped
+    depends_on:
+      ims-api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - essp-net
+
+  # Certbot for SSL certificates (run manually or via cron)
+  certbot:
+    image: certbot/certbot
+    container_name: essp-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    profiles:
+      - ssl
+
+# =============================================================================
+# Volumes
+# =============================================================================
+
+volumes:
+  postgres-data:
+    driver: local
+  valkey-data:
+    driver: local
+  nats-data:
+    driver: local
+  minio-data:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+
+networks:
+  essp-net:
+    driver: bridge
+    name: essp-network
