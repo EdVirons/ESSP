@@ -2,27 +2,32 @@
 FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
-# Copy go workspace files from root
-COPY ../../go.work ../../go.work.sum ./
+# Install git for go mod download
+RUN apk add --no-cache git
 
 # Copy shared module
-COPY ../../shared /app/shared
+COPY shared /app/shared
 
 # Copy service files
-COPY go.mod go.sum ./
+COPY services/sync-worker/go.mod services/sync-worker/go.sum ./services/sync-worker/
+
+# Create minimal go.work for this build
+RUN printf 'go 1.22\n\nuse (\n\t./shared\n\t./services/sync-worker\n)\n' > go.work
+
+WORKDIR /app/services/sync-worker
 RUN go mod download
 
-COPY . .
+COPY services/sync-worker .
 
 # Build the service
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/service ./cmd/worker
 
 # Runtime stage
 FROM alpine:3.19
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata wget
 
 COPY --from=builder /bin/service /bin/service
 
-EXPOSE 8080
+EXPOSE 8084
 
 ENTRYPOINT ["/bin/service"]
