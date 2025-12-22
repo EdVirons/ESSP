@@ -167,18 +167,19 @@ jobs:
           fi
 
       - name: Setup SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DROPLET_SSH_KEY }}
-          DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
-          DROPLET_USER: ${{ secrets.DROPLET_USER }}
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Add known hosts
+        run: ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          # Verify SSH connection
           ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 \
-            "${DROPLET_USER}@${DROPLET_HOST}" "echo 'SSH connection verified'"
+            ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} "echo 'SSH OK'"
 
       - name: Copy deployment files
         run: |
