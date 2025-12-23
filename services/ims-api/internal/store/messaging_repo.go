@@ -264,7 +264,7 @@ func (r *MessagingRepo) GetMessageByID(ctx context.Context, tenantID, messageID 
 	}
 
 	if len(metadataBytes) > 0 {
-		json.Unmarshal(metadataBytes, &m.Metadata)
+		_ = json.Unmarshal(metadataBytes, &m.Metadata)
 	}
 
 	return m, nil

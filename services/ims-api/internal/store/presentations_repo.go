@@ -64,7 +64,7 @@ func (r *PresentationsRepo) GetByID(ctx context.Context, tenantID, id string) (m
 		return models.Presentation{}, err
 	}
 
-	json.Unmarshal(tagsJSON, &p.Tags)
+	_ = json.Unmarshal(tagsJSON, &p.Tags)
 	if p.Tags == nil {
 		p.Tags = []string{}
 	}
@@ -155,7 +155,7 @@ func (r *PresentationsRepo) List(ctx context.Context, tenantID string, filters m
 		); err != nil {
 			return nil, 0, err
 		}
-		json.Unmarshal(tagsJSON, &p.Tags)
+		_ = json.Unmarshal(tagsJSON, &p.Tags)
 		if p.Tags == nil {
 			p.Tags = []string{}
 		}

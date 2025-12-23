@@ -95,7 +95,7 @@ func (a *AdminAuth) Profile(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ProfileResponse{Profile: profile})
+	_ = json.NewEncoder(w).Encode(ProfileResponse{Profile: profile})
 }
 
 // buildProfileFromClaims constructs a user profile from JWT claims

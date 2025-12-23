@@ -149,7 +149,7 @@ func (h *Handler) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
 	response := UnreadCountResponse{Count: count}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // MarkNotificationsRead marks notifications as read (placeholder - stores in memory/Redis in production)
@@ -157,7 +157,7 @@ func (h *Handler) MarkNotificationsRead(w http.ResponseWriter, r *http.Request) 
 	// For simplicity, just acknowledge the request
 	// In production, store read status in Redis or a separate table
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 // generateSummary creates a human-readable summary for a notification
