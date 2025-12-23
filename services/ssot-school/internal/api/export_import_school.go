@@ -111,7 +111,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["counties"] = res["counties"].(int) + 1
+			if c, ok := res["counties"].(int); ok {
+				res["counties"] = c + 1
+			}
 		}
 
 		for _, it := range sub {
@@ -137,7 +139,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["subCounties"] = res["subCounties"].(int) + 1
+			if c, ok := res["subCounties"].(int); ok {
+				res["subCounties"] = c + 1
+			}
 		}
 
 		for _, it := range schools {
@@ -193,7 +197,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["schools"] = res["schools"].(int) + 1
+			if c, ok := res["schools"].(int); ok {
+				res["schools"] = c + 1
+			}
 		}
 
 		for _, it := range contacts {
@@ -237,7 +243,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["contacts"] = res["contacts"].(int) + 1
+			if c, ok := res["contacts"].(int); ok {
+				res["contacts"] = c + 1
+			}
 		}
 		return nil
 	})
