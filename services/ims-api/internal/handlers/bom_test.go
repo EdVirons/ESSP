@@ -54,16 +54,16 @@ func TestBOMHandler_AddItem(t *testing.T) {
 	_ = testutil.CreateInventoryItem(t, pg.RawPool(), fixtureConfig, shop.ID, part.ID, 100)
 
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
-		body       string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		body        string
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "valid BOM item addition",
+			name:        "valid BOM item addition",
 			workOrderID: wo.ID,
 			body: `{
 				"partId": "` + part.ID + `",
@@ -83,47 +83,47 @@ func TestBOMHandler_AddItem(t *testing.T) {
 			},
 		},
 		{
-			name:       "missing partId",
+			name:        "missing partId",
 			workOrderID: wo.ID,
-			body:       `{"qtyPlanned": 5}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{"qtyPlanned": 5}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 			validate: func(t *testing.T, body string) {
 				assert.Contains(t, body, "partId")
 			},
 		},
 		{
-			name:       "invalid qtyPlanned zero",
+			name:        "invalid qtyPlanned zero",
 			workOrderID: wo.ID,
-			body:       `{"partId": "` + part.ID + `", "qtyPlanned": 0}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{"partId": "` + part.ID + `", "qtyPlanned": 0}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "invalid qtyPlanned negative",
+			name:        "invalid qtyPlanned negative",
 			workOrderID: wo.ID,
-			body:       `{"partId": "` + part.ID + `", "qtyPlanned": -5}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{"partId": "` + part.ID + `", "qtyPlanned": -5}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "invalid json",
+			name:        "invalid json",
 			workOrderID: wo.ID,
-			body:       `{invalid}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{invalid}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "work order not found",
+			name:        "work order not found",
 			workOrderID: "wo_nonexistent",
-			body:       `{"partId": "` + part.ID + `", "qtyPlanned": 5}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			body:        `{"partId": "` + part.ID + `", "qtyPlanned": 5}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 	}
 
@@ -217,21 +217,21 @@ func TestBOMHandler_List(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
 		queryParams string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "list all BOM items",
+			name:        "list all BOM items",
 			workOrderID: wo.ID,
 			queryParams: "",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -241,12 +241,12 @@ func TestBOMHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "list with limit",
+			name:        "list with limit",
 			workOrderID: wo.ID,
 			queryParams: "?limit=1",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -341,23 +341,23 @@ func TestBOMHandler_Consume(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
-		itemID     string
-		body       string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		itemID      string
+		body        string
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "valid consumption",
+			name:        "valid consumption",
 			workOrderID: wo.ID,
-			itemID:     bomItem.ID,
-			body:       `{"qtyUsed": 3}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			itemID:      bomItem.ID,
+			body:        `{"qtyUsed": 3}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result models.WorkOrderPart
 				err := json.Unmarshal([]byte(body), &result)
@@ -366,40 +366,40 @@ func TestBOMHandler_Consume(t *testing.T) {
 			},
 		},
 		{
-			name:       "invalid qtyUsed zero",
+			name:        "invalid qtyUsed zero",
 			workOrderID: wo.ID,
-			itemID:     bomItem.ID,
-			body:       `{"qtyUsed": 0}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			itemID:      bomItem.ID,
+			body:        `{"qtyUsed": 0}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "invalid qtyUsed negative",
+			name:        "invalid qtyUsed negative",
 			workOrderID: wo.ID,
-			itemID:     bomItem.ID,
-			body:       `{"qtyUsed": -5}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			itemID:      bomItem.ID,
+			body:        `{"qtyUsed": -5}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "invalid json",
+			name:        "invalid json",
 			workOrderID: wo.ID,
-			itemID:     bomItem.ID,
-			body:       `{invalid}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			itemID:      bomItem.ID,
+			body:        `{invalid}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "BOM item not found",
+			name:        "BOM item not found",
 			workOrderID: wo.ID,
-			itemID:     "bom_nonexistent",
-			body:       `{"qtyUsed": 3}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			itemID:      "bom_nonexistent",
+			body:        `{"qtyUsed": 3}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 	}
 
@@ -459,20 +459,20 @@ func TestBOMHandler_Suggest(t *testing.T) {
 	// Note: Suggest endpoint requires SSOT snapshots for device/part data which may not be
 	// fully available in unit tests. These tests verify the basic HTTP flow.
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
 		queryParams string
-		tenant     string
-		school     string
-		wantStatus int
+		tenant      string
+		school      string
+		wantStatus  int
 	}{
 		{
-			name:       "work order not found",
+			name:        "work order not found",
 			workOrderID: "wo_nonexistent",
 			queryParams: "",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 		// Additional tests would require setting up device snapshots and parts compatibility data
 	}

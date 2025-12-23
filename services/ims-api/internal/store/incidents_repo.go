@@ -65,9 +65,9 @@ type IncidentListParams struct {
 	Query    string
 	Limit    int
 
-	HasCursor      bool
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID       string
+	CursorID        string
 }
 
 func (r *IncidentRepo) List(ctx context.Context, p IncidentListParams) ([]models.Incident, string, error) {

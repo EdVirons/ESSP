@@ -13,8 +13,8 @@ import (
 	"github.com/edvirons/ssp/ims/internal/config"
 	"github.com/edvirons/ssp/ims/internal/jobs"
 	"github.com/edvirons/ssp/ims/internal/logging"
-	"github.com/edvirons/ssp/ims/internal/store"
 	"github.com/edvirons/ssp/ims/internal/ssotcache"
+	"github.com/edvirons/ssp/ims/internal/store"
 )
 
 func main() {

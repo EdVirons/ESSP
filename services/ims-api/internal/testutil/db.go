@@ -15,8 +15,9 @@ import (
 // It automatically cleans up the connection when the test completes.
 //
 // Usage:
-//   db := testutil.SetupTestDB(t)
-//   // Use db for testing
+//
+//	db := testutil.SetupTestDB(t)
+//	// Use db for testing
 func SetupTestDB(t *testing.T) *store.Postgres {
 	t.Helper()
 

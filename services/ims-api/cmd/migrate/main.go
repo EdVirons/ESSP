@@ -32,7 +32,9 @@ func main() {
 	}
 
 	pool, err := pgxpool.New(context.Background(), dbURL)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	defer pool.Close()
 
 	files, _ := filepath.Glob(filepath.Join(dir, "*.sql"))
@@ -40,7 +42,9 @@ func main() {
 
 	for _, f := range files {
 		b, err := os.ReadFile(f)
-		if err != nil { panic(err) }
+		if err != nil {
+			panic(err)
+		}
 
 		sql := extractGooseUp(string(b))
 		sql = strings.TrimSpace(sql)

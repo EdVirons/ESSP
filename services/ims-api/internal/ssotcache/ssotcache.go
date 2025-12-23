@@ -89,18 +89,24 @@ func FetchAndUpsert(ctx context.Context, log *zap.Logger, db *pgxpool.Pool, c Co
 		return fmt.Errorf("unknown kind: %s", kind)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url+"/v1/export", nil)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	req.Header.Set("X-Tenant-Id", tenant)
 
 	resp, err := http.DefaultClient.Do(req)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		b, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		return fmt.Errorf("ssot export %s: status=%d body=%s", kind, resp.StatusCode, string(b))
 	}
 	b, err := io.ReadAll(resp.Body)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	var js any
 	if err := json.Unmarshal(b, &js); err != nil {
@@ -112,7 +118,9 @@ func FetchAndUpsert(ctx context.Context, log *zap.Logger, db *pgxpool.Pool, c Co
 		VALUES ($1,$2,'1',$3::jsonb,$4)
 		ON CONFLICT (tenant_id, kind) DO UPDATE SET payload=EXCLUDED.payload, updated_at=EXCLUDED.updated_at
 	`, tenant, kind, string(b), time.Now().UTC())
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	log.Info("ssot snapshot updated", zap.String("kind", kind), zap.String("tenantId", tenant), zap.Int("bytes", len(b)))
 	return nil
@@ -133,12 +141,18 @@ func endpointForKind(c Config, kind string) string {
 
 func tenantFromEvent(b []byte) string {
 	var m map[string]any
-	if err := json.Unmarshal(b, &m); err != nil { return "" }
-	if v, ok := m["tenantId"].(string); ok { return v }
+	if err := json.Unmarshal(b, &m); err != nil {
+		return ""
+	}
+	if v, ok := m["tenantId"].(string); ok {
+		return v
+	}
 	return ""
 }
 
 func env(k, d string) string {
-	if v := os.Getenv(k); v != "" { return v }
+	if v := os.Getenv(k); v != "" {
+		return v
+	}
 	return d
 }

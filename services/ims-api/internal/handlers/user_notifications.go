@@ -71,10 +71,6 @@ func (h *UserNotificationsHandler) GetUnreadCount(w http.ResponseWriter, r *http
 	})
 }
 
-type markNotificationReadReq struct {
-	NotificationID string `json:"notificationId"`
-}
-
 func (h *UserNotificationsHandler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 	notificationID := chi.URLParam(r, "notificationId")
 	tenant := middleware.TenantID(r.Context())

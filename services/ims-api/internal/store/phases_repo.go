@@ -72,27 +72,36 @@ func (r *PhasesRepo) GetByID(ctx context.Context, tenantID, phaseID string) (mod
 }
 
 type PhaseListParams struct {
-	TenantID string
-	ProjectID string
-	PhaseType string
-	Status string
-	Limit int
-	HasCursor bool
+	TenantID        string
+	ProjectID       string
+	PhaseType       string
+	Status          string
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *PhasesRepo) List(ctx context.Context, p PhaseListParams) ([]models.ServicePhase, string, error) {
 	conds := []string{"tenant_id=$1", "project_id=$2"}
 	args := []any{p.TenantID, p.ProjectID}
 	argN := 3
-	if p.PhaseType != "" { conds = append(conds, "phase_type=$"+itoa(argN)); args=append(args,p.PhaseType); argN++ }
-	if p.Status != "" { conds = append(conds, "status=$"+itoa(argN)); args=append(args,p.Status); argN++ }
+	if p.PhaseType != "" {
+		conds = append(conds, "phase_type=$"+itoa(argN))
+		args = append(args, p.PhaseType)
+		argN++
+	}
+	if p.Status != "" {
+		conds = append(conds, "status=$"+itoa(argN))
+		args = append(args, p.Status)
+		argN++
+	}
 	if p.HasCursor {
 		conds = append(conds, "(created_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorCreatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorCreatedAt, p.CursorID)
+		argN += 2
 	}
-	limitPlus := p.Limit+1
+	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
 
 	sql := `
@@ -105,7 +114,9 @@ func (r *PhasesRepo) List(ctx context.Context, p PhaseListParams) ([]models.Serv
 		LIMIT $` + itoa(argN)
 
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 
 	out := []models.ServicePhase{}
@@ -114,9 +125,15 @@ func (r *PhasesRepo) List(ctx context.Context, p PhaseListParams) ([]models.Serv
 		var sd, ed *time.Time
 		if err := rows.Scan(&x.ID, &x.TenantID, &x.ProjectID, &x.PhaseType, &x.Status, &x.OwnerRole, &x.OwnerUserID, &x.OwnerUserName,
 			&sd, &ed, &x.Notes, &x.StatusChangedAt, &x.StatusChangedByUserID, &x.StatusChangedByUserName,
-			&x.CreatedAt, &x.UpdatedAt); err != nil { return nil,"",err }
-		if sd != nil { x.StartDate = sd.Format("2006-01-02") }
-		if ed != nil { x.EndDate = ed.Format("2006-01-02") }
+			&x.CreatedAt, &x.UpdatedAt); err != nil {
+			return nil, "", err
+		}
+		if sd != nil {
+			x.StartDate = sd.Format("2006-01-02")
+		}
+		if ed != nil {
+			x.EndDate = ed.Format("2006-01-02")
+		}
 		out = append(out, x)
 	}
 	next := ""
@@ -125,5 +142,5 @@ func (r *PhasesRepo) List(ctx context.Context, p PhaseListParams) ([]models.Serv
 		next = EncodeCursor(last.CreatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }

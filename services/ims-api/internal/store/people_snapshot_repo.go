@@ -109,7 +109,6 @@ func (r *PeopleSnapshotRepo) List(ctx context.Context, params PersonSnapshotList
 	if params.OrgUnitID != "" {
 		countQuery += ` AND org_unit_id = $` + itoa(argIdx)
 		args = append(args, params.OrgUnitID)
-		argIdx++
 	}
 
 	var total int

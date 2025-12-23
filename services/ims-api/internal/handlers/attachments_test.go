@@ -197,19 +197,19 @@ func TestAttachmentHandler_GetByID(t *testing.T) {
 	att := testutil.CreateAttachment(t, pg.RawPool(), fixtureConfig, models.AttachmentIncident, "inc-001")
 
 	tests := []struct {
-		name       string
+		name         string
 		attachmentID string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant       string
+		school       string
+		wantStatus   int
+		validate     func(t *testing.T, body string)
 	}{
 		{
-			name:       "found attachment",
+			name:         "found attachment",
 			attachmentID: att.ID,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result models.Attachment
 				err := json.Unmarshal([]byte(body), &result)
@@ -219,25 +219,25 @@ func TestAttachmentHandler_GetByID(t *testing.T) {
 			},
 		},
 		{
-			name:       "not found attachment",
+			name:         "not found attachment",
 			attachmentID: "att_nonexistent",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusNotFound,
 		},
 		{
-			name:       "wrong tenant",
+			name:         "wrong tenant",
 			attachmentID: att.ID,
-			tenant:     "wrong-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "wrong-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusNotFound,
 		},
 		{
-			name:       "wrong school",
+			name:         "wrong school",
 			attachmentID: att.ID,
-			tenant:     "test-tenant",
-			school:     "wrong-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "test-tenant",
+			school:       "wrong-school",
+			wantStatus:   http.StatusNotFound,
 		},
 	}
 
@@ -280,19 +280,19 @@ func TestAttachmentHandler_List(t *testing.T) {
 	_ = att2
 
 	tests := []struct {
-		name       string
+		name        string
 		queryParams string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "list all attachments",
+			name:        "list all attachments",
 			queryParams: "",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -302,11 +302,11 @@ func TestAttachmentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by entityType incident",
+			name:        "filter by entityType incident",
 			queryParams: "?entityType=incident",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -316,11 +316,11 @@ func TestAttachmentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by entityId",
+			name:        "filter by entityId",
 			queryParams: "?entityId=inc-001",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -330,11 +330,11 @@ func TestAttachmentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "with limit",
+			name:        "with limit",
 			queryParams: "?limit=1",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -388,19 +388,19 @@ func TestAttachmentHandler_UploadURL(t *testing.T) {
 	att := testutil.CreateAttachment(t, pg.RawPool(), fixtureConfig, models.AttachmentIncident, "inc-001")
 
 	tests := []struct {
-		name       string
+		name         string
 		attachmentID string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant       string
+		school       string
+		wantStatus   int
+		validate     func(t *testing.T, body string)
 	}{
 		{
-			name:       "get upload URL for existing attachment",
+			name:         "get upload URL for existing attachment",
 			attachmentID: att.ID,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -411,11 +411,11 @@ func TestAttachmentHandler_UploadURL(t *testing.T) {
 			},
 		},
 		{
-			name:       "attachment not found",
+			name:         "attachment not found",
 			attachmentID: "att_nonexistent",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusNotFound,
 		},
 	}
 
@@ -456,19 +456,19 @@ func TestAttachmentHandler_DownloadURL(t *testing.T) {
 	att := testutil.CreateAttachment(t, pg.RawPool(), fixtureConfig, models.AttachmentIncident, "inc-001")
 
 	tests := []struct {
-		name       string
+		name         string
 		attachmentID string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant       string
+		school       string
+		wantStatus   int
+		validate     func(t *testing.T, body string)
 	}{
 		{
-			name:       "get download URL for existing attachment",
+			name:         "get download URL for existing attachment",
 			attachmentID: att.ID,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -478,18 +478,18 @@ func TestAttachmentHandler_DownloadURL(t *testing.T) {
 			},
 		},
 		{
-			name:       "attachment not found",
+			name:         "attachment not found",
 			attachmentID: "att_nonexistent",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "test-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusNotFound,
 		},
 		{
-			name:       "wrong tenant",
+			name:         "wrong tenant",
 			attachmentID: att.ID,
-			tenant:     "wrong-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:       "wrong-tenant",
+			school:       "test-school",
+			wantStatus:   http.StatusNotFound,
 		},
 	}
 

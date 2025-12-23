@@ -41,7 +41,7 @@ func TestRateLimit_IsID(t *testing.T) {
 		expected bool
 	}{
 		{"123", true},
-		{"abc-123-def-456-789", true}, // UUID format
+		{"abc-123-def-456-789", true},      // UUID format
 		{"507f1f77bcf86cd799439011", true}, // MongoDB ObjectID
 		{"abc", false},
 		{"work-orders", false},

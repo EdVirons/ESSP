@@ -23,14 +23,14 @@ func NewServiceShopHandler(log *zap.Logger, pg *store.Postgres) *ServiceShopHand
 }
 
 type createShopReq struct {
-	CountyCode string `json:"countyCode"`
-	CountyName string `json:"countyName"`
+	CountyCode    string `json:"countyCode"`
+	CountyName    string `json:"countyName"`
 	SubCountyCode string `json:"subCountyCode"`
 	SubCountyName string `json:"subCountyName"`
 	CoverageLevel string `json:"coverageLevel"`
-	Name       string `json:"name"`
-	Location   string `json:"location"`
-	Active     bool   `json:"active"`
+	Name          string `json:"name"`
+	Location      string `json:"location"`
+	Active        bool   `json:"active"`
 }
 
 func (h *ServiceShopHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -47,20 +47,22 @@ func (h *ServiceShopHandler) Create(w http.ResponseWriter, r *http.Request) {
 	tenant := middleware.TenantID(r.Context())
 	now := time.Now().UTC()
 	cov := strings.TrimSpace(req.CoverageLevel)
-	if cov == "" { cov = "county" }
+	if cov == "" {
+		cov = "county"
+	}
 	shop := models.ServiceShop{
-		ID:         store.NewID("shop"),
-		TenantID:   tenant,
-		CountyCode: strings.TrimSpace(req.CountyCode),
-		CountyName: strings.TrimSpace(req.CountyName),
+		ID:            store.NewID("shop"),
+		TenantID:      tenant,
+		CountyCode:    strings.TrimSpace(req.CountyCode),
+		CountyName:    strings.TrimSpace(req.CountyName),
 		SubCountyCode: strings.TrimSpace(req.SubCountyCode),
 		SubCountyName: strings.TrimSpace(req.SubCountyName),
 		CoverageLevel: cov,
-		Name:       strings.TrimSpace(req.Name),
-		Location:   strings.TrimSpace(req.Location),
-		Active:     req.Active,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		Name:          strings.TrimSpace(req.Name),
+		Location:      strings.TrimSpace(req.Location),
+		Active:        req.Active,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 	}
 
 	if err := h.pg.ServiceShops().Create(r.Context(), shop); err != nil {

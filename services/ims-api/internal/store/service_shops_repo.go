@@ -47,13 +47,13 @@ func (r *ServiceShopRepo) GetByCounty(ctx context.Context, tenantID, countyCode 
 }
 
 type ShopListParams struct {
-	TenantID string
-	CountyCode string
-	ActiveOnly bool
-	Limit int
-	HasCursor bool
+	TenantID        string
+	CountyCode      string
+	ActiveOnly      bool
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *ServiceShopRepo) List(ctx context.Context, p ShopListParams) ([]models.ServiceShop, string, error) {
@@ -62,16 +62,18 @@ func (r *ServiceShopRepo) List(ctx context.Context, p ShopListParams) ([]models.
 	argN := 2
 	if p.CountyCode != "" {
 		conds = append(conds, "county_code=$"+itoa(argN))
-		args = append(args, p.CountyCode); argN++
+		args = append(args, p.CountyCode)
+		argN++
 	}
 	if p.ActiveOnly {
 		conds = append(conds, "active=true")
 	}
 	if p.HasCursor {
 		conds = append(conds, "(created_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorCreatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorCreatedAt, p.CursorID)
+		argN += 2
 	}
-	limitPlus := p.Limit+1
+	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
 
 	sql := `
@@ -82,13 +84,15 @@ func (r *ServiceShopRepo) List(ctx context.Context, p ShopListParams) ([]models.
 		LIMIT $` + itoa(argN)
 
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 	out := []models.ServiceShop{}
 	for rows.Next() {
 		var s models.ServiceShop
-		if err := rows.Scan(&s.ID,&s.TenantID,&s.CountyCode,&s.CountyName,&s.SubCountyCode,&s.SubCountyName,&s.CoverageLevel,&s.Name,&s.Location,&s.Active,&s.CreatedAt,&s.UpdatedAt); err != nil {
-			return nil,"",err
+		if err := rows.Scan(&s.ID, &s.TenantID, &s.CountyCode, &s.CountyName, &s.SubCountyCode, &s.SubCountyName, &s.CoverageLevel, &s.Name, &s.Location, &s.Active, &s.CreatedAt, &s.UpdatedAt); err != nil {
+			return nil, "", err
 		}
 		out = append(out, s)
 	}
@@ -100,7 +104,6 @@ func (r *ServiceShopRepo) List(ctx context.Context, p ShopListParams) ([]models.
 	}
 	return out, next, nil
 }
-
 
 func (r *ServiceShopRepo) GetBySubCounty(ctx context.Context, tenantID, countyCode, subCountyCode string) (models.ServiceShop, error) {
 	var s models.ServiceShop

@@ -126,24 +126,24 @@ type DeviceNetworkSnapshot struct {
 
 // InventoryDevice represents a device with its inventory context.
 type InventoryDevice struct {
-	ID            string     `json:"id"`
-	TenantID      string     `json:"tenantId"`
-	Serial        string     `json:"serial"`
-	AssetTag      string     `json:"assetTag"`
-	Model         string     `json:"model"` // Denormalized from device_model
-	Make          string     `json:"make"`
-	SchoolID      string     `json:"schoolId"`
-	Lifecycle     string     `json:"lifecycle"`
-	Enrolled      bool       `json:"enrolled"`
-	LastSeenAt    *time.Time `json:"lastSeenAt,omitempty"`
-	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time  `json:"updatedAt"`
+	ID         string     `json:"id"`
+	TenantID   string     `json:"tenantId"`
+	Serial     string     `json:"serial"`
+	AssetTag   string     `json:"assetTag"`
+	Model      string     `json:"model"` // Denormalized from device_model
+	Make       string     `json:"make"`
+	SchoolID   string     `json:"schoolId"`
+	Lifecycle  string     `json:"lifecycle"`
+	Enrolled   bool       `json:"enrolled"`
+	LastSeenAt *time.Time `json:"lastSeenAt,omitempty"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
 
 	// Joined data
-	Location     *Location  `json:"location,omitempty"`
-	LocationPath string     `json:"locationPath,omitempty"`
-	MACAddresses []string   `json:"macAddresses,omitempty"`
-	Groups       []string   `json:"groups,omitempty"` // Group IDs
+	Location     *Location `json:"location,omitempty"`
+	LocationPath string    `json:"locationPath,omitempty"`
+	MACAddresses []string  `json:"macAddresses,omitempty"`
+	Groups       []string  `json:"groups,omitempty"` // Group IDs
 }
 
 // InventorySummary provides aggregate statistics for inventory views.

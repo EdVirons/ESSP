@@ -6,19 +6,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/edvirons/ssp/ims/internal/blob"
 	"github.com/edvirons/ssp/ims/internal/config"
 	"github.com/edvirons/ssp/ims/internal/middleware"
 	"github.com/edvirons/ssp/ims/internal/models"
 	"github.com/edvirons/ssp/ims/internal/store"
-	"github.com/edvirons/ssp/ims/internal/blob"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
 type AttachmentHandler struct {
-	cfg config.Config
-	log *zap.Logger
-	pg  *store.Postgres
+	cfg   config.Config
+	log   *zap.Logger
+	pg    *store.Postgres
 	minio *blob.MinIO
 }
 
@@ -28,10 +28,10 @@ func NewAttachmentHandler(cfg config.Config, log *zap.Logger, pg *store.Postgres
 
 type createAttachmentReq struct {
 	EntityType  models.AttachmentEntityType `json:"entityType"`
-	EntityID    string                     `json:"entityId"`
-	FileName    string                     `json:"fileName"`
-	ContentType string                     `json:"contentType"`
-	SizeBytes   int64                      `json:"sizeBytes"`
+	EntityID    string                      `json:"entityId"`
+	FileName    string                      `json:"fileName"`
+	ContentType string                      `json:"contentType"`
+	SizeBytes   int64                       `json:"sizeBytes"`
 }
 
 func (h *AttachmentHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -50,16 +50,16 @@ func (h *AttachmentHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	now := time.Now().UTC()
 	att := models.Attachment{
-		ID:         store.NewID("att"),
-		TenantID:   tenant,
-		SchoolID:   school,
-		EntityType: req.EntityType,
-		EntityID:   strings.TrimSpace(req.EntityID),
-		FileName:   strings.TrimSpace(req.FileName),
+		ID:          store.NewID("att"),
+		TenantID:    tenant,
+		SchoolID:    school,
+		EntityType:  req.EntityType,
+		EntityID:    strings.TrimSpace(req.EntityID),
+		FileName:    strings.TrimSpace(req.FileName),
 		ContentType: strings.TrimSpace(req.ContentType),
-		SizeBytes:  req.SizeBytes,
-		ObjectKey:  store.ObjectKeyForAttachment(tenant, school, req.EntityType, req.EntityID, now, req.FileName),
-		CreatedAt:  now,
+		SizeBytes:   req.SizeBytes,
+		ObjectKey:   store.ObjectKeyForAttachment(tenant, school, req.EntityType, req.EntityID, now, req.FileName),
+		CreatedAt:   now,
 	}
 
 	if err := h.pg.Attachments().Create(r.Context(), att); err != nil {
@@ -93,14 +93,14 @@ func (h *AttachmentHandler) List(w http.ResponseWriter, r *http.Request) {
 	curT, curID, hasCur := decodeCursor(strings.TrimSpace(r.URL.Query().Get("cursor")))
 
 	items, next, err := h.pg.Attachments().List(r.Context(), store.AttachmentListParams{
-		TenantID: tenant,
-		SchoolID: school,
-		EntityType: entityType,
-		EntityID: entityID,
-		Limit: limit,
+		TenantID:        tenant,
+		SchoolID:        school,
+		EntityType:      entityType,
+		EntityID:        entityID,
+		Limit:           limit,
 		CursorCreatedAt: curT,
-		CursorID: curID,
-		HasCursor: hasCur,
+		CursorID:        curID,
+		HasCursor:       hasCur,
 	})
 	if err != nil {
 		http.Error(w, "failed to list attachments", http.StatusInternalServerError)
@@ -163,4 +163,3 @@ func (h *AttachmentHandler) DownloadURL(w http.ResponseWriter, r *http.Request) 
 		"expiresInS": int(h.minio.Expiry.Seconds()),
 	})
 }
-

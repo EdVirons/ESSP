@@ -16,13 +16,13 @@ const (
 
 // ImpersonationContext holds information about an impersonation session
 type ImpersonationContext struct {
-	Active          bool     `json:"active"`
-	ActorUserID     string   `json:"actorUserId"`     // The ops manager performing the action
-	ActorEmail      string   `json:"actorEmail"`      // Email of ops manager
-	TargetUserID    string   `json:"targetUserId"`    // The school contact being impersonated
-	TargetEmail     string   `json:"targetEmail"`     // Email of school contact
-	TargetSchools   []string `json:"targetSchools"`   // Schools the school contact has access to
-	Reason          string   `json:"reason"`          // Reason for impersonation
+	Active        bool     `json:"active"`
+	ActorUserID   string   `json:"actorUserId"`   // The ops manager performing the action
+	ActorEmail    string   `json:"actorEmail"`    // Email of ops manager
+	TargetUserID  string   `json:"targetUserId"`  // The school contact being impersonated
+	TargetEmail   string   `json:"targetEmail"`   // Email of school contact
+	TargetSchools []string `json:"targetSchools"` // Schools the school contact has access to
+	Reason        string   `json:"reason"`        // Reason for impersonation
 }
 
 // ImpersonationLoader is a function that loads target user info

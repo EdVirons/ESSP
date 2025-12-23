@@ -42,15 +42,15 @@ func (r *AttachmentRepo) GetByID(ctx context.Context, tenantID, schoolID, id str
 }
 
 type AttachmentListParams struct {
-	TenantID string
-	SchoolID string
+	TenantID   string
+	SchoolID   string
 	EntityType string
-	EntityID string
-	Limit int
+	EntityID   string
+	Limit      int
 
-	HasCursor bool
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *AttachmentRepo) List(ctx context.Context, p AttachmentListParams) ([]models.Attachment, string, error) {

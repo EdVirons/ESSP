@@ -19,14 +19,14 @@ type ChatSessionsRepo struct {
 
 // ChatSessionListParams contains parameters for listing chat sessions
 type ChatSessionListParams struct {
-	TenantID  string
-	AgentID   string
-	SchoolID  string
-	Status    string
-	Limit     int
-	HasCursor bool
+	TenantID        string
+	AgentID         string
+	SchoolID        string
+	Status          string
+	Limit           int
+	HasCursor       bool
 	CursorTimestamp time.Time
-	CursorID  string
+	CursorID        string
 }
 
 // CreateSession creates a new chat session

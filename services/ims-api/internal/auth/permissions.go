@@ -15,15 +15,15 @@ const (
 	PermWorkOrderDelete = "workorder:delete"
 
 	// Work Order Operations (scheduling, deliverables, approvals)
-	PermWorkOrderSchedule     = "workorder:schedule"
-	PermWorkOrderDeliverable  = "workorder:deliverable"
-	PermWorkOrderApproval     = "workorder:approval"
-	PermWorkOrderReview       = "workorder:review"
+	PermWorkOrderSchedule    = "workorder:schedule"
+	PermWorkOrderDeliverable = "workorder:deliverable"
+	PermWorkOrderApproval    = "workorder:approval"
+	PermWorkOrderReview      = "workorder:review"
 
 	// BOM permissions
-	PermBOMCreate = "bom:create"
-	PermBOMRead   = "bom:read"
-	PermBOMUpdate = "bom:update"
+	PermBOMCreate  = "bom:create"
+	PermBOMRead    = "bom:read"
+	PermBOMUpdate  = "bom:update"
 	PermBOMConsume = "bom:consume"
 
 	// School permissions
@@ -68,13 +68,13 @@ const (
 	PermInventoryAudit    = "inventory:audit"
 
 	// Device Inventory permissions (school device tracking)
-	PermLocationRead     = "location:read"
-	PermLocationWrite    = "location:write"
-	PermAssignmentRead   = "assignment:read"
-	PermAssignmentWrite  = "assignment:write"
-	PermGroupRead        = "group:read"
-	PermGroupWrite       = "group:write"
-	PermDeviceInventory  = "device:inventory" // View school device inventory
+	PermLocationRead    = "location:read"
+	PermLocationWrite   = "location:write"
+	PermAssignmentRead  = "assignment:read"
+	PermAssignmentWrite = "assignment:write"
+	PermGroupRead       = "group:read"
+	PermGroupWrite      = "group:write"
+	PermDeviceInventory = "device:inventory" // View school device inventory
 
 	// Reporting permissions
 	PermReportInventory = "report:inventory"
@@ -163,12 +163,12 @@ const (
 	PermDashboardRead  = "dashboard:read"     // Access dashboard
 
 	// Operations Manager permissions (global field operations)
-	PermOpsManageShops     = "ops:manage_shops"      // Create/update service shops globally
-	PermOpsGlobalInventory = "ops:global_inventory"  // View/manage inventory across all shops
-	PermOpsReassignWork    = "ops:reassign_work"     // Reassign work orders between shops
-	PermOpsGlobalReports   = "ops:global_reports"    // Access global operations reports
-	PermOpsManageStaff     = "ops:manage_staff"      // Manage staff across all shops
-	PermOpsDashboard       = "ops:dashboard"         // Access operations manager dashboard
+	PermOpsManageShops     = "ops:manage_shops"     // Create/update service shops globally
+	PermOpsGlobalInventory = "ops:global_inventory" // View/manage inventory across all shops
+	PermOpsReassignWork    = "ops:reassign_work"    // Reassign work orders between shops
+	PermOpsGlobalReports   = "ops:global_reports"   // Access global operations reports
+	PermOpsManageStaff     = "ops:manage_staff"     // Manage staff across all shops
+	PermOpsDashboard       = "ops:dashboard"        // Access operations manager dashboard
 
 	// Wildcard for admin
 	PermAll = "*"
@@ -230,14 +230,14 @@ var RolePermissions = map[string][]string{
 		PermOpsDashboard,       // Access operations dashboard
 
 		// Additional management permissions
-		PermServiceShopCreate, // Create new service shops
-		PermServiceShopUpdate, // Update service shops
+		PermServiceShopCreate,  // Create new service shops
+		PermServiceShopUpdate,  // Update service shops
 		PermServiceStaffCreate, // Create staff
 		PermServiceStaffUpdate, // Update staff
-		PermWorkOrderCreate,   // Create work orders
-		PermInventoryUpdate,   // Update inventory
-		PermReportsRead,       // View reports
-		PermDashboardRead,     // View dashboard
+		PermWorkOrderCreate,    // Create work orders
+		PermInventoryUpdate,    // Update inventory
+		PermReportsRead,        // View reports
+		PermDashboardRead,      // View dashboard
 
 		// Device inventory management
 		PermDeviceInventory,
@@ -430,12 +430,12 @@ var RolePermissions = map[string][]string{
 		// Device inventory management for their school
 		PermDeviceInventory,
 		PermLocationRead,
-		PermLocationWrite,    // Create/update school locations
+		PermLocationWrite, // Create/update school locations
 		PermAssignmentRead,
-		PermAssignmentWrite,  // Assign/unassign devices
+		PermAssignmentWrite, // Assign/unassign devices
 		PermGroupRead,
-		PermGroupWrite,       // Create/manage device groups
-		PermDeviceCreate,     // Register new devices
+		PermGroupWrite,   // Create/manage device groups
+		PermDeviceCreate, // Register new devices
 	},
 
 	// Supplier - parts catalog + fulfillment visibility

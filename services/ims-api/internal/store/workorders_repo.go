@@ -48,16 +48,16 @@ func (r *WorkOrderRepo) GetByID(ctx context.Context, tenantID, schoolID, id stri
 }
 
 type WorkOrderListParams struct {
-	TenantID string
-	SchoolID string
-	Status string
-	DeviceID string
+	TenantID   string
+	SchoolID   string
+	Status     string
+	DeviceID   string
 	IncidentID string
-	Limit int
+	Limit      int
 
-	HasCursor bool
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *WorkOrderRepo) List(ctx context.Context, p WorkOrderListParams) ([]models.WorkOrder, string, error) {
@@ -134,7 +134,6 @@ func (r *WorkOrderRepo) UpdateStatus(ctx context.Context, tenantID, schoolID, id
 	return r.GetByID(ctx, tenantID, schoolID, id)
 }
 
-
 func (r *WorkOrderRepo) SetApprovalStatus(ctx context.Context, tenantID, schoolID, workOrderID, status string) error {
 	_, err := r.pool.Exec(ctx, `
 		UPDATE work_orders SET approval_status=$4, updated_at=$5
@@ -142,7 +141,6 @@ func (r *WorkOrderRepo) SetApprovalStatus(ctx context.Context, tenantID, schoolI
 	`, tenantID, schoolID, workOrderID, status, time.Now().UTC())
 	return err
 }
-
 
 func (r *WorkOrderRepo) ListByPhase(ctx context.Context, tenantID, phaseID string) ([]models.WorkOrder, error) {
 	rows, err := r.pool.Query(ctx, `

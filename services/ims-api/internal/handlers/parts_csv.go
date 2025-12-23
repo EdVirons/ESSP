@@ -132,11 +132,11 @@ func (h *PartsHandler) Export(w http.ResponseWriter, r *http.Request) {
 	defer writer.Flush()
 
 	// Write header
-	writer.Write([]string{"sku", "name", "category", "description", "unitCostCents", "supplier", "supplierSku", "active", "createdAt", "updatedAt"})
+	_ = writer.Write([]string{"sku", "name", "category", "description", "unitCostCents", "supplier", "supplierSku", "active", "createdAt", "updatedAt"})
 
 	// Write rows
 	for _, p := range items {
-		writer.Write([]string{
+		_ = writer.Write([]string{
 			p.SKU,
 			p.Name,
 			p.Category,

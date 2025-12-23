@@ -36,7 +36,7 @@ func (r *DevicesSnapshotRepo) Get(ctx context.Context, tenantID, deviceID string
 		FROM devices_snapshot
 		WHERE tenant_id=$1 AND device_id=$2
 	`, tenantID, deviceID)
-	if err := row.Scan(&d.TenantID,&d.DeviceID,&d.SchoolID,&d.Model,&d.Serial,&d.AssetTag,&d.Status,&d.UpdatedAt); err != nil {
+	if err := row.Scan(&d.TenantID, &d.DeviceID, &d.SchoolID, &d.Model, &d.Serial, &d.AssetTag, &d.Status, &d.UpdatedAt); err != nil {
 		return models.DeviceSnapshot{}, errors.New("not found")
 	}
 	return d, nil
@@ -127,10 +127,10 @@ func (r *DevicesSnapshotRepo) Count(ctx context.Context, tenantID string) (int, 
 
 // DeviceStats represents aggregate statistics for devices
 type DeviceStats struct {
-	Total       int            `json:"total"`
-	ByStatus    map[string]int `json:"byStatus"`
-	BySchool    map[string]int `json:"bySchool"`
-	UniqueModels int           `json:"uniqueModels"`
+	Total        int            `json:"total"`
+	ByStatus     map[string]int `json:"byStatus"`
+	BySchool     map[string]int `json:"bySchool"`
+	UniqueModels int            `json:"uniqueModels"`
 }
 
 func (r *DevicesSnapshotRepo) Stats(ctx context.Context, tenantID string) (DeviceStats, error) {

@@ -6,11 +6,11 @@ import "time"
 type MKBContentType string
 
 const (
-	MKBContentTypeMessaging  MKBContentType = "messaging"
-	MKBContentTypeCaseStudy  MKBContentType = "case_study"
-	MKBContentTypeDeck       MKBContentType = "deck"
-	MKBContentTypeObjection  MKBContentType = "objection"
-	MKBContentTypeROI        MKBContentType = "roi"
+	MKBContentTypeMessaging MKBContentType = "messaging"
+	MKBContentTypeCaseStudy MKBContentType = "case_study"
+	MKBContentTypeDeck      MKBContentType = "deck"
+	MKBContentTypeObjection MKBContentType = "objection"
+	MKBContentTypeROI       MKBContentType = "roi"
 )
 
 // MKBPersona represents the target persona for the content
@@ -80,21 +80,21 @@ type MKBArticle struct {
 
 // PitchKit represents a saved collection of marketing articles
 type PitchKit struct {
-	ID            string     `json:"id"`
-	TenantID      string     `json:"tenantId"`
-	Name          string     `json:"name"`
-	Description   string     `json:"description"`
-	TargetPersona string     `json:"targetPersona"`
-	ContextTags   []string   `json:"contextTags"`
-	ArticleIDs    []string   `json:"articleIds"`
+	ID            string       `json:"id"`
+	TenantID      string       `json:"tenantId"`
+	Name          string       `json:"name"`
+	Description   string       `json:"description"`
+	TargetPersona string       `json:"targetPersona"`
+	ContextTags   []string     `json:"contextTags"`
+	ArticleIDs    []string     `json:"articleIds"`
 	Articles      []MKBArticle `json:"articles,omitempty"`
-	IsTemplate    bool       `json:"isTemplate"`
-	CreatedByID   string     `json:"createdById"`
-	CreatedByName string     `json:"createdByName"`
-	UpdatedByID   string     `json:"updatedById"`
-	UpdatedByName string     `json:"updatedByName"`
-	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time  `json:"updatedAt"`
+	IsTemplate    bool         `json:"isTemplate"`
+	CreatedByID   string       `json:"createdById"`
+	CreatedByName string       `json:"createdByName"`
+	UpdatedByID   string       `json:"updatedById"`
+	UpdatedByName string       `json:"updatedByName"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
 }
 
 // MKBArticleListParams holds parameters for listing marketing KB articles

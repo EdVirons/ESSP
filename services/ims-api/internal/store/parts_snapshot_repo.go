@@ -35,7 +35,7 @@ func (r *PartsSnapshotRepo) Get(ctx context.Context, tenantID, partID string) (m
 		FROM parts_snapshot
 		WHERE tenant_id=$1 AND part_id=$2
 	`, tenantID, partID)
-	if err := row.Scan(&p.TenantID,&p.PartID,&p.PUK,&p.Name,&p.Category,&p.Unit,&p.UpdatedAt); err != nil {
+	if err := row.Scan(&p.TenantID, &p.PartID, &p.PUK, &p.Name, &p.Category, &p.Unit, &p.UpdatedAt); err != nil {
 		return models.PartSnapshot{}, errors.New("not found")
 	}
 	return p, nil

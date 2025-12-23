@@ -104,15 +104,15 @@ type UserNotification struct {
 	TenantID         string                  `json:"tenantId"`
 	UserID           string                  `json:"userId"`
 	NotificationType ProjectNotificationType `json:"notificationType"`
-	EntityType       string           `json:"entityType"` // project|phase|work_order
-	EntityID         string           `json:"entityId"`
-	ProjectID        string           `json:"projectId,omitempty"`
-	Title            string           `json:"title"`
-	Body             string           `json:"body"`
-	Metadata         map[string]any   `json:"metadata"`
-	IsRead           bool             `json:"isRead"`
-	ReadAt           *time.Time       `json:"readAt,omitempty"`
-	CreatedAt        time.Time        `json:"createdAt"`
+	EntityType       string                  `json:"entityType"` // project|phase|work_order
+	EntityID         string                  `json:"entityId"`
+	ProjectID        string                  `json:"projectId,omitempty"`
+	Title            string                  `json:"title"`
+	Body             string                  `json:"body"`
+	Metadata         map[string]any          `json:"metadata"`
+	IsRead           bool                    `json:"isRead"`
+	ReadAt           *time.Time              `json:"readAt,omitempty"`
+	CreatedAt        time.Time               `json:"createdAt"`
 }
 
 // StatusChangeMetadata holds metadata for status change activities.

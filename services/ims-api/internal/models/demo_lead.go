@@ -8,14 +8,14 @@ import (
 type DemoLeadStage string
 
 const (
-	StageNewLead        DemoLeadStage = "new_lead"
-	StageContacted      DemoLeadStage = "contacted"
-	StageDemoScheduled  DemoLeadStage = "demo_scheduled"
-	StageDemoCompleted  DemoLeadStage = "demo_completed"
-	StageProposalSent   DemoLeadStage = "proposal_sent"
-	StageNegotiation    DemoLeadStage = "negotiation"
-	StageWon            DemoLeadStage = "won"
-	StageLost           DemoLeadStage = "lost"
+	StageNewLead       DemoLeadStage = "new_lead"
+	StageContacted     DemoLeadStage = "contacted"
+	StageDemoScheduled DemoLeadStage = "demo_scheduled"
+	StageDemoCompleted DemoLeadStage = "demo_completed"
+	StageProposalSent  DemoLeadStage = "proposal_sent"
+	StageNegotiation   DemoLeadStage = "negotiation"
+	StageWon           DemoLeadStage = "won"
+	StageLost          DemoLeadStage = "lost"
 )
 
 // DemoLeadSource represents how the lead was acquired.
@@ -67,19 +67,19 @@ type DemoLead struct {
 	ContactRole  string  `json:"contactRole"`
 
 	// Location Info
-	CountyCode     string `json:"countyCode"`
-	CountyName     string `json:"countyName"`
-	SubCountyCode  string `json:"subCountyCode"`
-	SubCountyName  string `json:"subCountyName"`
+	CountyCode    string `json:"countyCode"`
+	CountyName    string `json:"countyName"`
+	SubCountyCode string `json:"subCountyCode"`
+	SubCountyName string `json:"subCountyName"`
 
 	// Pipeline Info
 	Stage          DemoLeadStage `json:"stage"`
 	StageChangedAt time.Time     `json:"stageChangedAt"`
 
 	// Deal Info
-	EstimatedValue   *float64   `json:"estimatedValue"`
-	EstimatedDevices *int       `json:"estimatedDevices"`
-	Probability      int        `json:"probability"`
+	EstimatedValue    *float64   `json:"estimatedValue"`
+	EstimatedDevices  *int       `json:"estimatedDevices"`
+	Probability       int        `json:"probability"`
 	ExpectedCloseDate *time.Time `json:"expectedCloseDate"`
 
 	// Source & Attribution
@@ -162,21 +162,21 @@ type DemoLeadWithActivities struct {
 
 // CreateDemoLeadRequest is the request payload for creating a lead.
 type CreateDemoLeadRequest struct {
-	SchoolID          *string  `json:"schoolId"`
-	SchoolName        string   `json:"schoolName" validate:"required"`
-	ContactName       string   `json:"contactName"`
-	ContactEmail      string   `json:"contactEmail"`
-	ContactPhone      string   `json:"contactPhone"`
-	ContactRole       string   `json:"contactRole"`
-	CountyCode        string   `json:"countyCode"`
-	CountyName        string   `json:"countyName"`
-	SubCountyCode     string   `json:"subCountyCode"`
-	SubCountyName     string   `json:"subCountyName"`
-	EstimatedValue    *float64 `json:"estimatedValue"`
-	EstimatedDevices  *int     `json:"estimatedDevices"`
-	LeadSource        string   `json:"leadSource"`
-	Notes             string   `json:"notes"`
-	Tags              []string `json:"tags"`
+	SchoolID         *string  `json:"schoolId"`
+	SchoolName       string   `json:"schoolName" validate:"required"`
+	ContactName      string   `json:"contactName"`
+	ContactEmail     string   `json:"contactEmail"`
+	ContactPhone     string   `json:"contactPhone"`
+	ContactRole      string   `json:"contactRole"`
+	CountyCode       string   `json:"countyCode"`
+	CountyName       string   `json:"countyName"`
+	SubCountyCode    string   `json:"subCountyCode"`
+	SubCountyName    string   `json:"subCountyName"`
+	EstimatedValue   *float64 `json:"estimatedValue"`
+	EstimatedDevices *int     `json:"estimatedDevices"`
+	LeadSource       string   `json:"leadSource"`
+	Notes            string   `json:"notes"`
+	Tags             []string `json:"tags"`
 }
 
 // UpdateDemoLeadRequest is the request payload for updating a lead.
@@ -230,21 +230,21 @@ type PipelineStageCount struct {
 
 // PipelineSummary is the summary of the pipeline by stage.
 type PipelineSummary struct {
-	Stages          []PipelineStageCount `json:"stages"`
-	TotalLeads      int                  `json:"totalLeads"`
-	TotalValue      float64              `json:"totalValue"`
-	AverageValue    float64              `json:"averageValue"`
-	ConversionRate  float64              `json:"conversionRate"`
+	Stages         []PipelineStageCount `json:"stages"`
+	TotalLeads     int                  `json:"totalLeads"`
+	TotalValue     float64              `json:"totalValue"`
+	AverageValue   float64              `json:"averageValue"`
+	ConversionRate float64              `json:"conversionRate"`
 }
 
 // DemoLeadFilters represents filters for querying leads.
 type DemoLeadFilters struct {
-	Stage      *DemoLeadStage `json:"stage"`
-	AssignedTo *string        `json:"assignedTo"`
+	Stage      *DemoLeadStage  `json:"stage"`
+	AssignedTo *string         `json:"assignedTo"`
 	LeadSource *DemoLeadSource `json:"leadSource"`
-	Search     *string        `json:"search"`
-	Limit      int            `json:"limit"`
-	Offset     int            `json:"offset"`
+	Search     *string         `json:"search"`
+	Limit      int             `json:"limit"`
+	Offset     int             `json:"offset"`
 }
 
 // Predefined stage configurations.

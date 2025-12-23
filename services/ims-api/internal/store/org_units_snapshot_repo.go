@@ -103,7 +103,6 @@ func (r *OrgUnitsSnapshotRepo) List(ctx context.Context, params OrgUnitSnapshotL
 	if params.ParentID != "" {
 		countQuery += ` AND parent_id = $` + strconv.Itoa(argIdx)
 		args = append(args, params.ParentID)
-		argIdx++
 	}
 
 	var total int

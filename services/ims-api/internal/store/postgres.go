@@ -9,57 +9,57 @@ import (
 type Postgres struct {
 	pool *pgxpool.Pool
 
-	incidents    *IncidentRepo
-	workOrders   *WorkOrderRepo
-	attachments  *AttachmentRepo
-	schools      *SchoolRepo
-	shops        *ServiceShopRepo
-	staff        *ServiceStaffRepo
-	parts        *PartRepo
-	inventory    *InventoryRepo
-	workOrderParts *WorkOrderPartRepo
-	schoolsSnap *SchoolsSnapshotRepo
-	devicesSnap *DevicesSnapshotRepo
-	partsSnap *PartsSnapshotRepo
-	ssotState *SSOTStateRepo
-	projectsRepo *ProjectsRepo
-	phasesRepo *PhasesRepo
-	surveysRepo *SurveysRepo
-	surveyRoomsRepo *SurveyRoomsRepo
-	surveyPhotosRepo *SurveyPhotosRepo
-	boqRepo *BOQRepo
-	contactsRepo *SchoolContactsRepo
-	scheduleRepo *WorkOrderScheduleRepo
-	deliverablesRepo *WorkOrderDeliverablesRepo
-	approvalsRepo *WorkOrderApprovalsRepo
-	phaseChecklistsRepo *PhaseChecklistsRepo
-	auditStore *AuditStoreRef
-	messagingRepo *MessagingRepo
-	chatSessionsRepo *ChatSessionsRepo
-	projectTeamRepo *ProjectTeamRepo
-	projectActivitiesRepo *ProjectActivitiesRepo
-	userNotificationsRepo *UserNotificationsRepo
-	workOrderReworkRepo *WorkOrderReworkRepo
-	bulkOperationRepo *BulkOperationRepo
-	featureConfigRepo *FeatureConfigRepo
-	notificationPrefsRepo *NotificationPrefsRepo
-	edtechProfilesRepo *EdTechProfilesRepo
+	incidents                *IncidentRepo
+	workOrders               *WorkOrderRepo
+	attachments              *AttachmentRepo
+	schools                  *SchoolRepo
+	shops                    *ServiceShopRepo
+	staff                    *ServiceStaffRepo
+	parts                    *PartRepo
+	inventory                *InventoryRepo
+	workOrderParts           *WorkOrderPartRepo
+	schoolsSnap              *SchoolsSnapshotRepo
+	devicesSnap              *DevicesSnapshotRepo
+	partsSnap                *PartsSnapshotRepo
+	ssotState                *SSOTStateRepo
+	projectsRepo             *ProjectsRepo
+	phasesRepo               *PhasesRepo
+	surveysRepo              *SurveysRepo
+	surveyRoomsRepo          *SurveyRoomsRepo
+	surveyPhotosRepo         *SurveyPhotosRepo
+	boqRepo                  *BOQRepo
+	contactsRepo             *SchoolContactsRepo
+	scheduleRepo             *WorkOrderScheduleRepo
+	deliverablesRepo         *WorkOrderDeliverablesRepo
+	approvalsRepo            *WorkOrderApprovalsRepo
+	phaseChecklistsRepo      *PhaseChecklistsRepo
+	auditStore               *AuditStoreRef
+	messagingRepo            *MessagingRepo
+	chatSessionsRepo         *ChatSessionsRepo
+	projectTeamRepo          *ProjectTeamRepo
+	projectActivitiesRepo    *ProjectActivitiesRepo
+	userNotificationsRepo    *UserNotificationsRepo
+	workOrderReworkRepo      *WorkOrderReworkRepo
+	bulkOperationRepo        *BulkOperationRepo
+	featureConfigRepo        *FeatureConfigRepo
+	notificationPrefsRepo    *NotificationPrefsRepo
+	edtechProfilesRepo       *EdTechProfilesRepo
 	edtechProfileHistoryRepo *EdTechProfileHistoryRepo
-	demoLeadsRepo *DemoLeadsRepo
-	demoLeadActivitiesRepo *DemoLeadActivitiesRepo
-	demoSchedulesRepo *DemoSchedulesRepo
-	presentationsRepo *PresentationsRepo
-	presentationViewsRepo *PresentationViewsRepo
-	salesMetricsDailyRepo *SalesMetricsDailyRepo
-	ssotLocationsRepo *SSOTLocationsRepo
-	kbArticlesRepo    *KBArticleRepo
-	marketingKBRepo   *MarketingKBRepo
+	demoLeadsRepo            *DemoLeadsRepo
+	demoLeadActivitiesRepo   *DemoLeadActivitiesRepo
+	demoSchedulesRepo        *DemoSchedulesRepo
+	presentationsRepo        *PresentationsRepo
+	presentationViewsRepo    *PresentationViewsRepo
+	salesMetricsDailyRepo    *SalesMetricsDailyRepo
+	ssotLocationsRepo        *SSOTLocationsRepo
+	kbArticlesRepo           *KBArticleRepo
+	marketingKBRepo          *MarketingKBRepo
 
 	// Device inventory
-	locationsRepo     *LocationsRepo
-	assignmentsRepo   *AssignmentsRepo
-	groupsRepo        *GroupsRepo
-	networkSnapRepo   *NetworkSnapshotRepo
+	locationsRepo   *LocationsRepo
+	assignmentsRepo *AssignmentsRepo
+	groupsRepo      *GroupsRepo
+	networkSnapRepo *NetworkSnapshotRepo
 
 	// HR SSOT snapshots
 	peopleSnap          *PeopleSnapshotRepo
@@ -141,62 +141,66 @@ func NewPostgres(ctx context.Context, dsn string) (*Postgres, error) {
 
 func (p *Postgres) Close()                         { p.pool.Close() }
 func (p *Postgres) Ping(ctx context.Context) error { return p.pool.Ping(ctx) }
-func (p *Postgres) RawPool() *pgxpool.Pool { return p.pool }
+func (p *Postgres) RawPool() *pgxpool.Pool         { return p.pool }
 
-func (p *Postgres) Incidents() *IncidentRepo     { return p.incidents }
-func (p *Postgres) WorkOrders() *WorkOrderRepo   { return p.workOrders }
-func (p *Postgres) Attachments() *AttachmentRepo { return p.attachments }
-func (p *Postgres) Schools() *SchoolRepo { return p.schools }
-func (p *Postgres) ServiceShops() *ServiceShopRepo { return p.shops }
-func (p *Postgres) ServiceStaff() *ServiceStaffRepo { return p.staff }
-func (p *Postgres) Parts() *PartRepo { return p.parts }
-func (p *Postgres) Inventory() *InventoryRepo { return p.inventory }
-func (p *Postgres) WorkOrderParts() *WorkOrderPartRepo { return p.workOrderParts }
-func (p *Postgres) SchoolsSnapshot() *SchoolsSnapshotRepo { return p.schoolsSnap }
-func (p *Postgres) DevicesSnapshot() *DevicesSnapshotRepo { return p.devicesSnap }
-func (p *Postgres) PartsSnapshot() *PartsSnapshotRepo { return p.partsSnap }
-func (p *Postgres) SSOTState() *SSOTStateRepo { return p.ssotState }
-func (p *Postgres) Projects() *ProjectsRepo { return p.projectsRepo }
-func (p *Postgres) Phases() *PhasesRepo { return p.phasesRepo }
-func (p *Postgres) Surveys() *SurveysRepo { return p.surveysRepo }
-func (p *Postgres) SurveyRooms() *SurveyRoomsRepo { return p.surveyRoomsRepo }
-func (p *Postgres) SurveyPhotos() *SurveyPhotosRepo { return p.surveyPhotosRepo }
-func (p *Postgres) BOQ() *BOQRepo { return p.boqRepo }
-func (p *Postgres) SchoolContacts() *SchoolContactsRepo { return p.contactsRepo }
-func (p *Postgres) WorkOrderSchedules() *WorkOrderScheduleRepo { return p.scheduleRepo }
+func (p *Postgres) Incidents() *IncidentRepo                          { return p.incidents }
+func (p *Postgres) WorkOrders() *WorkOrderRepo                        { return p.workOrders }
+func (p *Postgres) Attachments() *AttachmentRepo                      { return p.attachments }
+func (p *Postgres) Schools() *SchoolRepo                              { return p.schools }
+func (p *Postgres) ServiceShops() *ServiceShopRepo                    { return p.shops }
+func (p *Postgres) ServiceStaff() *ServiceStaffRepo                   { return p.staff }
+func (p *Postgres) Parts() *PartRepo                                  { return p.parts }
+func (p *Postgres) Inventory() *InventoryRepo                         { return p.inventory }
+func (p *Postgres) WorkOrderParts() *WorkOrderPartRepo                { return p.workOrderParts }
+func (p *Postgres) SchoolsSnapshot() *SchoolsSnapshotRepo             { return p.schoolsSnap }
+func (p *Postgres) DevicesSnapshot() *DevicesSnapshotRepo             { return p.devicesSnap }
+func (p *Postgres) PartsSnapshot() *PartsSnapshotRepo                 { return p.partsSnap }
+func (p *Postgres) SSOTState() *SSOTStateRepo                         { return p.ssotState }
+func (p *Postgres) Projects() *ProjectsRepo                           { return p.projectsRepo }
+func (p *Postgres) Phases() *PhasesRepo                               { return p.phasesRepo }
+func (p *Postgres) Surveys() *SurveysRepo                             { return p.surveysRepo }
+func (p *Postgres) SurveyRooms() *SurveyRoomsRepo                     { return p.surveyRoomsRepo }
+func (p *Postgres) SurveyPhotos() *SurveyPhotosRepo                   { return p.surveyPhotosRepo }
+func (p *Postgres) BOQ() *BOQRepo                                     { return p.boqRepo }
+func (p *Postgres) SchoolContacts() *SchoolContactsRepo               { return p.contactsRepo }
+func (p *Postgres) WorkOrderSchedules() *WorkOrderScheduleRepo        { return p.scheduleRepo }
 func (p *Postgres) WorkOrderDeliverables() *WorkOrderDeliverablesRepo { return p.deliverablesRepo }
-func (p *Postgres) WorkOrderApprovals() *WorkOrderApprovalsRepo { return p.approvalsRepo }
-func (p *Postgres) PhaseChecklists() *PhaseChecklistsRepo { return p.phaseChecklistsRepo }
-func (p *Postgres) AuditStorePool() *pgxpool.Pool { return p.auditStore.pool }
-func (p *Postgres) Messaging() *MessagingRepo { return p.messagingRepo }
-func (p *Postgres) ChatSessions() *ChatSessionsRepo { return p.chatSessionsRepo }
-func (p *Postgres) ProjectTeam() *ProjectTeamRepo { return p.projectTeamRepo }
-func (p *Postgres) ProjectActivities() *ProjectActivitiesRepo { return p.projectActivitiesRepo }
-func (p *Postgres) UserNotifications() *UserNotificationsRepo { return p.userNotificationsRepo }
-func (p *Postgres) WorkOrderRework() *WorkOrderReworkRepo { return p.workOrderReworkRepo }
-func (p *Postgres) BulkOperations() *BulkOperationRepo { return p.bulkOperationRepo }
-func (p *Postgres) FeatureConfig() *FeatureConfigRepo { return p.featureConfigRepo }
-func (p *Postgres) NotificationPrefs() *NotificationPrefsRepo { return p.notificationPrefsRepo }
-func (p *Postgres) EdTechProfiles() *EdTechProfilesRepo { return p.edtechProfilesRepo }
-func (p *Postgres) EdTechProfileHistory() *EdTechProfileHistoryRepo { return p.edtechProfileHistoryRepo }
-func (p *Postgres) DemoLeads() *DemoLeadsRepo { return p.demoLeadsRepo }
+func (p *Postgres) WorkOrderApprovals() *WorkOrderApprovalsRepo       { return p.approvalsRepo }
+func (p *Postgres) PhaseChecklists() *PhaseChecklistsRepo             { return p.phaseChecklistsRepo }
+func (p *Postgres) AuditStorePool() *pgxpool.Pool                     { return p.auditStore.pool }
+func (p *Postgres) Messaging() *MessagingRepo                         { return p.messagingRepo }
+func (p *Postgres) ChatSessions() *ChatSessionsRepo                   { return p.chatSessionsRepo }
+func (p *Postgres) ProjectTeam() *ProjectTeamRepo                     { return p.projectTeamRepo }
+func (p *Postgres) ProjectActivities() *ProjectActivitiesRepo         { return p.projectActivitiesRepo }
+func (p *Postgres) UserNotifications() *UserNotificationsRepo         { return p.userNotificationsRepo }
+func (p *Postgres) WorkOrderRework() *WorkOrderReworkRepo             { return p.workOrderReworkRepo }
+func (p *Postgres) BulkOperations() *BulkOperationRepo                { return p.bulkOperationRepo }
+func (p *Postgres) FeatureConfig() *FeatureConfigRepo                 { return p.featureConfigRepo }
+func (p *Postgres) NotificationPrefs() *NotificationPrefsRepo         { return p.notificationPrefsRepo }
+func (p *Postgres) EdTechProfiles() *EdTechProfilesRepo               { return p.edtechProfilesRepo }
+func (p *Postgres) EdTechProfileHistory() *EdTechProfileHistoryRepo {
+	return p.edtechProfileHistoryRepo
+}
+func (p *Postgres) DemoLeads() *DemoLeadsRepo                   { return p.demoLeadsRepo }
 func (p *Postgres) DemoLeadActivities() *DemoLeadActivitiesRepo { return p.demoLeadActivitiesRepo }
-func (p *Postgres) DemoSchedules() *DemoSchedulesRepo { return p.demoSchedulesRepo }
-func (p *Postgres) Presentations() *PresentationsRepo { return p.presentationsRepo }
-func (p *Postgres) PresentationViews() *PresentationViewsRepo { return p.presentationViewsRepo }
-func (p *Postgres) SalesMetricsDaily() *SalesMetricsDailyRepo { return p.salesMetricsDailyRepo }
-func (p *Postgres) SSOTLocations() *SSOTLocationsRepo { return p.ssotLocationsRepo }
-func (p *Postgres) KBArticles() *KBArticleRepo         { return p.kbArticlesRepo }
-func (p *Postgres) MarketingKB() *MarketingKBRepo      { return p.marketingKBRepo }
+func (p *Postgres) DemoSchedules() *DemoSchedulesRepo           { return p.demoSchedulesRepo }
+func (p *Postgres) Presentations() *PresentationsRepo           { return p.presentationsRepo }
+func (p *Postgres) PresentationViews() *PresentationViewsRepo   { return p.presentationViewsRepo }
+func (p *Postgres) SalesMetricsDaily() *SalesMetricsDailyRepo   { return p.salesMetricsDailyRepo }
+func (p *Postgres) SSOTLocations() *SSOTLocationsRepo           { return p.ssotLocationsRepo }
+func (p *Postgres) KBArticles() *KBArticleRepo                  { return p.kbArticlesRepo }
+func (p *Postgres) MarketingKB() *MarketingKBRepo               { return p.marketingKBRepo }
 
 // Device inventory
-func (p *Postgres) Locations() *LocationsRepo         { return p.locationsRepo }
-func (p *Postgres) Assignments() *AssignmentsRepo     { return p.assignmentsRepo }
-func (p *Postgres) Groups() *GroupsRepo               { return p.groupsRepo }
+func (p *Postgres) Locations() *LocationsRepo             { return p.locationsRepo }
+func (p *Postgres) Assignments() *AssignmentsRepo         { return p.assignmentsRepo }
+func (p *Postgres) Groups() *GroupsRepo                   { return p.groupsRepo }
 func (p *Postgres) NetworkSnapshot() *NetworkSnapshotRepo { return p.networkSnapRepo }
 
 // HR SSOT snapshots
-func (p *Postgres) PeopleSnapshot() *PeopleSnapshotRepo                 { return p.peopleSnap }
-func (p *Postgres) TeamsSnapshot() *TeamsSnapshotRepo                   { return p.teamsSnap }
-func (p *Postgres) OrgUnitsSnapshot() *OrgUnitsSnapshotRepo             { return p.orgUnitsSnap }
-func (p *Postgres) TeamMembershipsSnapshot() *TeamMembershipsSnapshotRepo { return p.teamMembershipsSnap }
+func (p *Postgres) PeopleSnapshot() *PeopleSnapshotRepo     { return p.peopleSnap }
+func (p *Postgres) TeamsSnapshot() *TeamsSnapshotRepo       { return p.teamsSnap }
+func (p *Postgres) OrgUnitsSnapshot() *OrgUnitsSnapshotRepo { return p.orgUnitsSnap }
+func (p *Postgres) TeamMembershipsSnapshot() *TeamMembershipsSnapshotRepo {
+	return p.teamMembershipsSnap
+}

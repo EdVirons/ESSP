@@ -82,7 +82,10 @@ func (h *ProjectsHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	tenant := middleware.TenantID(r.Context())
 	p, err := h.pg.Projects().GetByID(r.Context(), tenant, id)
-	if err != nil { http.Error(w, "not found", http.StatusNotFound); return }
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
 	writeJSON(w, http.StatusOK, p)
 }
 

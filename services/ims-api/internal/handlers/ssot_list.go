@@ -43,9 +43,9 @@ func (h *SSOTListHandler) ListSchools(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
-		"items": items,
-		"total": total,
-		"limit": params.Limit,
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
 		"offset": params.Offset,
 	})
 }
@@ -71,9 +71,9 @@ func (h *SSOTListHandler) ListDevices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
-		"items": items,
-		"total": total,
-		"limit": params.Limit,
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
 		"offset": params.Offset,
 	})
 }
@@ -142,9 +142,9 @@ func (h *SSOTListHandler) ListParts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
-		"items": items,
-		"total": total,
-		"limit": params.Limit,
+		"items":  items,
+		"total":  total,
+		"limit":  params.Limit,
 		"offset": params.Offset,
 	})
 }
@@ -164,19 +164,19 @@ func (h *SSOTListHandler) GetSyncStatus(w http.ResponseWriter, r *http.Request) 
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"schools": map[string]any{
-			"count":       schoolCount,
-			"lastSyncAt":  schoolState.UpdatedAt,
-			"lastCursor":  schoolState.LastCursor,
+			"count":      schoolCount,
+			"lastSyncAt": schoolState.UpdatedAt,
+			"lastCursor": schoolState.LastCursor,
 		},
 		"devices": map[string]any{
-			"count":       deviceCount,
-			"lastSyncAt":  deviceState.UpdatedAt,
-			"lastCursor":  deviceState.LastCursor,
+			"count":      deviceCount,
+			"lastSyncAt": deviceState.UpdatedAt,
+			"lastCursor": deviceState.LastCursor,
 		},
 		"parts": map[string]any{
-			"count":       partCount,
-			"lastSyncAt":  partState.UpdatedAt,
-			"lastCursor":  partState.LastCursor,
+			"count":      partCount,
+			"lastSyncAt": partState.UpdatedAt,
+			"lastCursor": partState.LastCursor,
 		},
 	})
 }

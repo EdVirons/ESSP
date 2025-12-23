@@ -88,10 +88,10 @@ func (h *SalesMetricsHandler) GetDashboard(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"metrics":         metricsSummary,
-		"pipelineStages":  pipelineSummary.Stages,
+		"metrics":          metricsSummary,
+		"pipelineStages":   pipelineSummary.Stages,
 		"recentActivities": activities,
-		"schoolsByRegion": schoolsByRegion,
+		"schoolsByRegion":  schoolsByRegion,
 		"period": map[string]interface{}{
 			"startDate": startDate.Format("2006-01-02"),
 			"endDate":   endDate.Format("2006-01-02"),

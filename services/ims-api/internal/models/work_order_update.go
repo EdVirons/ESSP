@@ -48,7 +48,7 @@ func (r *WorkOrderUpdateRequest) ToMap() map[string]any {
 
 // WorkOrderUpdateResponse is the response after updating a work order.
 type WorkOrderUpdateResponse struct {
-	WorkOrder      WorkOrder         `json:"workOrder"`
-	UpdatedFields  []string          `json:"updatedFields"`
-	PreviousValues map[string]any    `json:"previousValues,omitempty"`
+	WorkOrder      WorkOrder      `json:"workOrder"`
+	UpdatedFields  []string       `json:"updatedFields"`
+	PreviousValues map[string]any `json:"previousValues,omitempty"`
 }

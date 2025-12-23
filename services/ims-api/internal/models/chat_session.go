@@ -35,14 +35,14 @@ type ChatSession struct {
 	UpdatedAt            time.Time         `json:"updatedAt"`
 
 	// AI Support fields
-	AIHandled          bool            `json:"aiHandled"`
-	AIResolved         *bool           `json:"aiResolved,omitempty"`
-	AITurns            int             `json:"aiTurns"`
-	EscalationReason   *string         `json:"escalationReason,omitempty"`
-	EscalationSummary  map[string]any  `json:"escalationSummary,omitempty"`
-	IssueCategory      *string         `json:"issueCategory,omitempty"`
-	IssueSeverity      *string         `json:"issueSeverity,omitempty"`
-	CollectedInfo      map[string]any  `json:"collectedInfo,omitempty"`
+	AIHandled         bool           `json:"aiHandled"`
+	AIResolved        *bool          `json:"aiResolved,omitempty"`
+	AITurns           int            `json:"aiTurns"`
+	EscalationReason  *string        `json:"escalationReason,omitempty"`
+	EscalationSummary map[string]any `json:"escalationSummary,omitempty"`
+	IssueCategory     *string        `json:"issueCategory,omitempty"`
+	IssueSeverity     *string        `json:"issueSeverity,omitempty"`
+	CollectedInfo     map[string]any `json:"collectedInfo,omitempty"`
 
 	// Associated thread (for API responses)
 	Thread *MessageThread `json:"thread,omitempty"`
@@ -77,7 +77,7 @@ type StartSessionResponse struct {
 
 // QueuePositionResponse represents the queue position for a session
 type QueuePositionResponse struct {
-	Position            int `json:"position"`
+	Position             int `json:"position"`
 	EstimatedWaitMinutes int `json:"estimatedWaitMinutes"`
 }
 
@@ -118,9 +118,9 @@ type ChatQueueItem struct {
 
 // ChatQueueResponse represents the chat queue
 type ChatQueueResponse struct {
-	Items         []ChatQueueItem `json:"items"`
-	TotalWaiting  int             `json:"totalWaiting"`
-	AvailableAgents int           `json:"availableAgents"`
+	Items           []ChatQueueItem `json:"items"`
+	TotalWaiting    int             `json:"totalWaiting"`
+	AvailableAgents int             `json:"availableAgents"`
 }
 
 // ActiveChatItem represents an active chat for an agent
@@ -139,14 +139,14 @@ type ActiveChatsResponse struct {
 
 // ChatMetrics represents chat metrics for analytics
 type ChatMetrics struct {
-	TotalSessions        int     `json:"totalSessions"`
-	AverageWaitTime      float64 `json:"averageWaitTimeSeconds"`
-	AverageResponseTime  float64 `json:"averageResponseTimeSeconds"`
-	AverageRating        float64 `json:"averageRating"`
-	SessionsWithRating   int     `json:"sessionsWithRating"`
-	ActiveSessions       int     `json:"activeSessions"`
-	WaitingSessions      int     `json:"waitingSessions"`
-	EndedSessions        int     `json:"endedSessions"`
+	TotalSessions       int     `json:"totalSessions"`
+	AverageWaitTime     float64 `json:"averageWaitTimeSeconds"`
+	AverageResponseTime float64 `json:"averageResponseTimeSeconds"`
+	AverageRating       float64 `json:"averageRating"`
+	SessionsWithRating  int     `json:"sessionsWithRating"`
+	ActiveSessions      int     `json:"activeSessions"`
+	WaitingSessions     int     `json:"waitingSessions"`
+	EndedSessions       int     `json:"endedSessions"`
 }
 
 // AI Chat types
@@ -159,11 +159,11 @@ type AIChatMessageRequest struct {
 
 // AIChatMessageResponse represents the AI's response
 type AIChatMessageResponse struct {
-	Message       Message `json:"message"`
-	AITyping      bool    `json:"aiTyping"`
-	ShouldEscalate bool   `json:"shouldEscalate"`
-	EscalateReason *string `json:"escalateReason,omitempty"`
-	SessionStatus ChatSessionStatus `json:"sessionStatus"`
+	Message        Message           `json:"message"`
+	AITyping       bool              `json:"aiTyping"`
+	ShouldEscalate bool              `json:"shouldEscalate"`
+	EscalateReason *string           `json:"escalateReason,omitempty"`
+	SessionStatus  ChatSessionStatus `json:"sessionStatus"`
 }
 
 // AIEscalationRequest represents a request to escalate to human agent
@@ -179,14 +179,14 @@ type AIEscalationResponse struct {
 
 // AIConversationContext represents the context for agent handoff
 type AIConversationContext struct {
-	SessionID         string         `json:"sessionId"`
-	TurnCount         int            `json:"turnCount"`
-	Category          *string        `json:"category,omitempty"`
-	Severity          *string        `json:"severity,omitempty"`
-	EscalationReason  *string        `json:"escalationReason,omitempty"`
-	Summary           map[string]any `json:"summary,omitempty"`
-	CollectedInfo     map[string]any `json:"collectedInfo,omitempty"`
-	ConversationHistory []Message    `json:"conversationHistory"`
-	DeviceContext     map[string]any `json:"deviceContext,omitempty"`
-	SchoolContext     map[string]any `json:"schoolContext,omitempty"`
+	SessionID           string         `json:"sessionId"`
+	TurnCount           int            `json:"turnCount"`
+	Category            *string        `json:"category,omitempty"`
+	Severity            *string        `json:"severity,omitempty"`
+	EscalationReason    *string        `json:"escalationReason,omitempty"`
+	Summary             map[string]any `json:"summary,omitempty"`
+	CollectedInfo       map[string]any `json:"collectedInfo,omitempty"`
+	ConversationHistory []Message      `json:"conversationHistory"`
+	DeviceContext       map[string]any `json:"deviceContext,omitempty"`
+	SchoolContext       map[string]any `json:"schoolContext,omitempty"`
 }

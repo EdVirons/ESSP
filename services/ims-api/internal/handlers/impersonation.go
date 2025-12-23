@@ -43,12 +43,12 @@ type validateImpersonationReq struct {
 
 // validateImpersonationResp is the response for validation
 type validateImpersonationResp struct {
-	Valid    bool     `json:"valid"`
-	UserID   string   `json:"userId"`
-	Name     string   `json:"name"`
-	Email    string   `json:"email"`
-	Schools  []string `json:"schools"`
-	Error    string   `json:"error,omitempty"`
+	Valid   bool     `json:"valid"`
+	UserID  string   `json:"userId"`
+	Name    string   `json:"name"`
+	Email   string   `json:"email"`
+	Schools []string `json:"schools"`
+	Error   string   `json:"error,omitempty"`
 }
 
 // ValidateImpersonation validates that a user can be impersonated

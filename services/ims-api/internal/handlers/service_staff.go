@@ -23,11 +23,11 @@ func NewServiceStaffHandler(log *zap.Logger, pg *store.Postgres) *ServiceStaffHa
 }
 
 type createStaffReq struct {
-	ServiceShopID string          `json:"serviceShopId"`
-	UserID        string          `json:"userId"`
+	ServiceShopID string           `json:"serviceShopId"`
+	UserID        string           `json:"userId"`
 	Role          models.StaffRole `json:"role"`
-	Phone         string          `json:"phone"`
-	Active        bool            `json:"active"`
+	Phone         string           `json:"phone"`
+	Active        bool             `json:"active"`
 }
 
 func (h *ServiceStaffHandler) Create(w http.ResponseWriter, r *http.Request) {

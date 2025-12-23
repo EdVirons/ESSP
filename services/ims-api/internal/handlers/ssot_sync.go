@@ -222,11 +222,16 @@ func (h *SSOTSyncHandler) sync(w http.ResponseWriter, r *http.Request, res store
 		switch res {
 		case store.SSOTSchools:
 			page, err := client.ListSchools(since, cursor, limit)
-			if err != nil { http.Error(w, "school ssot sync failed: "+err.Error(), http.StatusBadGateway); return }
+			if err != nil {
+				http.Error(w, "school ssot sync failed: "+err.Error(), http.StatusBadGateway)
+				return
+			}
 			for _, it := range page.Items {
 				it.TenantID = tenant
 				_ = h.pg.SchoolsSnapshot().Upsert(r.Context(), it)
-				if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+				if it.UpdatedAt.After(maxSeen) {
+					maxSeen = it.UpdatedAt
+				}
 				total++
 			}
 			if page.Next == "" {
@@ -238,11 +243,16 @@ func (h *SSOTSyncHandler) sync(w http.ResponseWriter, r *http.Request, res store
 
 		case store.SSOTDevices:
 			page, err := client.ListDevices(since, cursor, limit)
-			if err != nil { http.Error(w, "device ssot sync failed: "+err.Error(), http.StatusBadGateway); return }
+			if err != nil {
+				http.Error(w, "device ssot sync failed: "+err.Error(), http.StatusBadGateway)
+				return
+			}
 			for _, it := range page.Items {
 				it.TenantID = tenant
 				_ = h.pg.DevicesSnapshot().Upsert(r.Context(), it)
-				if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+				if it.UpdatedAt.After(maxSeen) {
+					maxSeen = it.UpdatedAt
+				}
 				total++
 			}
 			if page.Next == "" {
@@ -254,11 +264,16 @@ func (h *SSOTSyncHandler) sync(w http.ResponseWriter, r *http.Request, res store
 
 		case store.SSOTParts:
 			page, err := client.ListParts(since, cursor, limit)
-			if err != nil { http.Error(w, "parts ssot sync failed: "+err.Error(), http.StatusBadGateway); return }
+			if err != nil {
+				http.Error(w, "parts ssot sync failed: "+err.Error(), http.StatusBadGateway)
+				return
+			}
 			for _, it := range page.Items {
 				it.TenantID = tenant
 				_ = h.pg.PartsSnapshot().Upsert(r.Context(), it)
-				if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+				if it.UpdatedAt.After(maxSeen) {
+					maxSeen = it.UpdatedAt
+				}
 				total++
 			}
 			if page.Next == "" {
@@ -279,9 +294,9 @@ func (h *SSOTSyncHandler) sync(w http.ResponseWriter, r *http.Request, res store
 	_ = h.pg.SSOTState().Upsert(r.Context(), state)
 
 	writeJSON(w, http.StatusOK, map[string]any{
-		"ok": true,
-		"resource": string(res),
-		"synced": total,
+		"ok":              true,
+		"resource":        string(res),
+		"synced":          total,
 		"newUpdatedSince": state.LastUpdatedSince,
 	})
 }

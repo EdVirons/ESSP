@@ -383,13 +383,13 @@ func (h *LivechatHandler) TransferChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update chat counts
-	h.pg.ChatSessions().DecrementAgentChatCount(ctx, tenantID, userID)
-	h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, req.TargetAgentID)
+	// Update chat counts (best-effort, errors logged but not blocking)
+	_ = h.pg.ChatSessions().DecrementAgentChatCount(ctx, tenantID, userID)
+	_ = h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, req.TargetAgentID)
 
-	// Add new agent as participant
+	// Add new agent as participant (best-effort)
 	now := time.Now().UTC()
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: session.ThreadID,
 		UserID:   req.TargetAgentID,
 		UserName: targetAgentName,
@@ -631,6 +631,7 @@ func (h *LivechatHandler) getPrimaryRole(roles []string) string {
 	return "unknown"
 }
 
+//nolint:unused // reserved for future auto-assignment feature
 func (h *LivechatHandler) tryAutoAssign(ctx context.Context, tenantID, sessionID string) {
 	agents, err := h.pg.ChatSessions().GetAvailableAgents(ctx, tenantID)
 	if err != nil || len(agents) == 0 {
@@ -648,14 +649,14 @@ func (h *LivechatHandler) tryAutoAssign(ctx context.Context, tenantID, sessionID
 		return
 	}
 
-	h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, agent.UserID)
+	_ = h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, agent.UserID)
 
 	// Get session for thread ID
 	session, _ := h.pg.ChatSessions().GetSessionByID(ctx, tenantID, sessionID)
 
 	// Add agent as participant
 	now := time.Now().UTC()
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: session.ThreadID,
 		UserID:   agent.UserID,
 		UserName: agentName,
@@ -670,6 +671,7 @@ func (h *LivechatHandler) tryAutoAssign(ctx context.Context, tenantID, sessionID
 	h.sendSystemMessage(ctx, tenantID, session.ThreadID, agentName+" has joined the chat")
 }
 
+//nolint:unused // reserved for future notification feature
 func (h *LivechatHandler) notifyAgentsNewChat(tenantID string, session models.ChatSession, thread models.MessageThread) {
 	if h.hub == nil {
 		return
@@ -739,7 +741,7 @@ func (h *LivechatHandler) sendSystemMessage(ctx context.Context, tenantID, threa
 		return
 	}
 
-	h.pg.Messaging().UpdateThreadLastMessage(ctx, tenantID, threadID, false)
+	_ = h.pg.Messaging().UpdateThreadLastMessage(ctx, tenantID, threadID, false)
 
 	// Broadcast
 	if h.hub != nil {

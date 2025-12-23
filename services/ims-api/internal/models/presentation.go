@@ -57,9 +57,9 @@ type Presentation struct {
 	IsFeatured bool     `json:"isFeatured"`
 
 	// Usage Stats
-	ViewCount    int        `json:"viewCount"`
-	DownloadCount int       `json:"downloadCount"`
-	LastViewedAt *time.Time `json:"lastViewedAt"`
+	ViewCount     int        `json:"viewCount"`
+	DownloadCount int        `json:"downloadCount"`
+	LastViewedAt  *time.Time `json:"lastViewedAt"`
 
 	// Audit
 	CreatedBy string    `json:"createdBy"`
@@ -163,13 +163,13 @@ type PresentationFilters struct {
 // SalesMetricsSummary is the dashboard summary response.
 type SalesMetricsSummary struct {
 	// Current period metrics
-	TotalLeads        int     `json:"totalLeads"`
-	NewLeadsThisPeriod int    `json:"newLeadsThisPeriod"`
-	DemosScheduled    int     `json:"demosScheduled"`
-	DemosCompleted    int     `json:"demosCompleted"`
-	ProposalsSent     int     `json:"proposalsSent"`
-	DealsWon          int     `json:"dealsWon"`
-	DealsLost         int     `json:"dealsLost"`
+	TotalLeads         int `json:"totalLeads"`
+	NewLeadsThisPeriod int `json:"newLeadsThisPeriod"`
+	DemosScheduled     int `json:"demosScheduled"`
+	DemosCompleted     int `json:"demosCompleted"`
+	ProposalsSent      int `json:"proposalsSent"`
+	DealsWon           int `json:"dealsWon"`
+	DealsLost          int `json:"dealsLost"`
 
 	// Value metrics
 	TotalPipelineValue float64 `json:"totalPipelineValue"`
@@ -186,20 +186,20 @@ type SalesMetricsSummary struct {
 
 // RecentActivity represents a recent activity for the dashboard feed.
 type RecentActivity struct {
-	ID           string    `json:"id"`
-	Type         string    `json:"type"`
-	Description  string    `json:"description"`
-	LeadID       string    `json:"leadId"`
-	LeadName     string    `json:"leadName"`
-	UserID       string    `json:"userId"`
-	UserName     string    `json:"userName"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ID          string    `json:"id"`
+	Type        string    `json:"type"`
+	Description string    `json:"description"`
+	LeadID      string    `json:"leadId"`
+	LeadName    string    `json:"leadName"`
+	UserID      string    `json:"userId"`
+	UserName    string    `json:"userName"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // SchoolsByRegion represents the count of schools/leads by region.
 type SchoolsByRegion struct {
-	Region string `json:"region"`
-	Count  int    `json:"count"`
+	Region string  `json:"region"`
+	Count  int     `json:"count"`
 	Value  float64 `json:"value"`
 }
 

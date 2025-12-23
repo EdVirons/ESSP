@@ -4,10 +4,10 @@ import "errors"
 
 // Bulk operation errors
 var (
-	ErrBulkNoIDs          = errors.New("no work order IDs provided")
-	ErrBulkTooManyIDs     = errors.New("too many work order IDs in batch")
-	ErrBulkNoStatus       = errors.New("status is required for bulk status update")
-	ErrBulkNoAssignment   = errors.New("at least one of assignedStaffId or serviceShopId is required")
+	ErrBulkNoIDs           = errors.New("no work order IDs provided")
+	ErrBulkTooManyIDs      = errors.New("too many work order IDs in batch")
+	ErrBulkNoStatus        = errors.New("status is required for bulk status update")
+	ErrBulkNoAssignment    = errors.New("at least one of assignedStaffId or serviceShopId is required")
 	ErrBulkInvalidDecision = errors.New("decision must be 'approved' or 'rejected'")
 )
 

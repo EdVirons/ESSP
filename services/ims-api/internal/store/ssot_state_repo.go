@@ -11,21 +11,21 @@ import (
 type SSOTResource string
 
 const (
-	SSOTSchools  SSOTResource = "schools"
-	SSOTDevices  SSOTResource = "devices"
-	SSOTParts    SSOTResource = "parts"
-	SSOTPeople   SSOTResource = "people"
-	SSOTTeams    SSOTResource = "teams"
-	SSOTOrgUnits SSOTResource = "org-units"
+	SSOTSchools         SSOTResource = "schools"
+	SSOTDevices         SSOTResource = "devices"
+	SSOTParts           SSOTResource = "parts"
+	SSOTPeople          SSOTResource = "people"
+	SSOTTeams           SSOTResource = "teams"
+	SSOTOrgUnits        SSOTResource = "org-units"
 	SSOTTeamMemberships SSOTResource = "team-memberships"
 )
 
 type SSOTSyncState struct {
-	TenantID          string
-	Resource          SSOTResource
-	LastUpdatedSince  time.Time
-	LastCursor        string
-	UpdatedAt         time.Time
+	TenantID         string
+	Resource         SSOTResource
+	LastUpdatedSince time.Time
+	LastCursor       string
+	UpdatedAt        time.Time
 }
 
 type SSOTStateRepo struct{ pool *pgxpool.Pool }
@@ -55,10 +55,10 @@ func (r *SSOTStateRepo) Upsert(ctx context.Context, s SSOTSyncState) error {
 
 func NewSSOTSyncState(tenantID string, res SSOTResource) SSOTSyncState {
 	return SSOTSyncState{
-		TenantID: tenantID,
-		Resource: res,
+		TenantID:         tenantID,
+		Resource:         res,
 		LastUpdatedSince: time.Unix(0, 0).UTC(),
-		LastCursor: "",
-		UpdatedAt: time.Now().UTC(),
+		LastCursor:       "",
+		UpdatedAt:        time.Now().UTC(),
 	}
 }

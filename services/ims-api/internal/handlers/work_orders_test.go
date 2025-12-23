@@ -159,19 +159,19 @@ func TestWorkOrderHandler_GetByID(t *testing.T) {
 	wo := testutil.CreateWorkOrder(t, pg.RawPool(), fixtureConfig, "", "dev-001")
 
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "found work order",
+			name:        "found work order",
 			workOrderID: wo.ID,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result models.WorkOrder
 				err := json.Unmarshal([]byte(body), &result)
@@ -181,25 +181,25 @@ func TestWorkOrderHandler_GetByID(t *testing.T) {
 			},
 		},
 		{
-			name:       "not found work order",
+			name:        "not found work order",
 			workOrderID: "wo_nonexistent",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 		{
-			name:       "wrong tenant",
+			name:        "wrong tenant",
 			workOrderID: wo.ID,
-			tenant:     "wrong-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			tenant:      "wrong-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 		{
-			name:       "wrong school",
+			name:        "wrong school",
 			workOrderID: wo.ID,
-			tenant:     "test-tenant",
-			school:     "wrong-school",
-			wantStatus: http.StatusNotFound,
+			tenant:      "test-tenant",
+			school:      "wrong-school",
+			wantStatus:  http.StatusNotFound,
 		},
 	}
 
@@ -244,19 +244,19 @@ func TestWorkOrderHandler_List(t *testing.T) {
 	_, _ = pg.WorkOrders().UpdateStatus(ctx, wo2.TenantID, wo2.SchoolID, wo2.ID, models.WorkOrderAssigned, time.Now())
 
 	tests := []struct {
-		name       string
+		name        string
 		queryParams string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "list all work orders",
+			name:        "list all work orders",
 			queryParams: "",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -266,11 +266,11 @@ func TestWorkOrderHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by status",
+			name:        "filter by status",
 			queryParams: "?status=assigned",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -280,11 +280,11 @@ func TestWorkOrderHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by deviceId",
+			name:        "filter by deviceId",
 			queryParams: "?deviceId=dev-001",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -294,11 +294,11 @@ func TestWorkOrderHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "with limit",
+			name:        "with limit",
 			queryParams: "?limit=1",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -342,21 +342,21 @@ func TestWorkOrderHandler_UpdateStatus(t *testing.T) {
 	wo := testutil.CreateWorkOrder(t, pg.RawPool(), fixtureConfig, "", "dev-001")
 
 	tests := []struct {
-		name       string
+		name        string
 		workOrderID string
-		body       string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		body        string
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "valid transition draft to assigned",
+			name:        "valid transition draft to assigned",
 			workOrderID: wo.ID,
-			body:       `{"status": "assigned"}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			body:        `{"status": "assigned"}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result models.WorkOrder
 				err := json.Unmarshal([]byte(body), &result)
@@ -365,31 +365,31 @@ func TestWorkOrderHandler_UpdateStatus(t *testing.T) {
 			},
 		},
 		{
-			name:       "invalid transition draft to completed",
+			name:        "invalid transition draft to completed",
 			workOrderID: wo.ID,
-			body:       `{"status": "completed"}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{"status": "completed"}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 			validate: func(t *testing.T, body string) {
 				assert.Contains(t, body, "invalid status transition")
 			},
 		},
 		{
-			name:       "invalid json",
+			name:        "invalid json",
 			workOrderID: wo.ID,
-			body:       `{invalid}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusBadRequest,
+			body:        `{invalid}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusBadRequest,
 		},
 		{
-			name:       "work order not found",
+			name:        "work order not found",
 			workOrderID: "wo_nonexistent",
-			body:       `{"status": "assigned"}`,
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusNotFound,
+			body:        `{"status": "assigned"}`,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusNotFound,
 		},
 	}
 

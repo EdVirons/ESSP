@@ -27,7 +27,7 @@ func (r *ServiceStaffRepo) GetByID(ctx context.Context, tenantID, id string) (mo
 		FROM service_staff
 		WHERE tenant_id=$1 AND id=$2
 	`, tenantID, id)
-	if err := row.Scan(&s.ID,&s.TenantID,&s.ServiceShopID,&s.UserID,&s.Role,&s.Phone,&s.Active,&s.CreatedAt,&s.UpdatedAt); err != nil {
+	if err := row.Scan(&s.ID, &s.TenantID, &s.ServiceShopID, &s.UserID, &s.Role, &s.Phone, &s.Active, &s.CreatedAt, &s.UpdatedAt); err != nil {
 		return models.ServiceStaff{}, errors.New("not found")
 	}
 	return s, nil
@@ -42,21 +42,21 @@ func (r *ServiceStaffRepo) GetLeadByShop(ctx context.Context, tenantID, shopID s
 		ORDER BY created_at ASC
 		LIMIT 1
 	`, tenantID, shopID)
-	if err := row.Scan(&s.ID,&s.TenantID,&s.ServiceShopID,&s.UserID,&s.Role,&s.Phone,&s.Active,&s.CreatedAt,&s.UpdatedAt); err != nil {
+	if err := row.Scan(&s.ID, &s.TenantID, &s.ServiceShopID, &s.UserID, &s.Role, &s.Phone, &s.Active, &s.CreatedAt, &s.UpdatedAt); err != nil {
 		return models.ServiceStaff{}, errors.New("not found")
 	}
 	return s, nil
 }
 
 type StaffListParams struct {
-	TenantID string
-	ShopID string
-	Role string
-	ActiveOnly bool
-	Limit int
-	HasCursor bool
+	TenantID        string
+	ShopID          string
+	Role            string
+	ActiveOnly      bool
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *ServiceStaffRepo) List(ctx context.Context, p StaffListParams) ([]models.ServiceStaff, string, error) {
@@ -64,19 +64,24 @@ func (r *ServiceStaffRepo) List(ctx context.Context, p StaffListParams) ([]model
 	args := []any{p.TenantID}
 	argN := 2
 	if p.ShopID != "" {
-		conds = append(conds, "service_shop_id=$"+itoa(argN)); args = append(args, p.ShopID); argN++
+		conds = append(conds, "service_shop_id=$"+itoa(argN))
+		args = append(args, p.ShopID)
+		argN++
 	}
 	if p.Role != "" {
-		conds = append(conds, "role=$"+itoa(argN)); args = append(args, p.Role); argN++
+		conds = append(conds, "role=$"+itoa(argN))
+		args = append(args, p.Role)
+		argN++
 	}
 	if p.ActiveOnly {
 		conds = append(conds, "active=true")
 	}
 	if p.HasCursor {
 		conds = append(conds, "(created_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorCreatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorCreatedAt, p.CursorID)
+		argN += 2
 	}
-	limitPlus := p.Limit+1
+	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
 
 	sql := `
@@ -87,13 +92,15 @@ func (r *ServiceStaffRepo) List(ctx context.Context, p StaffListParams) ([]model
 		LIMIT $` + itoa(argN)
 
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 	out := []models.ServiceStaff{}
 	for rows.Next() {
 		var s models.ServiceStaff
-		if err := rows.Scan(&s.ID,&s.TenantID,&s.ServiceShopID,&s.UserID,&s.Role,&s.Phone,&s.Active,&s.CreatedAt,&s.UpdatedAt); err != nil {
-			return nil,"",err
+		if err := rows.Scan(&s.ID, &s.TenantID, &s.ServiceShopID, &s.UserID, &s.Role, &s.Phone, &s.Active, &s.CreatedAt, &s.UpdatedAt); err != nil {
+			return nil, "", err
 		}
 		out = append(out, s)
 	}
@@ -103,7 +110,7 @@ func (r *ServiceStaffRepo) List(ctx context.Context, p StaffListParams) ([]model
 		next = EncodeCursor(last.CreatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }
 
 func (r *ServiceStaffRepo) Update(ctx context.Context, s models.ServiceStaff) error {

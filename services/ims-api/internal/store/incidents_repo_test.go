@@ -23,7 +23,7 @@ func TestIncidentRepo_Create(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "incident with different ID",
+			name: "incident with different ID",
 			input: func() models.Incident {
 				inc := validIncident()
 				inc.ID = "inc-test-create-002"
@@ -78,12 +78,12 @@ func TestIncidentRepo_GetByID(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
-		tenantID  string
-		schoolID  string
-		id        string
-		wantErr   bool
-		wantID    string
+		name     string
+		tenantID string
+		schoolID string
+		id       string
+		wantErr  bool
+		wantID   string
 	}{
 		{
 			name:     "existing incident",

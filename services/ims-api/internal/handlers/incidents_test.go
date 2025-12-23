@@ -262,19 +262,19 @@ func TestIncidentHandler_List(t *testing.T) {
 	_, _ = pg.Incidents().UpdateStatus(ctx, inc2.TenantID, inc2.SchoolID, inc2.ID, models.IncidentAcknowledged, time.Now())
 
 	tests := []struct {
-		name       string
+		name        string
 		queryParams string
-		tenant     string
-		school     string
-		wantStatus int
-		validate   func(t *testing.T, body string)
+		tenant      string
+		school      string
+		wantStatus  int
+		validate    func(t *testing.T, body string)
 	}{
 		{
-			name:       "list all incidents",
+			name:        "list all incidents",
 			queryParams: "",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -284,11 +284,11 @@ func TestIncidentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by status",
+			name:        "filter by status",
 			queryParams: "?status=acknowledged",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -298,11 +298,11 @@ func TestIncidentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "filter by deviceId",
+			name:        "filter by deviceId",
 			queryParams: "?deviceId=dev-001",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)
@@ -312,11 +312,11 @@ func TestIncidentHandler_List(t *testing.T) {
 			},
 		},
 		{
-			name:       "with limit",
+			name:        "with limit",
 			queryParams: "?limit=1",
-			tenant:     "test-tenant",
-			school:     "test-school",
-			wantStatus: http.StatusOK,
+			tenant:      "test-tenant",
+			school:      "test-school",
+			wantStatus:  http.StatusOK,
 			validate: func(t *testing.T, body string) {
 				var result map[string]interface{}
 				err := json.Unmarshal([]byte(body), &result)

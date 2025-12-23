@@ -431,7 +431,7 @@ func TestUpdateWorkOrderPartUsedTx(t *testing.T) {
 			tenantID: tenantID,
 			schoolID: schoolID,
 			id:       part.ID,
-			addUsed:  10, // Would make total 17, exceeds planned 10
+			addUsed:  10,    // Would make total 17, exceeds planned 10
 			wantErr:  false, // UPDATE doesn't fail, just doesn't update
 		},
 	}
@@ -498,13 +498,13 @@ func TestUpdateWorkOrderPartPlannedTx(t *testing.T) {
 	}
 
 	tests := []struct {
-		name            string
-		tenantID        string
-		schoolID        string
-		id              string
-		newPlanned      int64
-		wantErr         bool
-		wantQtyPlanned  int64
+		name           string
+		tenantID       string
+		schoolID       string
+		id             string
+		newPlanned     int64
+		wantErr        bool
+		wantQtyPlanned int64
 	}{
 		{
 			name:           "update planned to 10",

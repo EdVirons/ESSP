@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/edvirons/ssp/ims/internal/audit"
 	"github.com/edvirons/ssp/ims/internal/auth"
 	"github.com/edvirons/ssp/ims/internal/handlers"
 	"github.com/edvirons/ssp/ims/internal/middleware"
@@ -191,9 +190,4 @@ func (s *Server) mountServiceShopRoutes(r chi.Router, shops *handlers.ServiceSho
 		r.Get("/warehouse/pending-issues", whDash.GetPendingPartIssues)
 		r.Get("/warehouse/movements", whDash.GetStockMovements)
 	})
-}
-
-// newAuditLogger creates a new audit logger for the given audit store.
-func newAuditLogger(auditStore *audit.Store) *audit.Logger {
-	return audit.NewLogger(auditStore)
 }

@@ -204,7 +204,6 @@ func checkRateLimit(ctx context.Context, rdb *redis.Client, key string, cfg Rate
 		if err != nil {
 			return false, 0, resetTime, fmt.Errorf("redis incr failed: %w", err)
 		}
-		current++
 	}
 
 	remaining := int(float64(limit) - slidingCount - 1)

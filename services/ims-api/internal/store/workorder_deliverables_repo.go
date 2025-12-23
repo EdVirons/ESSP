@@ -18,8 +18,8 @@ func (r *WorkOrderDeliverablesRepo) Create(ctx context.Context, d models.WorkOrd
 			id, tenant_id, school_id, work_order_id, phase_id, title, description, status, evidence_attachment_id,
 			submitted_by_user_id, submitted_at, reviewed_by_user_id, reviewed_at, review_notes, created_at, updated_at
 		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-	`, d.ID,d.TenantID,d.SchoolID,d.WorkOrderID,d.PhaseID,d.Title,d.Description,d.Status,d.EvidenceAttachmentID,
-		d.SubmittedByUserID,d.SubmittedAt,d.ReviewedByUserID,d.ReviewedAt,d.ReviewNotes,d.CreatedAt,d.UpdatedAt)
+	`, d.ID, d.TenantID, d.SchoolID, d.WorkOrderID, d.PhaseID, d.Title, d.Description, d.Status, d.EvidenceAttachmentID,
+		d.SubmittedByUserID, d.SubmittedAt, d.ReviewedByUserID, d.ReviewedAt, d.ReviewNotes, d.CreatedAt, d.UpdatedAt)
 	return err
 }
 
@@ -31,32 +31,37 @@ func (r *WorkOrderDeliverablesRepo) GetByID(ctx context.Context, tenantID, schoo
 		FROM work_order_deliverables
 		WHERE tenant_id=$1 AND school_id=$2 AND id=$3
 	`, tenantID, schoolID, id)
-	if err := row.Scan(&d.ID,&d.TenantID,&d.SchoolID,&d.WorkOrderID,&d.PhaseID,&d.Title,&d.Description,&d.Status,&d.EvidenceAttachmentID,
-		&d.SubmittedByUserID,&d.SubmittedAt,&d.ReviewedByUserID,&d.ReviewedAt,&d.ReviewNotes,&d.CreatedAt,&d.UpdatedAt); err != nil {
+	if err := row.Scan(&d.ID, &d.TenantID, &d.SchoolID, &d.WorkOrderID, &d.PhaseID, &d.Title, &d.Description, &d.Status, &d.EvidenceAttachmentID,
+		&d.SubmittedByUserID, &d.SubmittedAt, &d.ReviewedByUserID, &d.ReviewedAt, &d.ReviewNotes, &d.CreatedAt, &d.UpdatedAt); err != nil {
 		return models.WorkOrderDeliverable{}, errors.New("not found")
 	}
 	return d, nil
 }
 
-type DeliverableListParams struct{
-	TenantID string
-	SchoolID string
-	WorkOrderID string
-	Status string
-	Limit int
-	HasCursor bool
+type DeliverableListParams struct {
+	TenantID        string
+	SchoolID        string
+	WorkOrderID     string
+	Status          string
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *WorkOrderDeliverablesRepo) List(ctx context.Context, p DeliverableListParams) ([]models.WorkOrderDeliverable, string, error) {
-	conds := []string{"tenant_id=$1","school_id=$2","work_order_id=$3"}
-	args := []any{p.TenantID,p.SchoolID,p.WorkOrderID}
+	conds := []string{"tenant_id=$1", "school_id=$2", "work_order_id=$3"}
+	args := []any{p.TenantID, p.SchoolID, p.WorkOrderID}
 	argN := 4
-	if p.Status != "" { conds = append(conds, "status=$"+itoa(argN)); args=append(args,p.Status); argN++ }
+	if p.Status != "" {
+		conds = append(conds, "status=$"+itoa(argN))
+		args = append(args, p.Status)
+		argN++
+	}
 	if p.HasCursor {
 		conds = append(conds, "(created_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorCreatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorCreatedAt, p.CursorID)
+		argN += 2
 	}
 	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
@@ -65,22 +70,24 @@ func (r *WorkOrderDeliverablesRepo) List(ctx context.Context, p DeliverableListP
 		SELECT id, tenant_id, school_id, work_order_id, phase_id, title, description, status, evidence_attachment_id,
 			submitted_by_user_id, submitted_at, reviewed_by_user_id, reviewed_at, review_notes, created_at, updated_at
 		FROM work_order_deliverables
-		WHERE ` + strings.Join(conds," AND ") + `
+		WHERE ` + strings.Join(conds, " AND ") + `
 		ORDER BY created_at DESC, id DESC
 		LIMIT $` + itoa(argN)
 
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 
 	out := []models.WorkOrderDeliverable{}
 	for rows.Next() {
 		var x models.WorkOrderDeliverable
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.SchoolID,&x.WorkOrderID,&x.PhaseID,&x.Title,&x.Description,&x.Status,&x.EvidenceAttachmentID,
-			&x.SubmittedByUserID,&x.SubmittedAt,&x.ReviewedByUserID,&x.ReviewedAt,&x.ReviewNotes,&x.CreatedAt,&x.UpdatedAt); err != nil {
-			return nil,"",err
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.SchoolID, &x.WorkOrderID, &x.PhaseID, &x.Title, &x.Description, &x.Status, &x.EvidenceAttachmentID,
+			&x.SubmittedByUserID, &x.SubmittedAt, &x.ReviewedByUserID, &x.ReviewedAt, &x.ReviewNotes, &x.CreatedAt, &x.UpdatedAt); err != nil {
+			return nil, "", err
 		}
-		out = append(out,x)
+		out = append(out, x)
 	}
 	next := ""
 	if len(out) > p.Limit {
@@ -88,7 +95,7 @@ func (r *WorkOrderDeliverablesRepo) List(ctx context.Context, p DeliverableListP
 		next = EncodeCursor(last.CreatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }
 
 func (r *WorkOrderDeliverablesRepo) MarkSubmitted(ctx context.Context, tenantID, schoolID, id, userID, evidence, notes string) error {
@@ -114,7 +121,6 @@ func (r *WorkOrderDeliverablesRepo) Review(ctx context.Context, tenantID, school
 	`, tenantID, schoolID, id, status, reviewerID, now, notes)
 	return err
 }
-
 
 func (r *WorkOrderDeliverablesRepo) CountNotApprovedByWorkOrder(ctx context.Context, tenantID, schoolID, workOrderID string) (int64, error) {
 	var c int64

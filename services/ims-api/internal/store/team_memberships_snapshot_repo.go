@@ -110,7 +110,6 @@ func (r *TeamMembershipsSnapshotRepo) List(ctx context.Context, params TeamMembe
 	if params.Status != "" {
 		countQuery += ` AND status = $` + strconv.Itoa(argIdx)
 		args = append(args, params.Status)
-		argIdx++
 	}
 
 	var total int

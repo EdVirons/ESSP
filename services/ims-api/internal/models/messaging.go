@@ -59,18 +59,18 @@ type MessageThread struct {
 
 // Message represents an individual message in a thread
 type Message struct {
-	ID          string            `json:"id"`
-	TenantID    string            `json:"tenantId"`
-	ThreadID    string            `json:"threadId"`
-	SenderID    string            `json:"senderId"`
-	SenderName  string            `json:"senderName"`
-	SenderRole  string            `json:"senderRole"`
-	Content     string            `json:"content"`
-	ContentType ContentType       `json:"contentType"`
-	Metadata    map[string]any    `json:"metadata,omitempty"`
-	EditedAt    *time.Time        `json:"editedAt,omitempty"`
-	DeletedAt   *time.Time        `json:"deletedAt,omitempty"`
-	CreatedAt   time.Time         `json:"createdAt"`
+	ID          string              `json:"id"`
+	TenantID    string              `json:"tenantId"`
+	ThreadID    string              `json:"threadId"`
+	SenderID    string              `json:"senderId"`
+	SenderName  string              `json:"senderName"`
+	SenderRole  string              `json:"senderRole"`
+	Content     string              `json:"content"`
+	ContentType ContentType         `json:"contentType"`
+	Metadata    map[string]any      `json:"metadata,omitempty"`
+	EditedAt    *time.Time          `json:"editedAt,omitempty"`
+	DeletedAt   *time.Time          `json:"deletedAt,omitempty"`
+	CreatedAt   time.Time           `json:"createdAt"`
 	Attachments []MessageAttachment `json:"attachments,omitempty"`
 }
 

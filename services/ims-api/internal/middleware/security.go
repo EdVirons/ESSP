@@ -36,12 +36,12 @@ func SecurityHeaders() func(http.Handler) http.Handler {
 				// Dashboard CSP - allows scripts, styles, images, and API connections
 				w.Header().Set("Content-Security-Policy",
 					"default-src 'self'; "+
-					"script-src 'self'; "+
-					"style-src 'self' 'unsafe-inline'; "+
-					"img-src 'self' data: blob:; "+
-					"font-src 'self'; "+
-					"connect-src 'self' ws: wss:; "+
-					"frame-ancestors 'none'")
+						"script-src 'self'; "+
+						"style-src 'self' 'unsafe-inline'; "+
+						"img-src 'self' data: blob:; "+
+						"font-src 'self'; "+
+						"connect-src 'self' ws: wss:; "+
+						"frame-ancestors 'none'")
 			}
 
 			// Control referrer information

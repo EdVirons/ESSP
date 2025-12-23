@@ -40,14 +40,14 @@ func (h *InventoryHandler) Upsert(w http.ResponseWriter, r *http.Request) {
 	}
 	tenant := middleware.TenantID(r.Context())
 	item := models.InventoryItem{
-		ID: store.NewID("inv"),
-		TenantID: tenant,
-		ServiceShopID: strings.TrimSpace(req.ServiceShopID),
-		PartID: strings.TrimSpace(req.PartID),
-		QtyAvailable: req.QtyAvailable,
-		QtyReserved: 0,
+		ID:               store.NewID("inv"),
+		TenantID:         tenant,
+		ServiceShopID:    strings.TrimSpace(req.ServiceShopID),
+		PartID:           strings.TrimSpace(req.PartID),
+		QtyAvailable:     req.QtyAvailable,
+		QtyReserved:      0,
 		ReorderThreshold: req.ReorderThreshold,
-		UpdatedAt: time.Now().UTC(),
+		UpdatedAt:        time.Now().UTC(),
 	}
 	if err := h.pg.Inventory().Upsert(r.Context(), item); err != nil {
 		http.Error(w, "failed to upsert inventory", http.StatusInternalServerError)

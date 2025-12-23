@@ -36,22 +36,22 @@ func (r *WorkOrderPartRepo) GetByID(ctx context.Context, tenantID, schoolID, id 
 		FROM work_order_parts
 		WHERE tenant_id=$1 AND school_id=$2 AND id=$3
 	`, tenantID, schoolID, id)
-	if err := row.Scan(&p.ID,&p.TenantID,&p.SchoolID,&p.WorkOrderID,&p.ServiceShopID,&p.PartID,
-		&p.PartName,&p.PartPUK,&p.PartCategory,&p.DeviceModelID,&p.IsCompatible,
-		&p.QtyPlanned,&p.QtyUsed,&p.CreatedAt,&p.UpdatedAt); err != nil {
+	if err := row.Scan(&p.ID, &p.TenantID, &p.SchoolID, &p.WorkOrderID, &p.ServiceShopID, &p.PartID,
+		&p.PartName, &p.PartPUK, &p.PartCategory, &p.DeviceModelID, &p.IsCompatible,
+		&p.QtyPlanned, &p.QtyUsed, &p.CreatedAt, &p.UpdatedAt); err != nil {
 		return models.WorkOrderPart{}, errors.New("not found")
 	}
 	return p, nil
 }
 
 type WorkOrderPartListParams struct {
-	TenantID string
-	SchoolID string
-	WorkOrderID string
-	Limit int
-	HasCursor bool
+	TenantID        string
+	SchoolID        string
+	WorkOrderID     string
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *WorkOrderPartRepo) List(ctx context.Context, p WorkOrderPartListParams) ([]models.WorkOrderPart, string, error) {
@@ -78,16 +78,18 @@ func (r *WorkOrderPartRepo) List(ctx context.Context, p WorkOrderPartListParams)
 		LIMIT $` + itoa(argN)
 
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 
 	out := []models.WorkOrderPart{}
 	for rows.Next() {
 		var x models.WorkOrderPart
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.SchoolID,&x.WorkOrderID,&x.ServiceShopID,&x.PartID,
-			&x.PartName,&x.PartPUK,&x.PartCategory,&x.DeviceModelID,&x.IsCompatible,
-			&x.QtyPlanned,&x.QtyUsed,&x.CreatedAt,&x.UpdatedAt); err != nil {
-			return nil,"",err
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.SchoolID, &x.WorkOrderID, &x.ServiceShopID, &x.PartID,
+			&x.PartName, &x.PartPUK, &x.PartCategory, &x.DeviceModelID, &x.IsCompatible,
+			&x.QtyPlanned, &x.QtyUsed, &x.CreatedAt, &x.UpdatedAt); err != nil {
+			return nil, "", err
 		}
 		out = append(out, x)
 	}
@@ -98,7 +100,7 @@ func (r *WorkOrderPartRepo) List(ctx context.Context, p WorkOrderPartListParams)
 		next = EncodeCursor(last.CreatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }
 
 // Transactional helpers

@@ -46,17 +46,17 @@ func NewEdTechProfilesHandler(log *zap.Logger, pg *store.Postgres, cfg config.Co
 // GetOptions returns form options for the assessment
 func (h *EdTechProfilesHandler) GetOptions(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
-		"networkQuality":     models.NetworkQualityOptions,
-		"internetSpeed":      models.InternetSpeedOptions,
-		"deviceAge":          models.DeviceAgeOptions,
-		"supportFrequency":   models.SupportFrequencyOptions,
-		"resolutionTime":     models.ResolutionTimeOptions,
-		"budgetRange":        models.BudgetRangeOptions,
-		"timeline":           models.TimelineOptions,
-		"lmsPlatforms":       models.LMSPlatformOptions,
-		"existingSoftware":   models.ExistingSoftwareOptions,
-		"painPoints":         models.PainPointOptions,
-		"strategicGoals":     models.StrategicGoalOptions,
+		"networkQuality":   models.NetworkQualityOptions,
+		"internetSpeed":    models.InternetSpeedOptions,
+		"deviceAge":        models.DeviceAgeOptions,
+		"supportFrequency": models.SupportFrequencyOptions,
+		"resolutionTime":   models.ResolutionTimeOptions,
+		"budgetRange":      models.BudgetRangeOptions,
+		"timeline":         models.TimelineOptions,
+		"lmsPlatforms":     models.LMSPlatformOptions,
+		"existingSoftware": models.ExistingSoftwareOptions,
+		"painPoints":       models.PainPointOptions,
+		"strategicGoals":   models.StrategicGoalOptions,
 	})
 }
 
@@ -342,9 +342,9 @@ func buildEdTechProfileMessage(p models.EdTechProfile) string {
 }
 
 type aiAnalysisResult struct {
-	Summary           string                     `json:"summary"`
-	Recommendations   []models.AIRecommendation  `json:"recommendations"`
-	FollowUpQuestions []models.FollowUpQuestion  `json:"followUpQuestions"`
+	Summary           string                    `json:"summary"`
+	Recommendations   []models.AIRecommendation `json:"recommendations"`
+	FollowUpQuestions []models.FollowUpQuestion `json:"followUpQuestions"`
 }
 
 func parseAIAnalysisResponse(content string) aiAnalysisResult {

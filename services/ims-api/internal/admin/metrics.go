@@ -18,8 +18,8 @@ type MetricsResponse struct {
 
 // IncidentMetrics contains incident statistics
 type IncidentMetrics struct {
-	Total      int64 `json:"total"`
-	Open       int64 `json:"open"`
+	Total       int64 `json:"total"`
+	Open        int64 `json:"open"`
 	SLABreached int64 `json:"slaBreached"`
 }
 

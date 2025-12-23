@@ -52,18 +52,18 @@ type Organization struct {
 
 // UserPreferences holds user-specific preferences
 type UserPreferences struct {
-	Theme           string `json:"theme,omitempty"`           // "light", "dark", "system"
-	Language        string `json:"language,omitempty"`        // e.g., "en", "es"
-	Timezone        string `json:"timezone,omitempty"`        // e.g., "America/New_York"
-	SidebarCollapse bool   `json:"sidebarCollapsed,omitempty"`
+	Theme           string                   `json:"theme,omitempty"`    // "light", "dark", "system"
+	Language        string                   `json:"language,omitempty"` // e.g., "en", "es"
+	Timezone        string                   `json:"timezone,omitempty"` // e.g., "America/New_York"
+	SidebarCollapse bool                     `json:"sidebarCollapsed,omitempty"`
 	Notifications   *NotificationPreferences `json:"notifications,omitempty"`
 }
 
 // NotificationPreferences holds notification settings
 type NotificationPreferences struct {
-	EmailEnabled   bool `json:"emailEnabled"`
-	BrowserEnabled bool `json:"browserEnabled"`
-	IncidentAlerts bool `json:"incidentAlerts"`
+	EmailEnabled    bool `json:"emailEnabled"`
+	BrowserEnabled  bool `json:"browserEnabled"`
+	IncidentAlerts  bool `json:"incidentAlerts"`
 	WorkOrderAlerts bool `json:"workOrderAlerts"`
 }
 

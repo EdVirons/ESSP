@@ -7,9 +7,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// defaultLogger is used when no logger is provided
-var defaultLogger = zap.NewNop()
-
 // RequireRoles is a simplified middleware that checks if the user has any of the specified roles
 // This version doesn't require a logger to be passed (uses nop logger)
 func RequireRoles(roles ...string) func(http.Handler) http.Handler {

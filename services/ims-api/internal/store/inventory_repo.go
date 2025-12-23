@@ -29,20 +29,20 @@ func (r *InventoryRepo) Get(ctx context.Context, tenantID, shopID, partID string
 		FROM inventory
 		WHERE tenant_id=$1 AND service_shop_id=$2 AND part_id=$3
 	`, tenantID, shopID, partID)
-	if err := row.Scan(&i.ID,&i.TenantID,&i.ServiceShopID,&i.PartID,&i.QtyAvailable,&i.QtyReserved,&i.ReorderThreshold,&i.UpdatedAt); err != nil {
+	if err := row.Scan(&i.ID, &i.TenantID, &i.ServiceShopID, &i.PartID, &i.QtyAvailable, &i.QtyReserved, &i.ReorderThreshold, &i.UpdatedAt); err != nil {
 		return models.InventoryItem{}, errors.New("not found")
 	}
 	return i, nil
 }
 
 type InventoryListParams struct {
-	TenantID string
-	ShopID string
-	PartID string
-	Limit int
-	HasCursor bool
+	TenantID        string
+	ShopID          string
+	PartID          string
+	Limit           int
+	HasCursor       bool
 	CursorUpdatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *InventoryRepo) List(ctx context.Context, p InventoryListParams) ([]models.InventoryItem, string, error) {
@@ -50,16 +50,21 @@ func (r *InventoryRepo) List(ctx context.Context, p InventoryListParams) ([]mode
 	args := []any{p.TenantID}
 	argN := 2
 	if p.ShopID != "" {
-		conds = append(conds, "service_shop_id=$"+itoa(argN)); args = append(args, p.ShopID); argN++
+		conds = append(conds, "service_shop_id=$"+itoa(argN))
+		args = append(args, p.ShopID)
+		argN++
 	}
 	if p.PartID != "" {
-		conds = append(conds, "part_id=$"+itoa(argN)); args = append(args, p.PartID); argN++
+		conds = append(conds, "part_id=$"+itoa(argN))
+		args = append(args, p.PartID)
+		argN++
 	}
 	if p.HasCursor {
 		conds = append(conds, "(updated_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorUpdatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorUpdatedAt, p.CursorID)
+		argN += 2
 	}
-	limitPlus := p.Limit+1
+	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
 
 	sql := `
@@ -69,13 +74,15 @@ func (r *InventoryRepo) List(ctx context.Context, p InventoryListParams) ([]mode
 		ORDER BY updated_at DESC, id DESC
 		LIMIT $` + itoa(argN)
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 	out := []models.InventoryItem{}
 	for rows.Next() {
 		var x models.InventoryItem
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.ServiceShopID,&x.PartID,&x.QtyAvailable,&x.QtyReserved,&x.ReorderThreshold,&x.UpdatedAt); err != nil {
-			return nil,"",err
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.ServiceShopID, &x.PartID, &x.QtyAvailable, &x.QtyReserved, &x.ReorderThreshold, &x.UpdatedAt); err != nil {
+			return nil, "", err
 		}
 		out = append(out, x)
 	}
@@ -85,7 +92,7 @@ func (r *InventoryRepo) List(ctx context.Context, p InventoryListParams) ([]mode
 		next = EncodeCursor(last.UpdatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }
 func (r *InventoryRepo) Reserve(ctx context.Context, tenantID, shopID, partID string, qty int64) error {
 	// Ensures (qty_available - qty_reserved) >= qty
@@ -118,4 +125,3 @@ func (r *InventoryRepo) Consume(ctx context.Context, tenantID, shopID, partID st
 	`, tenantID, shopID, partID, qty, time.Now().UTC())
 	return err
 }
-

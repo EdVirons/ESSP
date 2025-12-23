@@ -384,12 +384,12 @@ func (h *MessagingHandler) CreateMessage(w http.ResponseWriter, r *http.Request)
 	if thread.ThreadType == models.ThreadTypeLivechat {
 		session, err := h.pg.ChatSessions().GetSessionByThreadID(ctx, tenantID, threadID)
 		if err == nil && session.ID != "" {
-			h.pg.ChatSessions().IncrementMessageCount(ctx, tenantID, session.ID)
+			_ = h.pg.ChatSessions().IncrementMessageCount(ctx, tenantID, session.ID)
 
 			// Set first response time if this is the first agent message
 			if !isSchoolSender && session.FirstResponseSeconds == nil && session.AgentJoinedAt != nil {
 				seconds := int(now.Sub(*session.AgentJoinedAt).Seconds())
-				h.pg.ChatSessions().SetFirstResponseTime(ctx, tenantID, session.ID, seconds)
+				_ = h.pg.ChatSessions().SetFirstResponseTime(ctx, tenantID, session.ID, seconds)
 			}
 		}
 	}

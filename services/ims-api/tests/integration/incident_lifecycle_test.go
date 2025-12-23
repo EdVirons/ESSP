@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package integration
@@ -143,9 +144,9 @@ func TestIncidentLifecycle_SLABreachDetection(t *testing.T) {
 
 	// Test different severity levels and their SLA times
 	testCases := []struct {
-		severity     models.Severity
-		expectedDue  time.Duration
-		description  string
+		severity    models.Severity
+		expectedDue time.Duration
+		description string
 	}{
 		{models.SeverityCritical, 4 * time.Hour, "Critical should have 4 hour SLA"},
 		{models.SeverityHigh, 24 * time.Hour, "High should have 24 hour SLA"},

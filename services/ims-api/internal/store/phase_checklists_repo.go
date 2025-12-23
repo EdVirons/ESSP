@@ -16,7 +16,7 @@ func (r *PhaseChecklistsRepo) Create(ctx context.Context, t models.PhaseChecklis
 		INSERT INTO phase_checklist_templates (
 			id, tenant_id, phase_type, title, description, required, created_at, updated_at
 		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-	`, t.ID,t.TenantID,t.PhaseType,t.Title,t.Description,t.Required,t.CreatedAt,t.UpdatedAt)
+	`, t.ID, t.TenantID, t.PhaseType, t.Title, t.Description, t.Required, t.CreatedAt, t.UpdatedAt)
 	return err
 }
 
@@ -27,7 +27,6 @@ func (r *PhaseChecklistsRepo) List(ctx context.Context, tenantID string, phaseTy
 	if strings.TrimSpace(phaseType) != "" {
 		conds += " AND phase_type=$" + itoa(argN)
 		args = append(args, strings.TrimSpace(phaseType))
-		argN++
 	}
 	rows, err := r.pool.Query(ctx, `
 		SELECT id, tenant_id, phase_type, title, description, required, created_at, updated_at
@@ -35,13 +34,15 @@ func (r *PhaseChecklistsRepo) List(ctx context.Context, tenantID string, phaseTy
 		WHERE `+conds+`
 		ORDER BY phase_type ASC, required DESC, created_at ASC
 	`, args...)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
 	out := []models.PhaseChecklistTemplate{}
 	for rows.Next() {
 		var x models.PhaseChecklistTemplate
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.PhaseType,&x.Title,&x.Description,&x.Required,&x.CreatedAt,&x.UpdatedAt); err != nil {
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.PhaseType, &x.Title, &x.Description, &x.Required, &x.CreatedAt, &x.UpdatedAt); err != nil {
 			return nil, err
 		}
 		out = append(out, x)

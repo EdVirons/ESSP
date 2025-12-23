@@ -88,42 +88,35 @@ func cleanupWorkOrderParts(t *testing.T, pool *pgxpool.Pool, tenantID, schoolID 
 func validIncident() models.Incident {
 	now := time.Now().UTC()
 	return models.Incident{
-		ID:          "inc-test-001",
-		TenantID:    "tenant-test",
-		SchoolID:    "school-test",
-		DeviceID:    "device-001",
-		SchoolName:  "Test School",
-		CountyID:    "county-001",
-		CountyName:  "Test County",
-		SubCountyID: "subcounty-001",
-		SubCountyName: "Test SubCounty",
-		ContactName: "John Doe",
-		ContactPhone: "+254700000000",
-		ContactEmail: "john@example.com",
-		DeviceSerial: "SN12345",
+		ID:             "inc-test-001",
+		TenantID:       "tenant-test",
+		SchoolID:       "school-test",
+		DeviceID:       "device-001",
+		SchoolName:     "Test School",
+		CountyID:       "county-001",
+		CountyName:     "Test County",
+		SubCountyID:    "subcounty-001",
+		SubCountyName:  "Test SubCounty",
+		ContactName:    "John Doe",
+		ContactPhone:   "+254700000000",
+		ContactEmail:   "john@example.com",
+		DeviceSerial:   "SN12345",
 		DeviceAssetTag: "AT12345",
-		DeviceModelID: "model-001",
-		DeviceMake: "Dell",
-		DeviceModel: "Latitude 3400",
+		DeviceModelID:  "model-001",
+		DeviceMake:     "Dell",
+		DeviceModel:    "Latitude 3400",
 		DeviceCategory: "Laptop",
-		Category:    "hardware",
-		Severity:    models.SeverityMedium,
-		Status:      models.IncidentNew,
-		Title:       "Test Incident",
-		Description: "Test incident description",
-		ReportedBy:  "user-test",
-		SLADueAt:    now.Add(24 * time.Hour),
-		SLABreached: false,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		Category:       "hardware",
+		Severity:       models.SeverityMedium,
+		Status:         models.IncidentNew,
+		Title:          "Test Incident",
+		Description:    "Test incident description",
+		ReportedBy:     "user-test",
+		SLADueAt:       now.Add(24 * time.Hour),
+		SLABreached:    false,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
-}
-
-func incidentNoTenant() models.Incident {
-	inc := validIncident()
-	inc.ID = "inc-test-002"
-	inc.TenantID = ""
-	return inc
 }
 
 func validWorkOrder() models.WorkOrder {
@@ -161,13 +154,6 @@ func validWorkOrder() models.WorkOrder {
 	}
 }
 
-func workOrderNoTenant() models.WorkOrder {
-	wo := validWorkOrder()
-	wo.ID = "wo-test-002"
-	wo.TenantID = ""
-	return wo
-}
-
 func validServiceShop() models.ServiceShop {
 	now := time.Now().UTC()
 	return models.ServiceShop{
@@ -184,13 +170,6 @@ func validServiceShop() models.ServiceShop {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-}
-
-func serviceShopNoTenant() models.ServiceShop {
-	shop := validServiceShop()
-	shop.ID = "shop-test-002"
-	shop.TenantID = ""
-	return shop
 }
 
 func validWorkOrderPart() models.WorkOrderPart {
@@ -214,9 +193,3 @@ func validWorkOrderPart() models.WorkOrderPart {
 	}
 }
 
-func workOrderPartNoTenant() models.WorkOrderPart {
-	part := validWorkOrderPart()
-	part.ID = "wop-test-002"
-	part.TenantID = ""
-	return part
-}

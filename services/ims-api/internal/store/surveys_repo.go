@@ -30,47 +30,56 @@ func (r *SurveysRepo) GetByID(ctx context.Context, tenantID, id string) (models.
 		FROM site_surveys
 		WHERE tenant_id=$1 AND id=$2
 	`, tenantID, id)
-	if err := row.Scan(&s.ID,&s.TenantID,&s.ProjectID,&s.Status,&s.ConductedByUserID,&s.ConductedAt,&s.Summary,&s.Risks,&s.CreatedAt,&s.UpdatedAt); err != nil {
+	if err := row.Scan(&s.ID, &s.TenantID, &s.ProjectID, &s.Status, &s.ConductedByUserID, &s.ConductedAt, &s.Summary, &s.Risks, &s.CreatedAt, &s.UpdatedAt); err != nil {
 		return models.SiteSurvey{}, errors.New("not found")
 	}
 	return s, nil
 }
 
-type SurveyListParams struct{
-	TenantID string
-	ProjectID string
-	Status string
-	Limit int
-	HasCursor bool
+type SurveyListParams struct {
+	TenantID        string
+	ProjectID       string
+	Status          string
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID string
+	CursorID        string
 }
 
 func (r *SurveysRepo) List(ctx context.Context, p SurveyListParams) ([]models.SiteSurvey, string, error) {
-	conds := []string{"tenant_id=$1","project_id=$2"}
-	args := []any{p.TenantID,p.ProjectID}
+	conds := []string{"tenant_id=$1", "project_id=$2"}
+	args := []any{p.TenantID, p.ProjectID}
 	argN := 3
-	if p.Status != "" { conds = append(conds, "status=$"+itoa(argN)); args=append(args,p.Status); argN++ }
+	if p.Status != "" {
+		conds = append(conds, "status=$"+itoa(argN))
+		args = append(args, p.Status)
+		argN++
+	}
 	if p.HasCursor {
 		conds = append(conds, "(created_at, id) < ($"+itoa(argN)+", $"+itoa(argN+1)+")")
-		args = append(args, p.CursorCreatedAt, p.CursorID); argN += 2
+		args = append(args, p.CursorCreatedAt, p.CursorID)
+		argN += 2
 	}
-	limitPlus := p.Limit+1
+	limitPlus := p.Limit + 1
 	args = append(args, limitPlus)
 	sql := `
 		SELECT id, tenant_id, project_id, status, conducted_by_user_id, conducted_at, summary, risks, created_at, updated_at
 		FROM site_surveys
-		WHERE ` + strings.Join(conds," AND ") + `
+		WHERE ` + strings.Join(conds, " AND ") + `
 		ORDER BY created_at DESC, id DESC
 		LIMIT $` + itoa(argN)
 	rows, err := r.pool.Query(ctx, sql, args...)
-	if err != nil { return nil,"",err }
+	if err != nil {
+		return nil, "", err
+	}
 	defer rows.Close()
 	out := []models.SiteSurvey{}
 	for rows.Next() {
 		var x models.SiteSurvey
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.ProjectID,&x.Status,&x.ConductedByUserID,&x.ConductedAt,&x.Summary,&x.Risks,&x.CreatedAt,&x.UpdatedAt); err != nil { return nil,"",err }
-		out = append(out,x)
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.ProjectID, &x.Status, &x.ConductedByUserID, &x.ConductedAt, &x.Summary, &x.Risks, &x.CreatedAt, &x.UpdatedAt); err != nil {
+			return nil, "", err
+		}
+		out = append(out, x)
 	}
 	next := ""
 	if len(out) > p.Limit {
@@ -78,7 +87,7 @@ func (r *SurveysRepo) List(ctx context.Context, p SurveyListParams) ([]models.Si
 		next = EncodeCursor(last.CreatedAt, last.ID)
 		out = out[:p.Limit]
 	}
-	return out,next,nil
+	return out, next, nil
 }
 
 func (r *SurveyRoomsRepo) Create(ctx context.Context, room models.SurveyRoom) error {
@@ -97,12 +106,16 @@ func (r *SurveyRoomsRepo) List(ctx context.Context, tenantID, surveyID string) (
 		WHERE tenant_id=$1 AND survey_id=$2
 		ORDER BY created_at ASC
 	`, tenantID, surveyID)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	out := []models.SurveyRoom{}
 	for rows.Next() {
 		var x models.SurveyRoom
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.SurveyID,&x.Name,&x.RoomType,&x.Floor,&x.PowerNotes,&x.NetworkNotes,&x.CreatedAt); err != nil { return nil, err }
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.SurveyID, &x.Name, &x.RoomType, &x.Floor, &x.PowerNotes, &x.NetworkNotes, &x.CreatedAt); err != nil {
+			return nil, err
+		}
 		out = append(out, x)
 	}
 	return out, nil
@@ -123,12 +136,16 @@ func (r *SurveyPhotosRepo) List(ctx context.Context, tenantID, surveyID string) 
 		WHERE tenant_id=$1 AND survey_id=$2
 		ORDER BY created_at DESC
 	`, tenantID, surveyID)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	out := []models.SurveyPhoto{}
 	for rows.Next() {
 		var x models.SurveyPhoto
-		if err := rows.Scan(&x.ID,&x.TenantID,&x.SurveyID,&x.RoomID,&x.AttachmentID,&x.Caption,&x.CreatedAt); err != nil { return nil, err }
+		if err := rows.Scan(&x.ID, &x.TenantID, &x.SurveyID, &x.RoomID, &x.AttachmentID, &x.Caption, &x.CreatedAt); err != nil {
+			return nil, err
+		}
 		out = append(out, x)
 	}
 	return out, nil

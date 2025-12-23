@@ -57,6 +57,7 @@ func decodeCursor(cur string) (time.Time, string, bool) {
 	return t, parts[1], true
 }
 
+//nolint:unused // symmetric pair with decodeCursor, kept for API response cursor encoding
 func encodeCursor(t time.Time, id string) string {
 	raw := t.Format(time.RFC3339Nano) + "|" + id
 	return base64.RawURLEncoding.EncodeToString([]byte(raw))

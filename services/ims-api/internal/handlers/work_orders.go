@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/edvirons/ssp/ims/internal/audit"
+	"github.com/edvirons/ssp/ims/internal/lookups"
 	"github.com/edvirons/ssp/ims/internal/middleware"
 	"github.com/edvirons/ssp/ims/internal/models"
 	"github.com/edvirons/ssp/ims/internal/service"
 	"github.com/edvirons/ssp/ims/internal/store"
-	"github.com/edvirons/ssp/ims/internal/lookups"
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
@@ -29,15 +29,15 @@ func NewWorkOrderHandler(log *zap.Logger, pg *store.Postgres, rdb *redis.Client,
 }
 
 type createWOReq struct {
-	IncidentID        string `json:"incidentId"`
-	DeviceID          string `json:"deviceId"`
-	TaskType          string `json:"taskType"`
-	ServiceShopID     string `json:"serviceShopId"`
-	AssignedStaffID   string `json:"assignedStaffId"`
+	IncidentID        string                `json:"incidentId"`
+	DeviceID          string                `json:"deviceId"`
+	TaskType          string                `json:"taskType"`
+	ServiceShopID     string                `json:"serviceShopId"`
+	AssignedStaffID   string                `json:"assignedStaffId"`
 	RepairLocation    models.RepairLocation `json:"repairLocation"`
-	AssignedTo        string `json:"assignedTo"`
-	CostEstimateCents int64  `json:"costEstimateCents"`
-	Notes             string `json:"notes"`
+	AssignedTo        string                `json:"assignedTo"`
+	CostEstimateCents int64                 `json:"costEstimateCents"`
+	Notes             string                `json:"notes"`
 }
 
 func (h *WorkOrderHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -63,21 +63,71 @@ func (h *WorkOrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	dv, _ := lk.DeviceByID(r.Context(), tenant, strings.TrimSpace(req.DeviceID))
 
 	wo := models.WorkOrder{
-		ID:                store.NewID("wo"),
-		IncidentID:        strings.TrimSpace(req.IncidentID),
-		TenantID:          tenant,
-		SchoolID:          school,
-		DeviceID:          strings.TrimSpace(req.DeviceID),
-		SchoolName:        func() string { if sc!=nil { return sc.Name }; return "" }(),
-		ContactName:       func() string { if pc!=nil { return pc.Name }; return "" }(),
-		ContactPhone:      func() string { if pc!=nil { return pc.Phone }; return "" }(),
-		ContactEmail:      func() string { if pc!=nil { return pc.Email }; return "" }(),
-		DeviceSerial:      func() string { if dv!=nil { return dv.Serial }; return "" }(),
-		DeviceAssetTag:    func() string { if dv!=nil { return dv.AssetTag }; return "" }(),
-		DeviceModelID:     func() string { if dv!=nil { return dv.ModelID }; return "" }(),
-		DeviceMake:        func() string { if dv!=nil { return dv.Make }; return "" }(),
-		DeviceModel:       func() string { if dv!=nil { return dv.Model }; return "" }(),
-		DeviceCategory:    func() string { if dv!=nil { return dv.Category }; return "" }(),
+		ID:         store.NewID("wo"),
+		IncidentID: strings.TrimSpace(req.IncidentID),
+		TenantID:   tenant,
+		SchoolID:   school,
+		DeviceID:   strings.TrimSpace(req.DeviceID),
+		SchoolName: func() string {
+			if sc != nil {
+				return sc.Name
+			}
+			return ""
+		}(),
+		ContactName: func() string {
+			if pc != nil {
+				return pc.Name
+			}
+			return ""
+		}(),
+		ContactPhone: func() string {
+			if pc != nil {
+				return pc.Phone
+			}
+			return ""
+		}(),
+		ContactEmail: func() string {
+			if pc != nil {
+				return pc.Email
+			}
+			return ""
+		}(),
+		DeviceSerial: func() string {
+			if dv != nil {
+				return dv.Serial
+			}
+			return ""
+		}(),
+		DeviceAssetTag: func() string {
+			if dv != nil {
+				return dv.AssetTag
+			}
+			return ""
+		}(),
+		DeviceModelID: func() string {
+			if dv != nil {
+				return dv.ModelID
+			}
+			return ""
+		}(),
+		DeviceMake: func() string {
+			if dv != nil {
+				return dv.Make
+			}
+			return ""
+		}(),
+		DeviceModel: func() string {
+			if dv != nil {
+				return dv.Model
+			}
+			return ""
+		}(),
+		DeviceCategory: func() string {
+			if dv != nil {
+				return dv.Category
+			}
+			return ""
+		}(),
 		Status:            models.WorkOrderDraft,
 		ServiceShopID:     strings.TrimSpace(req.ServiceShopID),
 		AssignedStaffID:   strings.TrimSpace(req.AssignedStaffID),
@@ -129,15 +179,15 @@ func (h *WorkOrderHandler) List(w http.ResponseWriter, r *http.Request) {
 	curT, curID, hasCur := decodeCursor(strings.TrimSpace(r.URL.Query().Get("cursor")))
 
 	items, next, err := h.pg.WorkOrders().List(r.Context(), store.WorkOrderListParams{
-		TenantID: tenant,
-		SchoolID: school,
-		Status: status,
-		DeviceID: deviceID,
-		IncidentID: incidentID,
-		Limit: limit,
+		TenantID:        tenant,
+		SchoolID:        school,
+		Status:          status,
+		DeviceID:        deviceID,
+		IncidentID:      incidentID,
+		Limit:           limit,
 		CursorCreatedAt: curT,
-		CursorID: curID,
-		HasCursor: hasCur,
+		CursorID:        curID,
+		HasCursor:       hasCur,
 	})
 	if err != nil {
 		http.Error(w, "failed to list work orders", http.StatusInternalServerError)

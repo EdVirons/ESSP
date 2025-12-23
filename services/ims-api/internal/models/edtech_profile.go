@@ -44,14 +44,14 @@ type EdTechProfile struct {
 	SchoolID string `json:"schoolId"`
 
 	// Infrastructure Section
-	TotalDevices     int              `json:"totalDevices"`
-	DeviceTypes      DeviceTypes      `json:"deviceTypes"`
-	NetworkQuality   string           `json:"networkQuality"`
-	InternetSpeed    string           `json:"internetSpeed"`
-	LMSPlatform      string           `json:"lmsPlatform"`
-	ExistingSoftware []string         `json:"existingSoftware"`
-	ITStaffCount     int              `json:"itStaffCount"`
-	DeviceAge        string           `json:"deviceAge"`
+	TotalDevices     int         `json:"totalDevices"`
+	DeviceTypes      DeviceTypes `json:"deviceTypes"`
+	NetworkQuality   string      `json:"networkQuality"`
+	InternetSpeed    string      `json:"internetSpeed"`
+	LMSPlatform      string      `json:"lmsPlatform"`
+	ExistingSoftware []string    `json:"existingSoftware"`
+	ITStaffCount     int         `json:"itStaffCount"`
+	DeviceAge        string      `json:"deviceAge"`
 
 	// Pain Points Section
 	PainPoints          []string `json:"painPoints"`
@@ -71,10 +71,10 @@ type EdTechProfile struct {
 	DecisionMakers  []string `json:"decisionMakers"`
 
 	// AI Section
-	AISummary          string              `json:"aiSummary"`
-	AIRecommendations  []AIRecommendation  `json:"aiRecommendations"`
-	FollowUpQuestions  []FollowUpQuestion  `json:"followUpQuestions"`
-	FollowUpResponses  map[string]string   `json:"followUpResponses"`
+	AISummary         string             `json:"aiSummary"`
+	AIRecommendations []AIRecommendation `json:"aiRecommendations"`
+	FollowUpQuestions []FollowUpQuestion `json:"followUpQuestions"`
+	FollowUpResponses map[string]string  `json:"followUpResponses"`
 
 	// Metadata
 	Status      EdTechProfileStatus `json:"status"`
@@ -97,13 +97,13 @@ type EdTechProfileHistory struct {
 
 // Predefined options for the assessment form.
 var (
-	NetworkQualityOptions = []string{"excellent", "good", "fair", "poor"}
-	InternetSpeedOptions  = []string{"fiber", "broadband", "dsl", "limited", "unreliable"}
-	DeviceAgeOptions      = []string{"under_2_years", "2_4_years", "4_6_years", "over_6_years", "mixed"}
+	NetworkQualityOptions   = []string{"excellent", "good", "fair", "poor"}
+	InternetSpeedOptions    = []string{"fiber", "broadband", "dsl", "limited", "unreliable"}
+	DeviceAgeOptions        = []string{"under_2_years", "2_4_years", "4_6_years", "over_6_years", "mixed"}
 	SupportFrequencyOptions = []string{"daily", "weekly", "monthly", "rarely"}
-	ResolutionTimeOptions = []string{"same_day", "1_3_days", "week", "longer"}
-	BudgetRangeOptions    = []string{"none", "limited", "moderate", "substantial"}
-	TimelineOptions       = []string{"immediate", "this_year", "next_year", "long_term"}
+	ResolutionTimeOptions   = []string{"same_day", "1_3_days", "week", "longer"}
+	BudgetRangeOptions      = []string{"none", "limited", "moderate", "substantial"}
+	TimelineOptions         = []string{"immediate", "this_year", "next_year", "long_term"}
 
 	LMSPlatformOptions = []string{
 		"Google Classroom",

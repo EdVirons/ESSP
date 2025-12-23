@@ -44,14 +44,14 @@ func (r *ProjectsRepo) GetByID(ctx context.Context, tenantID, id string) (models
 }
 
 type ProjectListParams struct {
-	TenantID    string
-	SchoolID    string
-	ProjectType string
-	Status      string
-	Limit       int
-	HasCursor   bool
+	TenantID        string
+	SchoolID        string
+	ProjectType     string
+	Status          string
+	Limit           int
+	HasCursor       bool
 	CursorCreatedAt time.Time
-	CursorID    string
+	CursorID        string
 }
 
 func (r *ProjectsRepo) List(ctx context.Context, p ProjectListParams) ([]models.SchoolServiceProject, string, error) {

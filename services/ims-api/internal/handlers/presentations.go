@@ -165,26 +165,26 @@ func (h *PresentationsHandler) Create(w http.ResponseWriter, r *http.Request) {
 	thumbnailKey := fmt.Sprintf("presentations/%s/%s/thumbnail.jpg", tenant, id)
 
 	p := models.Presentation{
-		ID:           id,
-		TenantID:     tenant,
-		Title:        strings.TrimSpace(req.Title),
-		Description:  strings.TrimSpace(req.Description),
-		Type:         models.PresentationType(req.Type),
-		Category:     models.PresentationCategory(req.Category),
-		FileKey:      fileKey,
-		FileName:     req.FileName,
-		FileSize:     req.FileSize,
-		FileType:     req.FileType,
-		ThumbnailKey: thumbnailKey,
-		Tags:         req.Tags,
-		Version:      1,
-		IsActive:     true,
-		IsFeatured:   req.IsFeatured,
-		ViewCount:    0,
+		ID:            id,
+		TenantID:      tenant,
+		Title:         strings.TrimSpace(req.Title),
+		Description:   strings.TrimSpace(req.Description),
+		Type:          models.PresentationType(req.Type),
+		Category:      models.PresentationCategory(req.Category),
+		FileKey:       fileKey,
+		FileName:      req.FileName,
+		FileSize:      req.FileSize,
+		FileType:      req.FileType,
+		ThumbnailKey:  thumbnailKey,
+		Tags:          req.Tags,
+		Version:       1,
+		IsActive:      true,
+		IsFeatured:    req.IsFeatured,
+		ViewCount:     0,
 		DownloadCount: 0,
-		CreatedBy:    userID,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		CreatedBy:     userID,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 	}
 
 	if p.Tags == nil {
@@ -303,10 +303,10 @@ func (h *PresentationsHandler) DownloadURL(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Increment download count
-	h.pg.Presentations().IncrementDownloadCount(r.Context(), tenant, id)
+	// Increment download count (best-effort)
+	_ = h.pg.Presentations().IncrementDownloadCount(r.Context(), tenant, id)
 
-	// Record view event
+	// Record view event (best-effort)
 	view := models.PresentationView{
 		ID:             store.NewID("view"),
 		TenantID:       tenant,
@@ -315,7 +315,7 @@ func (h *PresentationsHandler) DownloadURL(w http.ResponseWriter, r *http.Reques
 		ViewedAt:       time.Now().UTC(),
 		Context:        "download",
 	}
-	h.pg.PresentationViews().Create(r.Context(), view)
+	_ = h.pg.PresentationViews().Create(r.Context(), view)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{

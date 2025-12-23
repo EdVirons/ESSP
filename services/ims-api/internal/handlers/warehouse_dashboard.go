@@ -54,11 +54,11 @@ type InventoryActivity struct {
 
 // WarehouseDashboardSummary contains all dashboard data
 type WarehouseDashboardSummary struct {
-	LowStockCount     int                `json:"lowStockCount"`
-	PendingWorkOrders int                `json:"pendingWorkOrders"`
-	TodayMovements    int                `json:"todayMovements"`
-	TotalParts        int                `json:"totalParts"`
-	PartsCategories   map[string]int     `json:"partsCategories"`
+	LowStockCount     int                 `json:"lowStockCount"`
+	PendingWorkOrders int                 `json:"pendingWorkOrders"`
+	TodayMovements    int                 `json:"todayMovements"`
+	TotalParts        int                 `json:"totalParts"`
+	PartsCategories   map[string]int      `json:"partsCategories"`
 	RecentActivity    []InventoryActivity `json:"recentActivity"`
 	LowStockItems     []LowStockItem      `json:"lowStockItems"`
 	PendingPartIssues []PendingPartIssue  `json:"pendingPartIssues"`

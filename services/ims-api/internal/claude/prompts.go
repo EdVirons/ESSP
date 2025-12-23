@@ -93,11 +93,11 @@ If your issue is resolved, feel free to close this chat. Have a great day!`
 
 // PromptData contains data for template rendering
 type PromptData struct {
-	Context     *SSOTContext
-	TurnNumber  int
-	MaxTurns    int
-	UserName    string
-	SessionID   string
+	Context    *SSOTContext
+	TurnNumber int
+	MaxTurns   int
+	UserName   string
+	SessionID  string
 }
 
 // BuildSystemPrompt renders the system prompt with context

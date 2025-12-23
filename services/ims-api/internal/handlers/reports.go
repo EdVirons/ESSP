@@ -188,12 +188,12 @@ func (h *ReportsHandler) WorkOrdersReport(w http.ResponseWriter, r *http.Request
 	}
 
 	response.Summary.ByStatus = map[string]int{
-		"draft":    draft,
-		"assigned": assigned,
+		"draft":     draft,
+		"assigned":  assigned,
 		"in_repair": inRepair,
-		"qa":       qa,
+		"qa":        qa,
 		"completed": completed,
-		"approved": approved,
+		"approved":  approved,
 	}
 
 	if response.Summary.Total > 0 {
@@ -370,7 +370,7 @@ func (h *ReportsHandler) IncidentsReport(w http.ResponseWriter, r *http.Request)
 	}
 
 	response.Summary.ByStatus = map[string]int{
-		"new":         newCount,
+		"new":          newCount,
 		"acknowledged": acknowledged,
 		"in_progress":  inProgress,
 		"escalated":    escalated,

@@ -24,8 +24,8 @@ func NewSSOTWebhookHandler(cfg config.Config, log *zap.Logger, pg *store.Postgre
 
 // Generic envelope supports either a single item or a batch
 type envelope[T any] struct {
-	Item  *T   `json:"item,omitempty"`
-	Items []T  `json:"items,omitempty"`
+	Item  *T  `json:"item,omitempty"`
+	Items []T `json:"items,omitempty"`
 }
 
 func (h *SSOTWebhookHandler) Schools(w http.ResponseWriter, r *http.Request) {
@@ -39,16 +39,22 @@ func (h *SSOTWebhookHandler) Schools(w http.ResponseWriter, r *http.Request) {
 	if env.Item != nil {
 		items = append(items, *env.Item)
 	}
-	maxSeen := time.Unix(0,0).UTC()
+	maxSeen := time.Unix(0, 0).UTC()
 	for _, it := range items {
 		it.TenantID = tenant
 		_ = h.pg.SchoolsSnapshot().Upsert(r.Context(), it)
-		if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+		if it.UpdatedAt.After(maxSeen) {
+			maxSeen = it.UpdatedAt
+		}
 	}
 	if len(items) > 0 {
 		st, err := h.pg.SSOTState().Get(r.Context(), tenant, store.SSOTSchools)
-		if err != nil { st = store.NewSSOTSyncState(tenant, store.SSOTSchools) }
-		if maxSeen.After(st.LastUpdatedSince) { st.LastUpdatedSince = maxSeen }
+		if err != nil {
+			st = store.NewSSOTSyncState(tenant, store.SSOTSchools)
+		}
+		if maxSeen.After(st.LastUpdatedSince) {
+			st.LastUpdatedSince = maxSeen
+		}
 		st.LastCursor = "" // push updates invalidate cursor
 		st.UpdatedAt = time.Now().UTC()
 		_ = h.pg.SSOTState().Upsert(r.Context(), st)
@@ -64,17 +70,25 @@ func (h *SSOTWebhookHandler) Devices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	items := env.Items
-	if env.Item != nil { items = append(items, *env.Item) }
-	maxSeen := time.Unix(0,0).UTC()
+	if env.Item != nil {
+		items = append(items, *env.Item)
+	}
+	maxSeen := time.Unix(0, 0).UTC()
 	for _, it := range items {
 		it.TenantID = tenant
 		_ = h.pg.DevicesSnapshot().Upsert(r.Context(), it)
-		if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+		if it.UpdatedAt.After(maxSeen) {
+			maxSeen = it.UpdatedAt
+		}
 	}
 	if len(items) > 0 {
 		st, err := h.pg.SSOTState().Get(r.Context(), tenant, store.SSOTDevices)
-		if err != nil { st = store.NewSSOTSyncState(tenant, store.SSOTDevices) }
-		if maxSeen.After(st.LastUpdatedSince) { st.LastUpdatedSince = maxSeen }
+		if err != nil {
+			st = store.NewSSOTSyncState(tenant, store.SSOTDevices)
+		}
+		if maxSeen.After(st.LastUpdatedSince) {
+			st.LastUpdatedSince = maxSeen
+		}
 		st.LastCursor = ""
 		st.UpdatedAt = time.Now().UTC()
 		_ = h.pg.SSOTState().Upsert(r.Context(), st)
@@ -90,17 +104,25 @@ func (h *SSOTWebhookHandler) Parts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	items := env.Items
-	if env.Item != nil { items = append(items, *env.Item) }
-	maxSeen := time.Unix(0,0).UTC()
+	if env.Item != nil {
+		items = append(items, *env.Item)
+	}
+	maxSeen := time.Unix(0, 0).UTC()
 	for _, it := range items {
 		it.TenantID = tenant
 		_ = h.pg.PartsSnapshot().Upsert(r.Context(), it)
-		if it.UpdatedAt.After(maxSeen) { maxSeen = it.UpdatedAt }
+		if it.UpdatedAt.After(maxSeen) {
+			maxSeen = it.UpdatedAt
+		}
 	}
 	if len(items) > 0 {
 		st, err := h.pg.SSOTState().Get(r.Context(), tenant, store.SSOTParts)
-		if err != nil { st = store.NewSSOTSyncState(tenant, store.SSOTParts) }
-		if maxSeen.After(st.LastUpdatedSince) { st.LastUpdatedSince = maxSeen }
+		if err != nil {
+			st = store.NewSSOTSyncState(tenant, store.SSOTParts)
+		}
+		if maxSeen.After(st.LastUpdatedSince) {
+			st.LastUpdatedSince = maxSeen
+		}
 		st.LastCursor = ""
 		st.UpdatedAt = time.Now().UTC()
 		_ = h.pg.SSOTState().Upsert(r.Context(), st)

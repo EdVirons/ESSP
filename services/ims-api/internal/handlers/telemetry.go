@@ -25,10 +25,10 @@ func NewTelemetryHandler(cfg config.Config, log *zap.Logger, pg *store.Postgres)
 }
 
 type telemetryEvent struct {
-	DeviceID string `json:"deviceId"`
-	Type     string `json:"type"`     // e.g. "policy_breach", "crash", "offline"
-	Message  string `json:"message"`  // details
-	Severity string `json:"severity"` // low|medium|high|criticalgritical (typos tolerated)
+	DeviceID   string `json:"deviceId"`
+	Type       string `json:"type"`       // e.g. "policy_breach", "crash", "offline"
+	Message    string `json:"message"`    // details
+	Severity   string `json:"severity"`   // low|medium|high|criticalgritical (typos tolerated)
 	ReportedBy string `json:"reportedBy"` // e.g. "nexus-mdm"
 }
 
@@ -85,6 +85,8 @@ func parseSeverity(s string) models.Severity {
 }
 
 func firstNonEmpty(a, b string) string {
-	if a != "" { return a }
+	if a != "" {
+		return a
+	}
 	return b
 }

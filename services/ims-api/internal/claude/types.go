@@ -51,23 +51,23 @@ type AIResponse struct {
 
 // EscalationDecision contains the AI's assessment of whether to escalate
 type EscalationDecision struct {
-	ShouldEscalate bool              `json:"should_escalate"`
-	Reason         string            `json:"reason"`          // "user_request", "frustration", "complexity", "max_turns", "sensitive"
-	Category       string            `json:"category"`        // "hardware", "software", "network", "account", "billing", "other"
-	Severity       string            `json:"severity"`        // "low", "medium", "high", "critical"
-	Summary        string            `json:"summary"`         // Brief summary for agent handoff
-	CollectedInfo  map[string]any    `json:"collected_info"`  // Structured data collected during conversation
-	Confidence     float64           `json:"confidence"`      // 0-1 confidence in the decision
+	ShouldEscalate bool           `json:"should_escalate"`
+	Reason         string         `json:"reason"`         // "user_request", "frustration", "complexity", "max_turns", "sensitive"
+	Category       string         `json:"category"`       // "hardware", "software", "network", "account", "billing", "other"
+	Severity       string         `json:"severity"`       // "low", "medium", "high", "critical"
+	Summary        string         `json:"summary"`        // Brief summary for agent handoff
+	CollectedInfo  map[string]any `json:"collected_info"` // Structured data collected during conversation
+	Confidence     float64        `json:"confidence"`     // 0-1 confidence in the decision
 }
 
 // EscalationSignals captures signals detected during conversation analysis
 type EscalationSignals struct {
-	FrustrationScore    float64  `json:"frustration_score"`     // 0-1 based on sentiment
-	ExplicitRequest     bool     `json:"explicit_request"`      // User asked for human
-	SensitiveTopic      bool     `json:"sensitive_topic"`       // Billing, complaints, legal
-	TechnicalComplexity float64  `json:"technical_complexity"`  // 0-1 based on issue type
-	UnresolvedIssue     bool     `json:"unresolved_issue"`      // AI couldn't help
-	Keywords            []string `json:"keywords"`              // Detected escalation keywords
+	FrustrationScore    float64  `json:"frustration_score"`    // 0-1 based on sentiment
+	ExplicitRequest     bool     `json:"explicit_request"`     // User asked for human
+	SensitiveTopic      bool     `json:"sensitive_topic"`      // Billing, complaints, legal
+	TechnicalComplexity float64  `json:"technical_complexity"` // 0-1 based on issue type
+	UnresolvedIssue     bool     `json:"unresolved_issue"`     // AI couldn't help
+	Keywords            []string `json:"keywords"`             // Detected escalation keywords
 }
 
 // SSOTContext contains device and school context for AI prompts
@@ -127,28 +127,28 @@ type ConversationTurn struct {
 
 // AIMetrics tracks daily AI support metrics
 type AIMetrics struct {
-	TenantID            string         `json:"tenant_id"`
-	Date                string         `json:"date"` // YYYY-MM-DD
-	TotalSessions       int            `json:"total_sessions"`
-	AIResolved          int            `json:"ai_resolved"`
-	EscalatedToHuman    int            `json:"escalated_to_human"`
-	AvgTurnsToResolution float64       `json:"avg_turns_to_resolution"`
-	AvgResponseTimeMs   int            `json:"avg_response_time_ms"`
-	TotalInputTokens    int64          `json:"total_input_tokens"`
-	TotalOutputTokens   int64          `json:"total_output_tokens"`
-	EscalationReasons   map[string]int `json:"escalation_reasons"`
-	IssueCategories     map[string]int `json:"issue_categories"`
+	TenantID             string         `json:"tenant_id"`
+	Date                 string         `json:"date"` // YYYY-MM-DD
+	TotalSessions        int            `json:"total_sessions"`
+	AIResolved           int            `json:"ai_resolved"`
+	EscalatedToHuman     int            `json:"escalated_to_human"`
+	AvgTurnsToResolution float64        `json:"avg_turns_to_resolution"`
+	AvgResponseTimeMs    int            `json:"avg_response_time_ms"`
+	TotalInputTokens     int64          `json:"total_input_tokens"`
+	TotalOutputTokens    int64          `json:"total_output_tokens"`
+	EscalationReasons    map[string]int `json:"escalation_reasons"`
+	IssueCategories      map[string]int `json:"issue_categories"`
 }
 
 // EscalationRules configures AI escalation behavior per tenant
 type EscalationRules struct {
-	TenantID              string            `json:"tenant_id"`
-	MaxTurns              int               `json:"max_turns"`
-	FrustrationThreshold  float64           `json:"frustration_threshold"`
-	AutoEscalateCategories []string         `json:"auto_escalate_categories"`
-	SensitiveKeywords     []string          `json:"sensitive_keywords"`
-	Enabled               bool              `json:"enabled"`
-	CustomPrompts         map[string]string `json:"custom_prompts"`
+	TenantID               string            `json:"tenant_id"`
+	MaxTurns               int               `json:"max_turns"`
+	FrustrationThreshold   float64           `json:"frustration_threshold"`
+	AutoEscalateCategories []string          `json:"auto_escalate_categories"`
+	SensitiveKeywords      []string          `json:"sensitive_keywords"`
+	Enabled                bool              `json:"enabled"`
+	CustomPrompts          map[string]string `json:"custom_prompts"`
 }
 
 // ChatSessionStatus represents the status of a chat session

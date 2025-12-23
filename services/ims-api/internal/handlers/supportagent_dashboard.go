@@ -88,10 +88,10 @@ type SupportAgentDashboardSummary struct {
 	IncidentMetrics IncidentMetrics `json:"incidentMetrics"`
 
 	// Lists
-	IncidentQueue    []IncidentQueueItem    `json:"incidentQueue"`
-	ChatQueue        []ChatQueueItem        `json:"chatQueue"`
-	WorkOrderQueue   []WorkOrderQueueItem   `json:"workOrderQueue"`
-	RecentActivity   []SupportAgentActivity `json:"recentActivity"`
+	IncidentQueue  []IncidentQueueItem    `json:"incidentQueue"`
+	ChatQueue      []ChatQueueItem        `json:"chatQueue"`
+	WorkOrderQueue []WorkOrderQueueItem   `json:"workOrderQueue"`
+	RecentActivity []SupportAgentActivity `json:"recentActivity"`
 }
 
 // GetDashboardSummary returns aggregated dashboard data for support agent
