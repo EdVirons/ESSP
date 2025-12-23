@@ -26,7 +26,7 @@ var entropyPool = sync.Pool{
 // - Time-ordered (first 48 bits are timestamp)
 // - Cryptographically random (last 80 bits)
 func New(prefix string) string {
-	entropy := entropyPool.Get().(ulid.MonotonicReader)
+	entropy, _ := entropyPool.Get().(ulid.MonotonicReader)
 	defer entropyPool.Put(entropy)
 
 	id := ulid.MustNew(ulid.Timestamp(time.Now()), entropy)
