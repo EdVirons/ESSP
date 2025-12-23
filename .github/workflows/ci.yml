@@ -13,6 +13,17 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      # Dashboard must be built before Go linting (ims-api embeds dashboard/dist)
+      - name: Build dashboard for embedding
+        working-directory: dashboard
+        run: npm ci && npm run build
+      - name: Copy dashboard dist for embedding
+        run: cp -r dashboard/dist services/ims-api/internal/admin/dashboard/
       - name: golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
@@ -48,15 +59,31 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    needs: lint  # Need dashboard dist for ims-api embedding
     strategy:
       matrix:
-        service: [ims-api, ssot-school, ssot-devices, ssot-parts, sync-worker]
+        service: [ims-api, ssot-school, ssot-devices, ssot-parts, ssot-hr, sync-worker]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - run: cd services/${{ matrix.service }} && go build -o bin/${{ matrix.service }} ./cmd/...
+      - uses: actions/setup-node@v4
+        if: matrix.service == 'ims-api'
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Build dashboard for ims-api
+        if: matrix.service == 'ims-api'
+        run: |
+          cd dashboard && npm ci && npm run build
+          cp -r dist ../services/ims-api/internal/admin/dashboard/
+      - name: Build Go service
+        run: |
+          cd services/${{ matrix.service }}
+          mkdir -p bin
+          go build -o bin/ ./cmd/...
 
   docker:
     needs: [lint, test, build]

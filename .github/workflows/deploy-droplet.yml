@@ -52,7 +52,28 @@ jobs:
           cache: 'npm'
           cache-dependency-path: dashboard/package-lock.json
 
-      # Go linting - run for each module in the workspace
+      # Dashboard must be built before Go linting (ims-api embeds dashboard/dist)
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm ci
+
+      - name: Lint dashboard
+        working-directory: dashboard
+        run: npm run lint
+
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
+
+      - name: Run dashboard tests
+        working-directory: dashboard
+        run: npm run test
+
+      # Copy dashboard dist to ims-api for embedding
+      - name: Copy dashboard dist for embedding
+        run: cp -r dashboard/dist services/ims-api/internal/admin/dashboard/
+
+      # Go linting - run for each module in the workspace (after dashboard build)
       - name: Run golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
@@ -74,23 +95,6 @@ jobs:
           done
         env:
           DATABASE_URL: postgres://test:test@localhost:5432/test?sslmode=disable
-
-      # Dashboard build
-      - name: Install dashboard dependencies
-        working-directory: dashboard
-        run: npm ci
-
-      - name: Lint dashboard
-        working-directory: dashboard
-        run: npm run lint
-
-      - name: Build dashboard
-        working-directory: dashboard
-        run: npm run build
-
-      - name: Run dashboard tests
-        working-directory: dashboard
-        run: npm run test
 
   # ===========================================================================
   # Build Job - Build and push Docker images
