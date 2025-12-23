@@ -85,7 +85,7 @@ func (h *PresentationsHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"presentations": presentations,
 		"total":         total,
 	})
@@ -118,7 +118,7 @@ func (h *PresentationsHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(p)
+	_ = json.NewEncoder(w).Encode(p)
 }
 
 type createPresentationReq struct {
@@ -220,7 +220,7 @@ func (h *PresentationsHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"presentation":       p,
 		"uploadUrl":          uploadURL,
 		"thumbnailUploadUrl": thumbnailUploadURL,
@@ -258,7 +258,7 @@ func (h *PresentationsHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(p)
+	_ = json.NewEncoder(w).Encode(p)
 }
 
 // Delete soft deletes a presentation.
@@ -318,7 +318,7 @@ func (h *PresentationsHandler) DownloadURL(w http.ResponseWriter, r *http.Reques
 	_ = h.pg.PresentationViews().Create(r.Context(), view)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"url":        url,
 		"fileName":   p.FileName,
 		"fileType":   p.FileType,
@@ -336,10 +336,10 @@ func (h *PresentationsHandler) RecordView(w http.ResponseWriter, r *http.Request
 		Context         string `json:"context"`
 		DurationSeconds *int   `json:"durationSeconds"`
 	}
-	json.NewDecoder(r.Body).Decode(&req)
+	_ = json.NewDecoder(r.Body).Decode(&req)
 
 	// Increment view count
-	h.pg.Presentations().IncrementViewCount(r.Context(), tenant, id)
+	_ = h.pg.Presentations().IncrementViewCount(r.Context(), tenant, id)
 
 	// Record view event
 	view := models.PresentationView{
@@ -351,7 +351,7 @@ func (h *PresentationsHandler) RecordView(w http.ResponseWriter, r *http.Request
 		Context:         req.Context,
 		DurationSeconds: req.DurationSeconds,
 	}
-	h.pg.PresentationViews().Create(r.Context(), view)
+	_ = h.pg.PresentationViews().Create(r.Context(), view)
 
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -359,7 +359,7 @@ func (h *PresentationsHandler) RecordView(w http.ResponseWriter, r *http.Request
 // GetTypes returns available presentation types.
 func (h *PresentationsHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"types":      models.PresentationTypes,
 		"categories": models.PresentationCategories,
 	})

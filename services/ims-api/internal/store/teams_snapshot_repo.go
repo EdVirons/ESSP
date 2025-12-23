@@ -98,7 +98,6 @@ func (r *TeamsSnapshotRepo) List(ctx context.Context, params TeamSnapshotListPar
 	if params.OrgUnitID != "" {
 		countQuery += ` AND org_unit_id = $` + strconv.Itoa(argIdx)
 		args = append(args, params.OrgUnitID)
-		argIdx++
 	}
 
 	var total int

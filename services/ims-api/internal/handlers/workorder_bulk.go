@@ -141,7 +141,7 @@ func (h *WorkOrderBulkHandler) BulkStatusUpdate(w http.ResponseWriter, r *http.R
 			// Audit log each successful update
 			for _, id := range validIDs {
 				if wo, ok := woMap[id]; ok {
-					h.audit.LogUpdate(r.Context(), "work_order", id,
+					_ = h.audit.LogUpdate(r.Context(), "work_order", id,
 						map[string]any{"status": wo.Status},
 						map[string]any{"status": req.Status, "bulkOpId": opLog.ID, "userId": userID})
 				}
@@ -154,7 +154,7 @@ func (h *WorkOrderBulkHandler) BulkStatusUpdate(w http.ResponseWriter, r *http.R
 	for i, f := range failed {
 		failedIDs[i] = f.ID
 	}
-	h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
+	_ = h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
 
 	// Return response
 	resp := models.BulkOperationResult{
@@ -273,7 +273,7 @@ func (h *WorkOrderBulkHandler) BulkAssignment(w http.ResponseWriter, r *http.Req
 
 			// Audit log each successful update
 			for _, id := range validIDs {
-				h.audit.LogUpdate(r.Context(), "work_order", id, nil,
+				_ = h.audit.LogUpdate(r.Context(), "work_order", id, nil,
 					map[string]any{
 						"action":          "bulk_assignment",
 						"assignedStaffId": req.AssignedStaffID,
@@ -290,7 +290,7 @@ func (h *WorkOrderBulkHandler) BulkAssignment(w http.ResponseWriter, r *http.Req
 	for i, f := range failed {
 		failedIDs[i] = f.ID
 	}
-	h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
+	_ = h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
 
 	// Return response
 	resp := models.BulkOperationResult{
@@ -430,7 +430,7 @@ func (h *WorkOrderBulkHandler) BulkApproval(w http.ResponseWriter, r *http.Reque
 
 			// Audit log each successful update
 			for _, id := range validIDs {
-				h.audit.LogUpdate(r.Context(), "work_order", id, nil,
+				_ = h.audit.LogUpdate(r.Context(), "work_order", id, nil,
 					map[string]any{
 						"action":   "bulk_approval",
 						"decision": req.Decision,
@@ -447,7 +447,7 @@ func (h *WorkOrderBulkHandler) BulkApproval(w http.ResponseWriter, r *http.Reque
 	for i, f := range failed {
 		failedIDs[i] = f.ID
 	}
-	h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
+	_ = h.pg.BulkOperations().Update(r.Context(), opLog.ID, succeeded, failedIDs, failed, now)
 
 	// Return response
 	resp := models.BulkOperationResult{

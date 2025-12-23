@@ -127,7 +127,7 @@ func (h *LivechatHandler) StartSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add user as participant
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: thread.ID,
 		UserID:   userID,
 		UserName: userName,
@@ -242,14 +242,14 @@ func (h *LivechatHandler) EndSession(w http.ResponseWriter, r *http.Request) {
 
 	// Decrement agent chat count if assigned
 	if session.AssignedAgentID != nil {
-		h.pg.ChatSessions().DecrementAgentChatCount(ctx, tenantID, *session.AssignedAgentID)
+		_ = h.pg.ChatSessions().DecrementAgentChatCount(ctx, tenantID, *session.AssignedAgentID)
 	}
 
 	// Close the thread
-	h.pg.Messaging().UpdateThreadStatus(ctx, tenantID, session.ThreadID, models.ThreadStatusClosed)
+	_ = h.pg.Messaging().UpdateThreadStatus(ctx, tenantID, session.ThreadID, models.ThreadStatusClosed)
 
 	// Update queue positions
-	h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
+	_ = h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
 
 	// Broadcast session ended
 	h.broadcastSessionUpdate(tenantID, session.ID, models.ChatStatusEnded, nil, nil)
@@ -293,11 +293,11 @@ func (h *LivechatHandler) AcceptChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Increment agent chat count
-	h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, userID)
+	_ = h.pg.ChatSessions().IncrementAgentChatCount(ctx, tenantID, userID)
 
 	// Add agent as participant
 	now := time.Now().UTC()
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: session.ThreadID,
 		UserID:   userID,
 		UserName: userName,
@@ -306,7 +306,7 @@ func (h *LivechatHandler) AcceptChat(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Update queue positions for remaining sessions
-	h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
+	_ = h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
 
 	// Get updated session
 	session, _ = h.pg.ChatSessions().GetSessionByID(ctx, tenantID, session.ID)

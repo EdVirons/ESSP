@@ -65,7 +65,7 @@ func (h *DemoPipelineHandler) ListLeads(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"leads": leads,
 		"total": total,
 	})
@@ -100,7 +100,7 @@ func (h *DemoPipelineHandler) GetLead(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 // CreateLead creates a new lead.
@@ -167,11 +167,11 @@ func (h *DemoPipelineHandler) CreateLead(w http.ResponseWriter, r *http.Request)
 		CreatedBy:    userID,
 		CreatedAt:    now,
 	}
-	h.pg.DemoLeadActivities().Create(r.Context(), activity)
+	_ = h.pg.DemoLeadActivities().Create(r.Context(), activity)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(lead)
+	_ = json.NewEncoder(w).Encode(lead)
 }
 
 // UpdateLead updates an existing lead.
@@ -199,7 +199,7 @@ func (h *DemoPipelineHandler) UpdateLead(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(lead)
+	_ = json.NewEncoder(w).Encode(lead)
 }
 
 // UpdateLeadStage changes the stage of a lead.
@@ -245,7 +245,7 @@ func (h *DemoPipelineHandler) UpdateLeadStage(w http.ResponseWriter, r *http.Req
 		CreatedBy:    userID,
 		CreatedAt:    now,
 	}
-	h.pg.DemoLeadActivities().Create(r.Context(), activity)
+	_ = h.pg.DemoLeadActivities().Create(r.Context(), activity)
 
 	// Update daily metrics based on stage change
 	h.updateMetricsForStageChange(r, tenant, fromStage, req.Stage, currentLead.EstimatedValue)
@@ -253,7 +253,7 @@ func (h *DemoPipelineHandler) UpdateLeadStage(w http.ResponseWriter, r *http.Req
 	// Return updated lead
 	lead, _ := h.pg.DemoLeads().GetByID(r.Context(), tenant, id)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(lead)
+	_ = json.NewEncoder(w).Encode(lead)
 }
 
 func (h *DemoPipelineHandler) updateMetricsForStageChange(r *http.Request, tenant string, from, to models.DemoLeadStage, value *float64) {
@@ -264,17 +264,17 @@ func (h *DemoPipelineHandler) updateMetricsForStageChange(r *http.Request, tenan
 
 	switch to {
 	case models.StageDemoScheduled:
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "demos_scheduled", 1)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "demos_scheduled", 1)
 	case models.StageDemoCompleted:
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "demos_completed", 1)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "demos_completed", 1)
 	case models.StageProposalSent:
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "proposals_sent", 1)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "proposals_sent", 1)
 	case models.StageWon:
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "deals_won", 1)
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "won_value", val)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "deals_won", 1)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "won_value", val)
 	case models.StageLost:
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "deals_lost", 1)
-		h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "lost_value", val)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "deals_lost", 1)
+		_ = h.pg.SalesMetricsDaily().IncrementMetric(r.Context(), tenant, "lost_value", val)
 	}
 }
 
@@ -328,7 +328,7 @@ func (h *DemoPipelineHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(activity)
+	_ = json.NewEncoder(w).Encode(activity)
 }
 
 // ListActivities returns activities for a lead.
@@ -351,7 +351,7 @@ func (h *DemoPipelineHandler) ListActivities(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"activities": activities,
 	})
 }
@@ -408,7 +408,7 @@ func (h *DemoPipelineHandler) ScheduleDemo(w http.ResponseWriter, r *http.Reques
 	// Update lead stage to demo_scheduled if it's before that stage
 	lead, _ := h.pg.DemoLeads().GetByID(r.Context(), tenant, id)
 	if lead.Stage == models.StageNewLead || lead.Stage == models.StageContacted {
-		h.pg.DemoLeads().UpdateStage(r.Context(), tenant, id, models.StageDemoScheduled, "", "")
+		_ = h.pg.DemoLeads().UpdateStage(r.Context(), tenant, id, models.StageDemoScheduled, "", "")
 	}
 
 	// Create activity
@@ -422,11 +422,11 @@ func (h *DemoPipelineHandler) ScheduleDemo(w http.ResponseWriter, r *http.Reques
 		CreatedBy:    userID,
 		CreatedAt:    now,
 	}
-	h.pg.DemoLeadActivities().Create(r.Context(), activity)
+	_ = h.pg.DemoLeadActivities().Create(r.Context(), activity)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(schedule)
+	_ = json.NewEncoder(w).Encode(schedule)
 }
 
 // GetPipelineSummary returns a summary of the pipeline by stage.
@@ -441,7 +441,7 @@ func (h *DemoPipelineHandler) GetPipelineSummary(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(summary)
+	_ = json.NewEncoder(w).Encode(summary)
 }
 
 // GetRecentActivities returns recent activities across all leads.
@@ -463,7 +463,7 @@ func (h *DemoPipelineHandler) GetRecentActivities(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"activities": activities,
 	})
 }

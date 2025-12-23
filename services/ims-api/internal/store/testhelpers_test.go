@@ -192,4 +192,3 @@ func validWorkOrderPart() models.WorkOrderPart {
 		UpdatedAt:     now,
 	}
 }
-

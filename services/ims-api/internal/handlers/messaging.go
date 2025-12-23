@@ -240,7 +240,7 @@ func (h *MessagingHandler) CreateThread(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Add creator as participant
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: thread.ID,
 		UserID:   userID,
 		UserName: userName,
@@ -372,7 +372,7 @@ func (h *MessagingHandler) CreateMessage(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Add sender as participant if not already
-	h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
+	_ = h.pg.Messaging().AddThreadParticipant(ctx, models.ThreadParticipant{
 		ThreadID: threadID,
 		UserID:   userID,
 		UserName: userName,
