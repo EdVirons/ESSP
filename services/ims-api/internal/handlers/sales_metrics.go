@@ -165,7 +165,7 @@ func (h *SalesMetricsHandler) GetPipelineStages(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(summary)
+	_ = json.NewEncoder(w).Encode(summary)
 }
 
 // IncrementMetric manually increments a metric (for testing/admin).

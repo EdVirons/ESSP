@@ -167,7 +167,7 @@ func (h *WorkOrderBulkHandler) BulkStatusUpdate(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 // BulkAssignment handles POST /work-orders/bulk/assignment
@@ -303,7 +303,7 @@ func (h *WorkOrderBulkHandler) BulkAssignment(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 // BulkApproval handles POST /work-orders/bulk/approval
@@ -460,7 +460,7 @@ func (h *WorkOrderBulkHandler) BulkApproval(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 // isValidForwardTransition checks if a status transition is valid (forward only).

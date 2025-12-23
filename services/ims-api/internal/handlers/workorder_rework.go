@@ -152,7 +152,7 @@ func (h *WorkOrderReworkHandler) Reject(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 // GetReworkHistory handles GET /work-orders/{id}/rework-history
@@ -196,5 +196,5 @@ func (h *WorkOrderReworkHandler) GetReworkHistory(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
