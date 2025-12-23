@@ -18,7 +18,7 @@ import (
 
 func main() {
 	log, _ := zap.NewProduction()
-	defer log.Sync()
+	defer func() { _ = log.Sync() }()
 
 	cfg := config.Load()
 

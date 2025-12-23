@@ -14,7 +14,7 @@ import (
 
 func main() {
 	log, _ := zap.NewProduction()
-	defer log.Sync()
+	defer func() { _ = log.Sync() }()
 
 	addr := env("HTTP_ADDR", ":8082")
 	if os.Getenv("DB_URL") == "" {
@@ -41,6 +41,8 @@ func main() {
 }
 
 func env(k, d string) string {
-	if v := os.Getenv(k); v != "" { return v }
+	if v := os.Getenv(k); v != "" {
+		return v
+	}
 	return d
 }

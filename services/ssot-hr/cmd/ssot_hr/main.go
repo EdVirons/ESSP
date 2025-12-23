@@ -17,7 +17,7 @@ func main() {
 	if os.Getenv("APP_ENV") == "dev" {
 		log, _ = zap.NewDevelopment()
 	}
-	defer log.Sync()
+	defer func() { _ = log.Sync() }()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

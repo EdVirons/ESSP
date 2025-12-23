@@ -22,7 +22,9 @@ func main() {
 		dbURL = "postgres://ssp:ssp@localhost:5432/ssp_parts?sslmode=disable"
 	}
 	pool, err := pgxpool.New(context.Background(), dbURL)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	defer pool.Close()
 
 	mode := os.Args[1]
@@ -31,7 +33,9 @@ func main() {
 		for _, f := range files {
 			b, _ := os.ReadFile(f)
 			_, err := pool.Exec(context.Background(), string(b))
-			if err != nil { panic(err) }
+			if err != nil {
+				panic(err)
+			}
 			fmt.Println("applied", filepath.Base(f))
 		}
 		return

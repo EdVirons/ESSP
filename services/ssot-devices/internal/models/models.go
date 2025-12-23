@@ -6,12 +6,12 @@ import (
 )
 
 type DeviceModel struct {
-	ID string `json:"id"`
-	TenantID string `json:"tenantId"`
-	Make string `json:"make"`
-	Model string `json:"model"`
-	Category string `json:"category"`
-	SpecJSON string `json:"specJson"`
+	ID        string    `json:"id"`
+	TenantID  string    `json:"tenantId"`
+	Make      string    `json:"make"`
+	Model     string    `json:"model"`
+	Category  string    `json:"category"`
+	SpecJSON  string    `json:"specJson"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

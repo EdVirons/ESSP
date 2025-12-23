@@ -35,7 +35,7 @@ func healthHandler(log *zap.Logger, db *pgxpool.Pool) http.HandlerFunc {
 		if err := db.Ping(ctx); err != nil {
 			log.Error("health check failed: database ping", zap.Error(err))
 			w.WriteHeader(http.StatusServiceUnavailable)
-			json.NewEncoder(w).Encode(map[string]string{
+			_ = json.NewEncoder(w).Encode(map[string]string{
 				"status": "unhealthy",
 				"error":  "database unreachable",
 			})
@@ -44,7 +44,7 @@ func healthHandler(log *zap.Logger, db *pgxpool.Pool) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{
+		_ = json.NewEncoder(w).Encode(map[string]string{
 			"status": "healthy",
 		})
 	}

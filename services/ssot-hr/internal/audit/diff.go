@@ -7,8 +7,12 @@ import "reflect"
 func Diff(before, after map[string]any) map[string]any {
 	out := map[string]any{}
 	keys := map[string]struct{}{}
-	for k := range before { keys[k] = struct{}{} }
-	for k := range after { keys[k] = struct{}{} }
+	for k := range before {
+		keys[k] = struct{}{}
+	}
+	for k := range after {
+		keys[k] = struct{}{}
+	}
 
 	for k := range keys {
 		bv, bok := before[k]
