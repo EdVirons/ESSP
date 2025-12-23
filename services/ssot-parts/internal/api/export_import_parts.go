@@ -98,7 +98,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["parts"] = res["parts"].(int) + 1
+			if c, ok := res["parts"].(int); ok {
+				res["parts"] = c + 1
+			}
 		}
 
 		for _, it := range compat {
@@ -123,7 +125,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["compatibility"] = res["compatibility"].(int) + 1
+			if c, ok := res["compatibility"].(int); ok {
+				res["compatibility"] = c + 1
+			}
 		}
 
 		for _, it := range vskus {
@@ -165,7 +169,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["vendorSkus"] = res["vendorSkus"].(int) + 1
+			if c, ok := res["vendorSkus"].(int); ok {
+				res["vendorSkus"] = c + 1
+			}
 		}
 		return nil
 	})

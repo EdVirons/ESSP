@@ -101,7 +101,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["models"] = res["models"].(int) + 1
+			if c, ok := res["models"].(int); ok {
+				res["models"] = c + 1
+			}
 		}
 
 		for _, it := range devices {
@@ -135,7 +137,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["devices"] = res["devices"].(int) + 1
+			if c, ok := res["devices"].(int); ok {
+				res["devices"] = c + 1
+			}
 		}
 
 		// Import network identities (MAC addresses)
@@ -171,7 +175,9 @@ func importAll(ctx context.Context, db *pgxpool.Pool, tenant string, body map[st
 			if err != nil {
 				return err
 			}
-			res["networkIdentities"] = res["networkIdentities"].(int) + 1
+			if c, ok := res["networkIdentities"].(int); ok {
+				res["networkIdentities"] = c + 1
+			}
 		}
 		return nil
 	})
