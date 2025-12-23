@@ -80,7 +80,7 @@ services:
     volumes:
       - nats-data:/data
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8222/healthz"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -173,7 +173,7 @@ services:
       RATE_LIMIT_READ_RPM: "300"
       RATE_LIMIT_WRITE_RPM: "100"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/healthz"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -195,7 +195,7 @@ services:
       DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_school?sslmode=disable"
       NATS_URL: "nats://nats:4222"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8081/healthz"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -217,7 +217,7 @@ services:
       DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_devices?sslmode=disable"
       NATS_URL: "nats://nats:4222"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8082/healthz"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -239,7 +239,7 @@ services:
       DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_parts?sslmode=disable"
       NATS_URL: "nats://nats:4222"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8083/healthz"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -261,7 +261,7 @@ services:
       DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_hr?sslmode=disable"
       NATS_URL: "nats://nats:4222"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8300/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8300/healthz"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -284,8 +284,8 @@ services:
       APP_ENV: production
       LOG_LEVEL: info
       HEALTH_PORT: "8084"
-      # Database
-      DB_URL: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_ims?sslmode=disable"
+      # Database (sync-worker uses PG_DSN)
+      PG_DSN: "postgres://${POSTGRES_USER:-essp}:${POSTGRES_PASSWORD}@postgres:5432/ssp_ims?sslmode=disable"
       # NATS
       NATS_URL: "nats://nats:4222"
       # SSOT Service URLs
@@ -293,7 +293,7 @@ services:
       DEVICE_SSOT_BASE_URL: "http://ssot-devices:8082"
       PARTS_SSOT_BASE_URL: "http://ssot-parts:8083"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/health"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8084/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -319,7 +319,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
