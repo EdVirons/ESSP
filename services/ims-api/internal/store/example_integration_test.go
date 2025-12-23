@@ -8,6 +8,7 @@ import (
 	"github.com/edvirons/ssp/ims/internal/models"
 	"github.com/edvirons/ssp/ims/internal/store"
 	"github.com/edvirons/ssp/ims/internal/testutil"
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -332,7 +333,7 @@ func TestIncidentRepository_WithTransaction(t *testing.T) {
 
 	t.Run("Transaction rollback doesn't affect database", func(t *testing.T) {
 		// This test demonstrates using transactions for test isolation
-		testutil.WithTransaction(t, pool, func(tx store.Tx) {
+		testutil.WithTransaction(t, pool, func(tx pgx.Tx) {
 			// Create incident within transaction
 			incident := models.Incident{
 				ID:          testutil.GenerateTestID(t),

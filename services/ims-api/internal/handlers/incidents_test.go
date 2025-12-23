@@ -14,7 +14,6 @@ import (
 	"github.com/edvirons/ssp/ims/internal/middleware"
 	"github.com/edvirons/ssp/ims/internal/mocks"
 	"github.com/edvirons/ssp/ims/internal/models"
-	"github.com/edvirons/ssp/ims/internal/store"
 	"github.com/edvirons/ssp/ims/internal/testutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +28,6 @@ func TestIncidentHandler_Create(t *testing.T) {
 		DefaultRepairLocation: "service_shop",
 	}
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
 
 	// Create test database connection
 	pg := testutil.SetupTestDB(t)
@@ -38,7 +36,8 @@ func TestIncidentHandler_Create(t *testing.T) {
 	fixtureConfig := testutil.DefaultFixtureConfig()
 	testutil.CreateSchoolSnapshot(t, pg.RawPool(), fixtureConfig)
 
-	handler := handlers.NewIncidentHandler(cfg, logger, pg, mockRedis)
+	mockAudit := mocks.NewMockAuditLogger()
+	handler := handlers.NewIncidentHandler(cfg, logger, pg, nil, mockAudit)
 
 	tests := []struct {
 		name       string
@@ -165,11 +164,11 @@ func TestIncidentHandler_Create(t *testing.T) {
 func TestIncidentHandler_GetByID(t *testing.T) {
 	logger := zap.NewNop()
 	cfg := config.Config{}
-	mockRedis := mocks.NewMockRedisClient()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewIncidentHandler(cfg, logger, pg, mockRedis)
+	mockAudit := mocks.NewMockAuditLogger()
+	handler := handlers.NewIncidentHandler(cfg, logger, pg, nil, mockAudit)
 
 	// Create test incident
 	fixtureConfig := testutil.DefaultFixtureConfig()
@@ -247,16 +246,16 @@ func TestIncidentHandler_GetByID(t *testing.T) {
 func TestIncidentHandler_List(t *testing.T) {
 	logger := zap.NewNop()
 	cfg := config.Config{}
-	mockRedis := mocks.NewMockRedisClient()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewIncidentHandler(cfg, logger, pg, mockRedis)
+	mockAudit := mocks.NewMockAuditLogger()
+	handler := handlers.NewIncidentHandler(cfg, logger, pg, nil, mockAudit)
 	ctx := context.Background()
 
 	// Create test incidents
 	fixtureConfig := testutil.DefaultFixtureConfig()
-	inc1 := testutil.CreateIncident(t, pg.RawPool(), fixtureConfig, "dev-001")
+	_ = testutil.CreateIncident(t, pg.RawPool(), fixtureConfig, "dev-001")
 	inc2 := testutil.CreateIncident(t, pg.RawPool(), fixtureConfig, "dev-002")
 
 	// Update inc2 status for filtering test
@@ -351,12 +350,11 @@ func TestIncidentHandler_List(t *testing.T) {
 func TestIncidentHandler_UpdateStatus(t *testing.T) {
 	logger := zap.NewNop()
 	cfg := config.Config{}
-	mockRedis := mocks.NewMockRedisClient()
 
 	pg := testutil.SetupTestDB(t)
-	ctx := context.Background()
 
-	handler := handlers.NewIncidentHandler(cfg, logger, pg, mockRedis)
+	mockAudit := mocks.NewMockAuditLogger()
+	handler := handlers.NewIncidentHandler(cfg, logger, pg, nil, mockAudit)
 
 	// Create test incident
 	fixtureConfig := testutil.DefaultFixtureConfig()
@@ -442,11 +440,11 @@ func TestIncidentHandler_UpdateStatus(t *testing.T) {
 func TestIncidentHandler_StatusTransitions(t *testing.T) {
 	logger := zap.NewNop()
 	cfg := config.Config{}
-	mockRedis := mocks.NewMockRedisClient()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewIncidentHandler(cfg, logger, pg, mockRedis)
+	mockAudit := mocks.NewMockAuditLogger()
+	handler := handlers.NewIncidentHandler(cfg, logger, pg, nil, mockAudit)
 	fixtureConfig := testutil.DefaultFixtureConfig()
 
 	// Test valid transition sequence: new -> acknowledged -> in_progress -> resolved -> closed

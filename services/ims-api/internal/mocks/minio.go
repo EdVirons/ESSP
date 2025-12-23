@@ -127,7 +127,7 @@ func (m *MockMinIOClient) PresignedPutObject(ctx context.Context, bucketName, ob
 	}
 
 	// Return a mock presigned URL
-	return fmt.Sprintf("https://mock-minio.example.com/%s/%s?presigned=true&expires=%d",
+	return fmt.Sprintf("https://mock-minio.example.com/%s/%s?presigned=true&expires=%.0f",
 		bucketName, objectName, expiry.Seconds()), nil
 }
 
@@ -143,7 +143,7 @@ func (m *MockMinIOClient) PresignedGetObject(ctx context.Context, bucketName, ob
 	}
 
 	// Return a mock presigned URL
-	return fmt.Sprintf("https://mock-minio.example.com/%s/%s?presigned=true&expires=%d",
+	return fmt.Sprintf("https://mock-minio.example.com/%s/%s?presigned=true&expires=%.0f",
 		bucketName, objectName, expiry.Seconds()), nil
 }
 

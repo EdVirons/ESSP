@@ -150,7 +150,7 @@ func validWorkOrder() models.WorkOrder {
 		RepairLocation:    models.RepairLocationServiceShop,
 		AssignedTo:        "Technician Name",
 		TaskType:          "repair",
-		ProgramID:         "",
+		ProjectID:         "",
 		PhaseID:           "",
 		OnsiteContactID:   "",
 		ApprovalStatus:    "",

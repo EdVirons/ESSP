@@ -329,42 +329,6 @@ func CreateInventoryItem(t *testing.T, pool *pgxpool.Pool, cfg FixtureConfig, sh
 	return item
 }
 
-// CreateProgram creates a test school service program in the database.
-func CreateProgram(t *testing.T, pool *pgxpool.Pool, cfg FixtureConfig) models.SchoolServiceProgram {
-	t.Helper()
-
-	program := models.SchoolServiceProgram{
-		ID:                   GenerateTestID(t),
-		TenantID:             cfg.TenantID,
-		SchoolID:             cfg.SchoolID,
-		Status:               models.ProgramActive,
-		CurrentPhase:         models.PhaseSurvey,
-		StartDate:            time.Now().Format("2006-01-02"),
-		GoLiveDate:           time.Now().Add(90 * 24 * time.Hour).Format("2006-01-02"),
-		AccountManagerUserID: "test-account-manager",
-		Notes:                "Test program",
-		CreatedAt:            time.Now(),
-		UpdatedAt:            time.Now(),
-	}
-
-	query := `
-		INSERT INTO school_service_programs
-		(id, tenant_id, school_id, status, current_phase, start_date, go_live_date,
-		 account_manager_user_id, notes, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-	`
-
-	_, err := pool.Exec(context.Background(), query,
-		program.ID, program.TenantID, program.SchoolID,
-		program.Status, program.CurrentPhase, program.StartDate, program.GoLiveDate,
-		program.AccountManagerUserID, program.Notes,
-		program.CreatedAt, program.UpdatedAt,
-	)
-	require.NoError(t, err, "failed to create program")
-
-	return program
-}
-
 // CreateAttachment creates a test attachment in the database.
 func CreateAttachment(t *testing.T, pool *pgxpool.Pool, cfg FixtureConfig, entityType models.AttachmentEntityType, entityID string) models.Attachment {
 	t.Helper()

@@ -446,7 +446,7 @@ func TestWorkOrderRepo_ListByPhase(t *testing.T) {
 			wo.ID = "wo-phase-001"
 			wo.TenantID = tenantID
 			wo.SchoolID = schoolID
-			wo.ProgramID = "program-001"
+			wo.ProjectID = "project-001"
 			wo.PhaseID = "phase-001"
 			wo.CreatedAt = now.Add(-3 * time.Hour)
 			wo.UpdatedAt = now.Add(-3 * time.Hour)
@@ -457,7 +457,7 @@ func TestWorkOrderRepo_ListByPhase(t *testing.T) {
 			wo.ID = "wo-phase-002"
 			wo.TenantID = tenantID
 			wo.SchoolID = schoolID
-			wo.ProgramID = "program-001"
+			wo.ProjectID = "project-001"
 			wo.PhaseID = "phase-001"
 			wo.CreatedAt = now.Add(-2 * time.Hour)
 			wo.UpdatedAt = now.Add(-2 * time.Hour)
@@ -468,7 +468,7 @@ func TestWorkOrderRepo_ListByPhase(t *testing.T) {
 			wo.ID = "wo-phase-003"
 			wo.TenantID = tenantID
 			wo.SchoolID = schoolID
-			wo.ProgramID = "program-001"
+			wo.ProjectID = "project-001"
 			wo.PhaseID = "phase-002" // Different phase
 			wo.CreatedAt = now.Add(-1 * time.Hour)
 			wo.UpdatedAt = now.Add(-1 * time.Hour)

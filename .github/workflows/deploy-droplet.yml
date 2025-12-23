@@ -52,12 +52,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: dashboard/package-lock.json
 
-      # Go linting
+      # Go linting - run for each module in the workspace
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: latest
-        continue-on-error: true
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
+          for dir in services/ims-api services/ssot-school services/ssot-devices services/ssot-parts services/ssot-hr services/sync-worker shared; do
+            echo "Linting $dir..."
+            cd $dir
+            $(go env GOPATH)/bin/golangci-lint run ./...
+            cd -
+          done
 
       # Go tests - run in each service directory (go.work workspace)
       - name: Run Go tests

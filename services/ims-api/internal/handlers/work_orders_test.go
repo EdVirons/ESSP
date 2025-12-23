@@ -22,11 +22,11 @@ import (
 
 func TestWorkOrderHandler_Create(t *testing.T) {
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
+	mockAudit := mocks.NewMockAuditLogger()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewWorkOrderHandler(logger, pg, mockRedis)
+	handler := handlers.NewWorkOrderHandler(logger, pg, nil, mockAudit)
 
 	// Setup test fixtures
 	fixtureConfig := testutil.DefaultFixtureConfig()
@@ -148,11 +148,11 @@ func TestWorkOrderHandler_Create(t *testing.T) {
 
 func TestWorkOrderHandler_GetByID(t *testing.T) {
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
+	mockAudit := mocks.NewMockAuditLogger()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewWorkOrderHandler(logger, pg, mockRedis)
+	handler := handlers.NewWorkOrderHandler(logger, pg, nil, mockAudit)
 
 	// Create test work order
 	fixtureConfig := testutil.DefaultFixtureConfig()
@@ -228,16 +228,16 @@ func TestWorkOrderHandler_GetByID(t *testing.T) {
 
 func TestWorkOrderHandler_List(t *testing.T) {
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
+	mockAudit := mocks.NewMockAuditLogger()
 
 	pg := testutil.SetupTestDB(t)
 	ctx := context.Background()
 
-	handler := handlers.NewWorkOrderHandler(logger, pg, mockRedis)
+	handler := handlers.NewWorkOrderHandler(logger, pg, nil, mockAudit)
 
 	// Create test work orders
 	fixtureConfig := testutil.DefaultFixtureConfig()
-	wo1 := testutil.CreateWorkOrder(t, pg.RawPool(), fixtureConfig, "", "dev-001")
+	_ = testutil.CreateWorkOrder(t, pg.RawPool(), fixtureConfig, "", "dev-001")
 	wo2 := testutil.CreateWorkOrder(t, pg.RawPool(), fixtureConfig, "", "dev-002")
 
 	// Update wo2 status for filtering test
@@ -331,11 +331,11 @@ func TestWorkOrderHandler_List(t *testing.T) {
 
 func TestWorkOrderHandler_UpdateStatus(t *testing.T) {
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
+	mockAudit := mocks.NewMockAuditLogger()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewWorkOrderHandler(logger, pg, mockRedis)
+	handler := handlers.NewWorkOrderHandler(logger, pg, nil, mockAudit)
 
 	// Create test work order
 	fixtureConfig := testutil.DefaultFixtureConfig()
@@ -419,11 +419,11 @@ func TestWorkOrderHandler_UpdateStatus(t *testing.T) {
 
 func TestWorkOrderHandler_StatusTransitions(t *testing.T) {
 	logger := zap.NewNop()
-	mockRedis := mocks.NewMockRedisClient()
+	mockAudit := mocks.NewMockAuditLogger()
 
 	pg := testutil.SetupTestDB(t)
 
-	handler := handlers.NewWorkOrderHandler(logger, pg, mockRedis)
+	handler := handlers.NewWorkOrderHandler(logger, pg, nil, mockAudit)
 	fixtureConfig := testutil.DefaultFixtureConfig()
 
 	// Test valid transition sequence: draft -> assigned -> in_repair -> qa -> completed -> approved
