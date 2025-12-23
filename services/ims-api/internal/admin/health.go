@@ -53,7 +53,7 @@ func (h *Handler) GetServicesHealth(w http.ResponseWriter, r *http.Request) {
 
 	resp := HealthResponse{Services: results}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func checkServiceHealth(ctx context.Context, name, endpoint string) ServiceHealth {

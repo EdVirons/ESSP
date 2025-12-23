@@ -54,7 +54,9 @@ func (m *MockRedisClient) Set(ctx context.Context, key string, value interface{}
 
 	m.trackCall("Set")
 
-	m.data[key] = value.(string)
+	if str, ok := value.(string); ok {
+		m.data[key] = str
+	}
 	if expiration > 0 {
 		m.ttls[key] = time.Now().Add(expiration)
 	} else {

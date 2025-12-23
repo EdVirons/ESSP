@@ -117,14 +117,14 @@ func (r *EdTechProfilesRepo) GetBySchoolID(ctx context.Context, tenantID, school
 		return models.EdTechProfile{}, err
 	}
 
-	// Unmarshal JSON fields
-	json.Unmarshal(deviceTypesJSON, &p.DeviceTypes)
-	json.Unmarshal(existingSoftwareJSON, &p.ExistingSoftware)
-	json.Unmarshal(painPointsJSON, &p.PainPoints)
-	json.Unmarshal(aiRecsJSON, &p.AIRecommendations)
-	json.Unmarshal(followUpQsJSON, &p.FollowUpQuestions)
-	json.Unmarshal(followUpRsJSON, &p.FollowUpResponses)
-	json.Unmarshal(priorityRankingJSON, &p.PriorityRanking)
+	// Unmarshal JSON fields (best-effort)
+	_ = json.Unmarshal(deviceTypesJSON, &p.DeviceTypes)
+	_ = json.Unmarshal(existingSoftwareJSON, &p.ExistingSoftware)
+	_ = json.Unmarshal(painPointsJSON, &p.PainPoints)
+	_ = json.Unmarshal(aiRecsJSON, &p.AIRecommendations)
+	_ = json.Unmarshal(followUpQsJSON, &p.FollowUpQuestions)
+	_ = json.Unmarshal(followUpRsJSON, &p.FollowUpResponses)
+	_ = json.Unmarshal(priorityRankingJSON, &p.PriorityRanking)
 
 	// Initialize nil slices/maps
 	if p.ExistingSoftware == nil {
@@ -194,14 +194,14 @@ func (r *EdTechProfilesRepo) GetByID(ctx context.Context, tenantID, id string) (
 		return models.EdTechProfile{}, err
 	}
 
-	// Unmarshal JSON fields
-	json.Unmarshal(deviceTypesJSON, &p.DeviceTypes)
-	json.Unmarshal(existingSoftwareJSON, &p.ExistingSoftware)
-	json.Unmarshal(painPointsJSON, &p.PainPoints)
-	json.Unmarshal(aiRecsJSON, &p.AIRecommendations)
-	json.Unmarshal(followUpQsJSON, &p.FollowUpQuestions)
-	json.Unmarshal(followUpRsJSON, &p.FollowUpResponses)
-	json.Unmarshal(priorityRankingJSON, &p.PriorityRanking)
+	// Unmarshal JSON fields (best-effort)
+	_ = json.Unmarshal(deviceTypesJSON, &p.DeviceTypes)
+	_ = json.Unmarshal(existingSoftwareJSON, &p.ExistingSoftware)
+	_ = json.Unmarshal(painPointsJSON, &p.PainPoints)
+	_ = json.Unmarshal(aiRecsJSON, &p.AIRecommendations)
+	_ = json.Unmarshal(followUpQsJSON, &p.FollowUpQuestions)
+	_ = json.Unmarshal(followUpRsJSON, &p.FollowUpResponses)
+	_ = json.Unmarshal(priorityRankingJSON, &p.PriorityRanking)
 
 	return p, nil
 }

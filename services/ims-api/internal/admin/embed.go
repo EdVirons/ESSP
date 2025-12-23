@@ -22,7 +22,7 @@ func ServeDashboard(r chi.Router) {
 		r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`<!DOCTYPE html>
+			_, _ = w.Write([]byte(`<!DOCTYPE html>
 <html>
 <head><title>ESSP Admin Dashboard</title></head>
 <body>
@@ -70,7 +70,7 @@ func ServeDashboard(r chi.Router) {
 				}
 				w.Header().Set("Content-Type", contentType)
 				w.WriteHeader(http.StatusOK)
-				w.Write(content)
+				_, _ = w.Write(content)
 				return
 			}
 		}
@@ -84,7 +84,7 @@ func ServeDashboard(r chi.Router) {
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		w.Write(indexContent)
+		_, _ = w.Write(indexContent)
 	})
 }
 
@@ -135,5 +135,5 @@ func (h *spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write(indexContent)
+	_, _ = w.Write(indexContent)
 }
