@@ -172,7 +172,7 @@ func (s *Server) GetOrgTree(w http.ResponseWriter, r *http.Request) {
 		if err == nil && cached != "" {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)
-			w.Write([]byte(cached))
+			_, _ = w.Write([]byte(cached))
 			return
 		}
 	}
