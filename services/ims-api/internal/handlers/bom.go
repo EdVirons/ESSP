@@ -145,7 +145,7 @@ func (h *BOMHandler) pgTx(ctx context.Context, fn func(context.Context, store.Tx
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	if err := fn(ctx, tx); err != nil {
 		return err

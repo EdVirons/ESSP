@@ -199,7 +199,7 @@ func (h *AIChatHandler) HandleAIMessage(w http.ResponseWriter, r *http.Request) 
 	// Check if AI resolved the issue
 	if decision != nil && decision.Resolved {
 		resolved := true
-		h.pg.ChatSessions().UpdateAIResolution(ctx, tenantID, sessionID, resolved)
+		_ = h.pg.ChatSessions().UpdateAIResolution(ctx, tenantID, sessionID, resolved)
 	}
 
 	// Log conversation turn
@@ -356,10 +356,10 @@ func (h *AIChatHandler) handleEscalation(ctx context.Context, tenantID, sessionI
 	summary := claude.BuildEscalationSummary(signals, decision, 0, history)
 
 	// Update session status to waiting
-	h.pg.ChatSessions().EscalateToHuman(ctx, tenantID, sessionID, reason, summary)
+	_ = h.pg.ChatSessions().EscalateToHuman(ctx, tenantID, sessionID, reason, summary)
 
 	// Update queue positions
-	h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
+	_ = h.pg.ChatSessions().UpdateQueuePositions(ctx, tenantID)
 
 	// Get session for thread ID
 	session, _ := h.pg.ChatSessions().GetSessionByID(ctx, tenantID, sessionID)
@@ -384,11 +384,11 @@ func (h *AIChatHandler) handleEscalation(ctx context.Context, tenantID, sessionI
 
 func (h *AIChatHandler) updateSessionAIData(ctx context.Context, tenantID, sessionID string, decision *claude.AIDecisionData, turns int) {
 	if decision == nil {
-		h.pg.ChatSessions().IncrementAITurns(ctx, tenantID, sessionID)
+		_ = h.pg.ChatSessions().IncrementAITurns(ctx, tenantID, sessionID)
 		return
 	}
 
-	h.pg.ChatSessions().UpdateAISessionData(ctx, tenantID, sessionID, turns, decision.Category, decision.Severity, decision.CollectedInfo)
+	_ = h.pg.ChatSessions().UpdateAISessionData(ctx, tenantID, sessionID, turns, decision.Category, decision.Severity, decision.CollectedInfo)
 }
 
 func (h *AIChatHandler) logConversationTurn(ctx context.Context, tenantID, sessionID string, turnNumber int, userMsg string, aiResp *claude.AIResponse, signals claude.EscalationSignals, ssotCtx *claude.SSOTContext) {
@@ -408,7 +408,7 @@ func (h *AIChatHandler) logConversationTurn(ctx context.Context, tenantID, sessi
 		CreatedAt:             time.Now().UTC(),
 	}
 
-	h.pg.ChatSessions().LogAIConversationTurn(ctx, turn)
+	_ = h.pg.ChatSessions().LogAIConversationTurn(ctx, turn)
 }
 
 func (h *AIChatHandler) broadcastMessage(tenantID, threadID string, message models.Message) {

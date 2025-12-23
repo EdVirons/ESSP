@@ -224,7 +224,7 @@ func (r *MessagingRepo) UpdateThreadLastMessage(ctx context.Context, tenantID, t
 
 // CreateMessage creates a new message
 func (r *MessagingRepo) CreateMessage(ctx context.Context, m models.Message) error {
-	metadataBytes, _ := json.Marshal(m.Metadata)
+	metadataBytes, _ := json.Marshal(m.Metadata) //nolint:errcheck // best-effort encoding
 	if m.Metadata == nil {
 		metadataBytes = []byte("{}")
 	}
@@ -309,7 +309,7 @@ func (r *MessagingRepo) ListMessages(ctx context.Context, p MessageListParams) (
 			return nil, "", err
 		}
 		if len(metadataBytes) > 0 {
-			json.Unmarshal(metadataBytes, &m.Metadata)
+			_ = json.Unmarshal(metadataBytes, &m.Metadata)
 		}
 		messages = append(messages, m)
 	}
@@ -345,7 +345,7 @@ func (r *MessagingRepo) GetLastMessage(ctx context.Context, threadID string) (mo
 	}
 
 	if len(metadataBytes) > 0 {
-		json.Unmarshal(metadataBytes, &m.Metadata)
+		_ = json.Unmarshal(metadataBytes, &m.Metadata)
 	}
 
 	return m, nil
@@ -569,7 +569,7 @@ func (r *MessagingRepo) SearchMessages(ctx context.Context, tenantID, schoolID, 
 		}
 
 		if len(metadataBytes) > 0 {
-			json.Unmarshal(metadataBytes, &m.Metadata)
+			_ = json.Unmarshal(metadataBytes, &m.Metadata)
 		}
 
 		results = append(results, models.MessageSearchResult{
@@ -605,7 +605,7 @@ func (r *MessagingRepo) GetThreadMessages(ctx context.Context, tenantID, threadI
 			return nil, err
 		}
 		if len(metadataBytes) > 0 {
-			json.Unmarshal(metadataBytes, &m.Metadata)
+			_ = json.Unmarshal(metadataBytes, &m.Metadata)
 		}
 		messages = append(messages, m)
 	}
@@ -639,7 +639,7 @@ func (r *MessagingRepo) GetMessagingAnalytics(ctx context.Context, tenantID stri
 		FROM messages
 		WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
 	`, tenantID, from, to)
-	row.Scan(&analytics.MessagesSent)
+	_ = row.Scan(&analytics.MessagesSent)
 
 	// Get chat session stats
 	row = r.pool.QueryRow(ctx, `
@@ -649,7 +649,7 @@ func (r *MessagingRepo) GetMessagingAnalytics(ctx context.Context, tenantID stri
 		FROM chat_sessions
 		WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
 	`, tenantID, from, to)
-	row.Scan(&analytics.ChatSessions, &analytics.AvgChatRating)
+	_ = row.Scan(&analytics.ChatSessions, &analytics.AvgChatRating)
 
 	return analytics, nil
 }

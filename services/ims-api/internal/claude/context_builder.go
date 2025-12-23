@@ -169,7 +169,7 @@ func (cb *ContextBuilder) fetchHistoryContext(ctx context.Context, tenantID, sch
 		FROM work_orders
 		WHERE tenant_id = $1 AND school_id = $2 AND status = 'completed'
 	`
-	cb.pool.QueryRow(ctx, repairQuery, tenantID, schoolID).Scan(&history.TotalRepairs)
+	_ = cb.pool.QueryRow(ctx, repairQuery, tenantID, schoolID).Scan(&history.TotalRepairs)
 
 	// Get common issue categories
 	categoryQuery := `

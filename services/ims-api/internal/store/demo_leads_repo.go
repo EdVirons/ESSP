@@ -64,7 +64,7 @@ func (r *DemoLeadsRepo) GetByID(ctx context.Context, tenantID, id string) (model
 		return models.DemoLead{}, err
 	}
 
-	json.Unmarshal(tagsJSON, &lead.Tags)
+	_ = json.Unmarshal(tagsJSON, &lead.Tags)
 	if lead.Tags == nil {
 		lead.Tags = []string{}
 	}
@@ -150,7 +150,7 @@ func (r *DemoLeadsRepo) List(ctx context.Context, tenantID string, filters model
 		); err != nil {
 			return nil, 0, err
 		}
-		json.Unmarshal(tagsJSON, &lead.Tags)
+		_ = json.Unmarshal(tagsJSON, &lead.Tags)
 		if lead.Tags == nil {
 			lead.Tags = []string{}
 		}
@@ -333,7 +333,7 @@ func (r *DemoLeadsRepo) GetPipelineSummary(ctx context.Context, tenantID string)
 
 	// Get conversion rate (won / total closed)
 	var won, lost int
-	r.pool.QueryRow(ctx, `
+	_ = r.pool.QueryRow(ctx, `
 		SELECT
 			COUNT(*) FILTER (WHERE stage = 'won'),
 			COUNT(*) FILTER (WHERE stage = 'lost')
@@ -498,7 +498,7 @@ func (r *DemoSchedulesRepo) GetNextByLead(ctx context.Context, tenantID, leadID 
 		return nil, err
 	}
 
-	json.Unmarshal(attendeesJSON, &schedule.Attendees)
+	_ = json.Unmarshal(attendeesJSON, &schedule.Attendees)
 	if schedule.Attendees == nil {
 		schedule.Attendees = []models.DemoAttendee{}
 	}

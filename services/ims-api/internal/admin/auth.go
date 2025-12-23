@@ -193,7 +193,7 @@ func (a *AdminAuth) Logout(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 // Me returns the current authenticated user
@@ -263,7 +263,7 @@ func (a *AdminAuth) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 // AdminAuthMiddleware is a middleware that validates admin authentication
@@ -312,7 +312,7 @@ func (a *AdminAuth) AdminAuthMiddleware(next http.Handler) http.Handler {
 func (a *AdminAuth) sendLoginResponse(w http.ResponseWriter, status int, success bool, message string, user *User) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(LoginResponse{
+	_ = json.NewEncoder(w).Encode(LoginResponse{
 		Success: success,
 		Message: message,
 		User:    user,
@@ -323,7 +323,7 @@ func (a *AdminAuth) sendLoginResponse(w http.ResponseWriter, status int, success
 func (a *AdminAuth) sendMeResponse(w http.ResponseWriter, authenticated bool, user *User) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(MeResponse{
+	_ = json.NewEncoder(w).Encode(MeResponse{
 		Authenticated: authenticated,
 		User:          user,
 	})
