@@ -214,12 +214,12 @@ export function Incidents() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Incidents</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Incidents</h1>
           <p className="text-sm text-gray-500">Manage device incidents and issues</p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
+        <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Create Incident
         </Button>

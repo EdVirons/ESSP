@@ -369,3 +369,111 @@ input:focus, textarea:focus, select:focus {
   transform: translateY(0);
   transition: all 0.3s ease-out;
 }
+
+/* =================================================================
+   Mobile Responsive Utilities
+   ================================================================= */
+
+/* Safe area handling for notched phones (iPhone X+, etc.) */
+.safe-area-inset-top {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+
+.safe-area-inset-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+.safe-area-inset-left {
+  padding-left: max(env(safe-area-inset-left), 0px);
+}
+
+.safe-area-inset-right {
+  padding-right: max(env(safe-area-inset-right), 0px);
+}
+
+/* Bottom nav safe area with minimum padding */
+.safe-bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom), 16px);
+}
+
+/* Touch-friendly targets (Apple HIG recommends minimum 44px) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-sm {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+/* Prevent text zoom on iOS when input has font-size < 16px */
+input, textarea, select {
+  font-size: max(16px, 1em);
+}
+
+@media (min-width: 768px) {
+  input, textarea, select {
+    font-size: inherit;
+  }
+}
+
+/* Improve touch scrolling */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Hide on mobile (show on md+) */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+}
+
+/* Show only on mobile (hide on md+) */
+.show-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .show-mobile {
+    display: none;
+  }
+}
+
+/* Responsive text that doesn't overflow */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Full-width button on mobile */
+.btn-mobile-full {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .btn-mobile-full {
+    width: auto;
+  }
+}
+
+/* Stack elements on mobile, row on desktop */
+.stack-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .stack-mobile {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}

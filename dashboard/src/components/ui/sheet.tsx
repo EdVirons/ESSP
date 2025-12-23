@@ -14,10 +14,10 @@ interface SheetProps {
 }
 
 const sideStyles: Record<SheetSide, string> = {
-  left: 'inset-y-0 left-0 h-full w-full max-w-md data-[state=open]:animate-slide-in-from-left',
-  right: 'inset-y-0 right-0 h-full w-full max-w-md data-[state=open]:animate-slide-in-from-right',
-  top: 'inset-x-0 top-0 w-full max-h-[80vh] data-[state=open]:animate-slide-in-from-top',
-  bottom: 'inset-x-0 bottom-0 w-full max-h-[80vh] data-[state=open]:animate-slide-in-from-bottom',
+  left: 'inset-y-0 left-0 h-full w-full sm:max-w-md data-[state=open]:animate-slide-in-from-left',
+  right: 'inset-y-0 right-0 h-full w-full sm:max-w-md data-[state=open]:animate-slide-in-from-right',
+  top: 'inset-x-0 top-0 w-full max-h-[85vh] data-[state=open]:animate-slide-in-from-top',
+  bottom: 'inset-x-0 bottom-0 w-full max-h-[85vh] rounded-t-2xl data-[state=open]:animate-slide-in-from-bottom safe-area-inset-bottom',
 };
 
 export function Sheet({ open, onClose, children, side = 'right', className }: SheetProps) {

@@ -176,12 +176,12 @@ export function Schools() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Schools</h1>
-          <p className="text-gray-500">Browse and search schools from the SSOT registry</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Schools</h1>
+          <p className="text-sm text-gray-500">Browse and search schools from the SSOT registry</p>
         </div>
-        <Button onClick={handleSync} disabled={syncSchools.isPending}>
+        <Button onClick={handleSync} disabled={syncSchools.isPending} className="w-full sm:w-auto">
           <RefreshCw
             className={`mr-2 h-4 w-4 ${syncSchools.isPending ? 'animate-spin' : ''}`}
           />
@@ -190,7 +190,7 @@ export function Schools() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">

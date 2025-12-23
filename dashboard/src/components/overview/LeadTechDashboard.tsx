@@ -83,7 +83,7 @@ export function LeadTechDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <Link
           to="/work-orders?status=pending_approval"
           className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"

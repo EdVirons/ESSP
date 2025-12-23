@@ -60,6 +60,18 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
     },
+
+    // Mobile visual responsiveness testing (uses Chromium for better Linux support)
+    {
+      name: 'mobile-visual',
+      testMatch: /mobile-responsiveness\/.*\.spec\.ts/,
+      use: {
+        ...devices['Pixel 5'],
+        screenshot: 'on',
+        video: 'off',
+        trace: 'off',
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */

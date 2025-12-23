@@ -31,8 +31,8 @@ export function WorkOrdersFilters({
   return (
     <Card className="border-0 shadow-md">
       <CardContent className="p-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search work orders..."

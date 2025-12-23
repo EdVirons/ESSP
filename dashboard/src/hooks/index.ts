@@ -6,3 +6,12 @@ export { useDeviceSelection } from './useDeviceSelection';
 export { useDefaultRoute } from './useDefaultRoute';
 export { useWarehouseDashboard } from './useWarehouseDashboard';
 export { useLeadTechDashboard } from './useLeadTechDashboard';
+export {
+  useMediaQuery,
+  useBreakpoint,
+  useBreakpointBelow,
+  useIsMobile,
+  useIsTablet,
+  useIsDesktop,
+  useCurrentBreakpoint,
+} from './useMediaQuery';

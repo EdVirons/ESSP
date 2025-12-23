@@ -36,7 +36,7 @@ export function KBStats({ stats, isLoading }: KBStatsProps) {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       {cards.map((card) => (
         <Card key={card.label}>
           <CardContent className="flex items-center p-4">

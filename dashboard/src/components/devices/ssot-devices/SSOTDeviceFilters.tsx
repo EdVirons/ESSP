@@ -44,9 +44,9 @@ export function SSOTDeviceFilters({
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="flex flex-wrap gap-4 items-end">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4 sm:items-end">
           {/* Search */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="w-full sm:flex-1 sm:min-w-[200px]">
             <label className="text-sm font-medium text-gray-700 mb-1.5 block">
               Search
             </label>

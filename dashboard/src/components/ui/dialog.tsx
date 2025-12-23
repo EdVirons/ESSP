@@ -95,7 +95,7 @@ function DialogContent({ className, children, ...props }: DialogContentProps) {
       {/* Content */}
       <div
         className={cn(
-          "relative z-50 w-full max-w-lg rounded-lg bg-white p-6 shadow-lg",
+          "relative z-50 w-[calc(100%-2rem)] sm:w-full max-w-lg mx-4 sm:mx-auto rounded-lg bg-white p-4 sm:p-6 shadow-lg max-h-[90vh] overflow-y-auto",
           "animate-in fade-in-0 zoom-in-95",
           className
         )}

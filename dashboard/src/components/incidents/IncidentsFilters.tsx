@@ -47,8 +47,8 @@ export function IncidentsFilters({
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search incidents..."
@@ -79,8 +79,8 @@ export function IncidentsFilters({
 
         {showFilters && (
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex-1 min-w-[300px]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="w-full sm:flex-1 sm:min-w-[300px]">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date Range
                 </label>

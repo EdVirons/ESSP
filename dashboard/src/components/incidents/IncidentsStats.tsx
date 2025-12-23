@@ -17,7 +17,7 @@ export function IncidentsStats({ incidents }: IncidentsStatsProps) {
   ).length;
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-3">

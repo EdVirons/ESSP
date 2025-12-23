@@ -97,9 +97,9 @@ export function DevicesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">SSOT Devices</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">SSOT Devices</h1>
           <p className="text-sm text-gray-500 mt-1">
             Device inventory from Single Source of Truth
           </p>
@@ -109,7 +109,7 @@ export function DevicesPage() {
             variant="outline"
             onClick={handleSync}
             disabled={syncDevices.isPending}
-            className="gap-2"
+            className="w-full sm:w-auto gap-2"
           >
             <RefreshCw className={cn('h-4 w-4', syncDevices.isPending && 'animate-spin')} />
             Sync from SSOT

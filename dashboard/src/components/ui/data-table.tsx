@@ -116,10 +116,10 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex items-center gap-2 flex-1">
           {searchKey && (
-            <div className="relative max-w-sm">
+            <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder={searchPlaceholder}
@@ -130,7 +130,7 @@ export function DataTable<TData, TValue>({
             </div>
           )}
           {!searchKey && (
-            <div className="relative max-w-sm">
+            <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder={searchPlaceholder}
@@ -142,7 +142,7 @@ export function DataTable<TData, TValue>({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-end">
           {selectedCount > 0 && bulkActions && (
             <div className="flex items-center gap-2 mr-2">
               <span className="text-sm text-gray-500">{selectedCount} selected</span>
@@ -157,8 +157,8 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-md border border-gray-200 overflow-x-auto mobile-scroll">
+        <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-gray-50 border-b border-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>

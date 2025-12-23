@@ -127,20 +127,20 @@ export function KnowledgeBase() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-emerald-100 p-2">
-            <BookOpen className="h-6 w-6 text-emerald-600" />
+            <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Knowledge Base</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Knowledge Base</h1>
             <p className="text-sm text-gray-500">
               Technical documentation for field operations
             </p>
           </div>
         </div>
         {canCreate && (
-          <Button onClick={() => setCreateModalOpen(true)}>
+          <Button onClick={() => setCreateModalOpen(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Create Article
           </Button>

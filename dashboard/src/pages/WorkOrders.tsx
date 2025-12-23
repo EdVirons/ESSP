@@ -208,21 +208,21 @@ export function WorkOrders() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 p-6 text-white shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-              <Wrench className="h-7 w-7 text-white" />
+      <div className="rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 p-4 sm:p-6 text-white shadow-lg">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+              <Wrench className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Work Orders</h1>
-              <p className="text-blue-100">
+              <h1 className="text-xl sm:text-2xl font-bold">Work Orders</h1>
+              <p className="text-sm sm:text-base text-blue-100">
                 Manage repair work orders and assignments
               </p>
             </div>
           </div>
           <PermissionGate permissions={['workorder:create']}>
-            <Button onClick={() => setShowCreateModal(true)} className="bg-white text-blue-700 hover:bg-blue-50">
+            <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto bg-white text-blue-700 hover:bg-blue-50">
               <Plus className="h-4 w-4" />
               Create Work Order
             </Button>

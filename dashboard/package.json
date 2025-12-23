@@ -16,7 +16,10 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "test:mobile": "playwright test --project=mobile-visual",
+    "test:mobile:headed": "playwright test --project=mobile-visual --headed",
+    "test:mobile:report": "open mobile-screenshots/report.html || xdg-open mobile-screenshots/report.html"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

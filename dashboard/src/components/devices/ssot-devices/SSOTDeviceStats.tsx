@@ -8,7 +8,7 @@ interface SSOTDeviceStatsProps {
 
 export function SSOTDeviceStats({ stats }: SSOTDeviceStatsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Total Devices</CardTitle>

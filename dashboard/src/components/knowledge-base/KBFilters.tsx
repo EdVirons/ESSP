@@ -41,8 +41,8 @@ export function KBFilters({
   hasFilters,
 }: KBFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="relative flex-1 min-w-[200px] max-w-sm">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+      <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search articles..."
