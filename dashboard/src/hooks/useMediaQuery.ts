@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useSyncExternalStore, useCallback } from 'react';
 
 /**
  * Tailwind CSS breakpoint values
@@ -15,38 +15,29 @@ type Breakpoint = keyof typeof BREAKPOINTS;
 
 /**
  * Hook to check if a media query matches
+ * Uses useSyncExternalStore for proper React 18+ compatibility
  * @param query - CSS media query string (e.g., "(min-width: 768px)")
  * @returns boolean indicating if the query matches
  */
 export function useMediaQuery(query: string): boolean {
-  const getMatches = useCallback((): boolean => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener('change', callback);
+      return () => mq.removeEventListener('change', callback);
+    },
+    [query]
+  );
+
+  const getSnapshot = useCallback(() => {
     return window.matchMedia(query).matches;
   }, [query]);
 
-  const [matches, setMatches] = useState<boolean>(getMatches);
+  const getServerSnapshot = useCallback(() => {
+    return false; // Default to false on server
+  }, []);
 
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    // Set initial value
-    setMatches(mq.matches);
-
-    // Listen for changes
-    mq.addEventListener('change', handleChange);
-
-    return () => {
-      mq.removeEventListener('change', handleChange);
-    };
-  }, [query]);
-
-  return matches;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /**

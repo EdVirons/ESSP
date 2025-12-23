@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { loginAs, type UserRole } from '../fixtures/test-utils';
 import { MOBILE_VIEWPORTS, MOBILE_HEIGHT, ROLE_PAGES, OUTPUT_CONFIG } from './config';
 import * as fs from 'fs';
