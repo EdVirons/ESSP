@@ -216,7 +216,7 @@ func derivePermissionsFromRoles(roles []string) []string {
 func sendJSONError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
 // logError creates a zap field for an error

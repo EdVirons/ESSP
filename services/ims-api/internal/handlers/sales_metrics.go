@@ -87,7 +87,7 @@ func (h *SalesMetricsHandler) GetDashboard(w http.ResponseWriter, r *http.Reques
 	schoolsByRegion := h.getSchoolsByRegion(r, tenant)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"metrics":          metricsSummary,
 		"pipelineStages":   pipelineSummary.Stages,
 		"recentActivities": activities,
@@ -150,7 +150,7 @@ func (h *SalesMetricsHandler) GetMetricsSummary(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(summary)
+	_ = json.NewEncoder(w).Encode(summary)
 }
 
 // GetPipelineStages returns the current pipeline stage counts.
