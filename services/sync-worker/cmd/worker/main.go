@@ -40,7 +40,7 @@ func main() {
 	if err != nil {
 		log.Fatal("nats connect failed", zap.Error(err))
 	}
-	defer nc.Drain()
+	defer func() { _ = nc.Drain() }()
 	log.Info("nats connected", zap.String("url", cfg.NATSURL))
 
 	// Create sync worker
